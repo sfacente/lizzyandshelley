@@ -16,6 +16,7 @@ df.labels <- as.data.frame(attr(df, "variable.labels"))
 QDSlabels <- data.frame(rownames(df.labels))
 df.labels <- cbind(QDSlabels, df.labels)
 names(df.labels) <- c("VAR_ID", "description")
+rm(QDSlabels)
 
 #inspect the data
 names(df)
