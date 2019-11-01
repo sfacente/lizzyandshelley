@@ -71,6 +71,9 @@ table(df$HOUSED, useNA = "ifany")
 
 ```
 
+```{r analysis, include=TRUE}
+
+```
 
 
 
