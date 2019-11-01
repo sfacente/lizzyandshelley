@@ -1,0 +1,10 @@
+setwd("~/Box Sync/242FinalProject/Dataset")
+
+library(here)
+library(foreign)
+
+df <- read.spss("Ricky.SAV", use.value.label=TRUE, to.data.frame=TRUE)
+
+#inspect the data
+names(df)
+length(unique(df$SUBJECT))
