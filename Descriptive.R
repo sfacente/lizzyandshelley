@@ -1,5 +1,5 @@
 #set working directory
-setwd("~/Box Sync/242FinalProject/Dataset") #LIZZY
+setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
 #setwd("C:/Users/shell/Box Sync/242FinalProject")  #SHELLEY
 
 
