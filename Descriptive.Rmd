@@ -50,22 +50,22 @@ dfs <- dfc %>%
 #inspect the data
 names(df)
 dim(df)
-length(unique(df$SUBJECT))
+length(unique(dfc$SUBJECT))
 
-table(df$GENDER, useNA = "ifany")
-table(df$FU1, useNA = "ifany")
-table(df$FU2, useNA = "ifany")
+table(dfc$GENDER, useNA = "ifany")
+table(dfc$FU1, useNA = "ifany")
+table(dfc$FU2, useNA = "ifany")
 
 
 #look at homeless variables
-table(df$HOMELESS, useNA = "ifany")
-table(df$HOMELESS1, useNA = "ifany")
-table(df$HOMELESS2, useNA = "ifany")
+table(dfc$HOMELESS, useNA = "ifany")
+table(dfc$HOMELESS1, useNA = "ifany")
+table(dfc$HOMELESS2, useNA = "ifany")
 
 #look at homeless variables ricky created
-table(df$NVHOUSED, useNA = "ifany")
-table(df$ALWYSHL, useNA = "ifany")
-table(df$HOUSED, useNA = "ifany")
+table(dfc$NVHOUSED, useNA = "ifany")
+table(dfc$ALWYSHL, useNA = "ifany")
+table(dfc$HOUSED, useNA = "ifany")
 
 #look at initiation variables
 
