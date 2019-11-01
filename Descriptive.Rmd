@@ -50,26 +50,40 @@ dfs <- dfc %>%
 #inspect the data
 names(df)
 dim(df)
-length(unique(dfc$SUBJECT))
+length(unique(dfs$SUBJECT))
 
-table(dfc$GENDER, useNA = "ifany")
-table(dfc$FU1, useNA = "ifany")
-table(dfc$FU2, useNA = "ifany")
+table(dfs$GENDER, useNA = "ifany")
+table(dfs$FU1, useNA = "ifany")
+table(dfs$FU2, useNA = "ifany")
 
 
 #look at homeless variables
-table(dfc$HOMELESS, useNA = "ifany")
-table(dfc$HOMELESS1, useNA = "ifany")
-table(dfc$HOMELESS2, useNA = "ifany")
+table(dfs$HOMELESS, useNA = "ifany")
+table(dfs$HOMELESS1, useNA = "ifany")
+table(dfs$HOMELESS2, useNA = "ifany")
 
 #look at homeless variables ricky created
-table(dfc$NVHOUSED, useNA = "ifany")
-table(dfc$ALWYSHL, useNA = "ifany")
-table(dfc$HOUSED, useNA = "ifany")
+table(dfs$NVHOUSED, useNA = "ifany")
+table(dfs$ALWYSHL, useNA = "ifany")
+table(dfs$HOUSED, useNA = "ifany")
 
 #look at initiation variables
+apply(dfs[c("HLP6M", "HLP6M1", "HLP6M2")], 2, table)
+
+#look at arrest
+table(dfs$ARREST2, useNA = "ifany")
 
 ```
+
+Questions for Ricky:
+
+1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever).
+
+2. Do you have a question for helping to inject someone ever, or is it only for the first hit in all cases? 
+
+3. Why are the values for the "helping others to initiate" timepoints so odd? (SEE LINE 71)
+
+4. You have a question in the 12 month survey for "ever arrested" and we assume that's why there so many NAs for the question about arrest in the past 6 months at the 12-month follow-up (ARREST2). a) this wasn't asked before the 12-month f/u, right? b) what is the variable name for the "ever arrested" question at 12-months? 
 
 ```{r analysis, include=TRUE}
 
