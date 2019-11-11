@@ -17,8 +17,8 @@ library(dplyr)
 
 ```{r dataload, include=FALSE}
 #set working directory
-#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -73,17 +73,34 @@ apply(dfs[c("HLP6M", "HLP6M1", "HLP6M2")], 2, table)
 #look at arrest
 table(dfs$ARREST2, useNA = "ifany")
 
+#look at public injecting variables. could dichotomize never vs at all.
+#could look at homelessness - public injection association
+#could look at public injecting leads to sharing syringes more often.
+#seems to be big diff in syringe sharing between LA and SF
+table(dfs$PUBINJ)
+table(dfs$PUBINJ1)
+table(dfs$PUBINJ2)
+
+#look at syringe sharing variable
+table(dfc$Rshare)
+table(dfc$Rshare1)
+table(dfc$Rshare2)
 ```
 
 Questions for Ricky:
 
-1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever).
+1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever). Ignore this variable.
 
-2. Do you have a question for helping to inject someone ever, or is it only for the first hit in all cases? 
+Homelessness dependent variable. Changes in drug use affect changes in homelessness? Could use the her_sum, coke_sum, etc. If someone said don't know it ends up as a negative one. Sum is how many times they used any kind of opioid (heroin, speedball, prescription opioids). Number of times they used they substance in the past 30 days (count data). 
 
-3. Why are the values for the "helping others to initiate" timepoints so odd? (SEE LINE 71)
 
 4. You have a question in the 12 month survey for "ever arrested" and we assume that's why there so many NAs for the question about arrest in the past 6 months at the 12-month follow-up (ARREST2). a) this wasn't asked before the 12-month f/u, right? b) what is the variable name for the "ever arrested" question at 12-months? 
+
+FU1 and FU2
+
+Some people reported stopping drug use, what predicts this? 
+
+Covariates: demographics. SSI (INCOME),  
 
 ```{r analysis, include=TRUE}
 
