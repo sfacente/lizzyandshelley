@@ -13,12 +13,15 @@ library(here)
 library(foreign)
 library(labelled)
 library(dplyr)
+library(reshape2)
+library(lme4)
+library(MASS)
 ```
 
 ```{r dataload, include=FALSE}
 #set working directory
-setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -31,15 +34,28 @@ df.labels <- cbind(QDSlabels, df.labels)
 names(df.labels) <- c("VAR_ID", "description")
 rm(QDSlabels)
 
+#clean up data types
+df$MOSHOME <- as.numeric(df$MOSHOME)
+df$MOSHOME1 <- as.numeric(df$MOSHOME1)
+df$MOSHOME[is.na(df$MOSHOME)] <- 0
+df$MOSHOME1[is.na(df$MOSHOME1)] <- 0
+df$AGE <- as.numeric(df$AGE)
+df$Rshare1[is.na(df$Rshare1)] <- "No" ################
+df$HOMELESS1[is.na(df$HOMELESS1)] <- "No" ################
+df$IJWOTH1[is.na(df$IJWOTH1)] <- "Never (0% of the time)" ################
+df$PUBINJ1[is.na(df$PUBINJ1)] <- "Never (0% of the time)" ################
+df$Rshare1 <- factor(df$Rshare1)
+
 #reweight sample to address LTFU
 #df$I_A <- df$FU1 == "No" & df$FU2 == 0  #indicators, prob not needed
 #df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
 #df$I_AC <- df$FU1 == "No" & df$FU2 == 1
 #df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
-#gFU1 <- glm(FU1 ~ GENDER, family = "binomial", data = df) ####FAKETOTEST####
-gFU1 <- glm(FU1 ~ x + y + z, family = "binomial", data = df)
-#gFU2 <- glm(FU2 ~ FU1 + GENDER, family = "binomial", data = df) ####FAKETOTEST####
-gFU2 <- glm(FU2 ~ FU1 + x + y + z, family = "binomial", data = df) 
+gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+df <- subset(df, SUBJECT!=4394) ################
+df <- subset(df, SUBJECT!=4457) ################
+df <- subset(df, SUBJECT!=5267) ################
+gFU2 <- glm(FU2 ~ FU1 + Rshare1 + PUBINJ1 + HOMELESS1 + MOSHOME1 + IJWOTH1 + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
 df$pFU1 <- predict(gFU1, type = "response")
 df$pFU2 <- predict(gFU2, type = "response")
 df$wFU1 <- (df$FU1 == "Yes") * df$pFU1 + (df$FU1 == "No") * (1 - df$pFU1)
@@ -51,13 +67,26 @@ rm(gFU2)
 #select people with no LTFU
 #dfc <- subset(df, FU2==1 & FU1=="Yes")
 
+#create key variables not asked at baseline
+df$ARREST <- rep(NA)
+df$POLICE <- rep(NA)
+df$JAIL <- rep(NA)
+
 #select variables
 dfs <- df %>%
-  select("GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "NVHOUSED", 
-         "ALWYSHL", "HOUSED", "HLP6M", "HLP6M1", "HLP6M2", "NHLP6M", "NHLP6M1", "NHLP6M2", "NDLSRCF", "NDLSRCF1", 
-         "NDLSRCF2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "IJNON", "IJNON1", "IJNON2", 
-         "ODP6M", "ODP6M1", "ODP6M2", "ODTIMES1", "ODTIMES2", "WOD6M", "WOD6M1", "WOD6M2", "ODTRAIN1", "NALOWN1", 
-         "NALAVAIL1", "POLICE1", "POLICE2", "POLTIME1", "ARREST1", "ARREST2", "JAIL1", "JAIL2", "TX6MOS1", "TX6MOS2", "w")
+  dplyr::select("SUBJECT", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", 
+        "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "w")
+
+#make dataset long format
+dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ", "PUBINJ1", "PUBINJ2"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ", "IJWOTH", "POLICE", "ARREST", "JAIL"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
+
+#update variable types
+dfslong$TIMESHARE <- as.numeric(dfslong$TIMESHARE)
+dfslong$POLICE <- as.factor(dfslong$POLICE)
+dfslong$ARREST <- as.factor(dfslong$ARREST)
+dfslong$JAIL <- as.factor(dfslong$JAIL)
+dfslong$VISIT <- as.factor(dfslong$VISIT)
+dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
 ```
 
 ```{r dataplay, include=FALSE}
@@ -119,14 +148,20 @@ Some people reported stopping drug use, what predicts this?
 Covariates: demographics. SSI (INCOME),  
 
 ```{r analysis, include=TRUE}
-#examples of analysis using reweighted sample
-model <- glm(Y ~ X, weights = w, data = dfs, family = "binomial", na.action = na.omit)
-#model <- glm(HLP6M2 ~ JAIL1 + JAIL2, weights = w, data = dfs, family = "binomial", na.action = na.omit) ####FAKETOTEST####
-summary(model)
+#analysis using reweighted sample
+modelp <- glmer(log(TIMESHARE) ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", weights = w, data = dfslong, na.action = na.omit)
+summary(modelp)
+
+#modelnb <- glmer.nb(log(TIMESHARE) ~ PUBINJ + MOSHOME + IJWOTH + GENDER + AGE + RACELG + (1|SUBJECT), weights = w,  data = dfslong, na.action = na.omit)
+#summary(modelnb)
 ```
 
+Notes for Alan:
 
+(NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
 
+1) Something's not right with this model (see row 152). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
 
+2) When we tried to reweight the sample to address LTFU (using IP"FU"W) we ran into some problems with the glm. Ended up having to set NAs to zeros in some variables (not desired, see rows 43-46) as well as having to drop a few cases that still were causing problems with the predict function (see rows 55-57). Any ideas?
 
 
