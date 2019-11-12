@@ -94,63 +94,16 @@ dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
 #df.labels$description[df.labels$VAR_ID=="GENDER"]
 
 #inspect the data
-names(df)
-dim(df)
+names(dfslong)
+dim(dfslong)
 length(unique(dfs$SUBJECT))
-
-table(dfs$GENDER, useNA = "ifany")
-table(dfs$FU1, useNA = "ifany")
-table(dfs$FU2, useNA = "ifany")
-
-#look at homeless variables
-table(dfs$HOMELESS, useNA = "ifany")
-table(dfs$HOMELESS1, useNA = "ifany")
-table(dfs$HOMELESS2, useNA = "ifany")
-
-#look at homeless variables ricky created
-table(dfs$NVHOUSED, useNA = "ifany")
-table(dfs$ALWYSHL, useNA = "ifany")
-table(dfs$HOUSED, useNA = "ifany")
-
-#look at initiation variables
-apply(dfs[c("HLP6M", "HLP6M1", "HLP6M2")], 2, table)
-
-#look at arrest
-table(dfs$ARREST2, useNA = "ifany")
 
 #look at public injecting variables. could dichotomize never vs at all.
 #could look at homelessness - public injection association
 #could look at public injecting leads to sharing syringes more often.
 #seems to be big diff in syringe sharing between LA and SF
-table(df$PUBINJ)
-table(df$PUBINJ1)
-table(df$PUBINJ2)
-
-#syringe sharing variables dichotomized 
-table(df$Rshare)
-table(df$Rshare1)
-table(df$Rshare2)
-
-#syringe sharing counts
-table(df$RECSHR)
-table(df$RECSHR1)
-table(df$RECSHR2)
 ```
 
-Questions for Ricky:
-
-1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever). Ignore this variable.
-
-Homelessness dependent variable. Changes in drug use affect changes in homelessness? Could use the her_sum, coke_sum, etc. If someone said don't know it ends up as a negative one. Sum is how many times they used any kind of opioid (heroin, speedball, prescription opioids). Number of times they used they substance in the past 30 days (count data). 
-
-
-4. You have a question in the 12 month survey for "ever arrested" and we assume that's why there so many NAs for the question about arrest in the past 6 months at the 12-month follow-up (ARREST2). a) this wasn't asked before the 12-month f/u, right? b) what is the variable name for the "ever arrested" question at 12-months? 
-
-FU1 and FU2
-
-Some people reported stopping drug use, what predicts this? 
-
-Covariates: demographics. SSI (INCOME),  
 
 ```{r analysis, include=TRUE}
 #analysis using reweighted sample
@@ -165,8 +118,6 @@ Notes for Alan:
 
 (NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
 
-1) Something's not right with this model (see row 152). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
+1) When we tried to reweight the sample to address LTFU (using IP"FU"W) we ran into some problems with the glm. Ended up having to set NAs to zeros in some variables (not desired, see rows 43-46) as well as having to drop a few cases that still were causing problems with the predict function (see rows 55-57). Any ideas?
 
-2) When we tried to reweight the sample to address LTFU (using IP"FU"W) we ran into some problems with the glm. Ended up having to set NAs to zeros in some variables (not desired, see rows 43-46) as well as having to drop a few cases that still were causing problems with the predict function (see rows 55-57). Any ideas?
-
-
+2) Something's not right with this model (see row 110). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
