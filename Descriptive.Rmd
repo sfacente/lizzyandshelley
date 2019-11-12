@@ -93,14 +93,19 @@ table(dfs$ARREST2, useNA = "ifany")
 #could look at homelessness - public injection association
 #could look at public injecting leads to sharing syringes more often.
 #seems to be big diff in syringe sharing between LA and SF
-table(dfs$PUBINJ)
-table(dfs$PUBINJ1)
-table(dfs$PUBINJ2)
+table(df$PUBINJ)
+table(df$PUBINJ1)
+table(df$PUBINJ2)
 
-#look at syringe sharing variable
-table(dfc$Rshare)
-table(dfc$Rshare1)
-table(dfc$Rshare2)
+#syringe sharing variables dichotomized 
+table(df$Rshare)
+table(df$Rshare1)
+table(df$Rshare2)
+
+#syringe sharing counts
+table(df$RECSHR)
+table(df$RECSHR1)
+table(df$RECSHR2)
 ```
 
 Questions for Ricky:
