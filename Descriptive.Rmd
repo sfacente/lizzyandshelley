@@ -1,7 +1,7 @@
 ---
 title: "242 Final Project"
 author: "Lizzy Kinnard and Shelley Facente"
-date: "November 10, 2019"
+date: "November 13, 2019"
 output: pdf_document
 ---
 
@@ -42,16 +42,13 @@ df$MOSHOME1[is.na(df$MOSHOME1)] <- 0
 df$AGE <- as.numeric(df$AGE)
 df$Rshare1 <- factor(df$Rshare1)
 
-#reweight sample to address LTFU
-#df$I_A <- df$FU1 == "No" & df$FU2 == 0  #indicators, prob not needed
-#df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
-#df$I_AC <- df$FU1 == "No" & df$FU2 == 1
-#df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
-gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
 #remove subjects with NA for key variables from the dataset
 df <- subset(df, SUBJECT!=4394) 
 df <- subset(df, SUBJECT!=4457) 
 df <- subset(df, SUBJECT!=5267) 
+
+#reweight sample to address LTFU
+gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
 gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
 df$pFU1 <- predict(gFU1, type = "response")
 df$pFU2 <- predict(gFU2, type = "response")
@@ -60,6 +57,10 @@ df$wFU2 <- (df$FU2 == 1) * df$pFU2 + (df$FU2 == 0) * (1 - df$pFU2)
 df$w <- 1/(df$wFU1 * df$wFU2)
 rm(gFU1)
 rm(gFU2)
+#df$I_A <- df$FU1 == "No" & df$FU2 == 0  #indicators, prob not needed
+#df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
+#df$I_AC <- df$FU1 == "No" & df$FU2 == 1
+#df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
 
 #select people with no LTFU
 #dfc <- subset(df, FU2==1 & FU1=="Yes")
@@ -146,7 +147,7 @@ Covariates: demographics. SSI (INCOME),
 
 ```{r analysis, include=TRUE}
 #analysis using reweighted sample
-modelp <- glmer(log(TIMESHARE) ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", weights = w, data = dfslong, na.action = na.omit)
+modelp <- glmer(log(TIMESHARE) ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", weights = w, data = dfslong)
 summary(modelp)
 
 #modelnb <- glmer.nb(log(TIMESHARE) ~ PUBINJ + MOSHOME + IJWOTH + GENDER + AGE + RACELG + (1|SUBJECT), weights = w,  data = dfslong, na.action = na.omit)
@@ -157,9 +158,10 @@ Notes for Alan:
 
 (NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
 
-1) Something's not right with this model (see row 152). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
+Something's not right with this model (see row 150). Suspect it has to do with NAs in our dataset, but because of loss to F/U this is going to happen! Do we delete rows with NAs before analysis?
 
-Warning messages:
+We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages:
+
 1: In vcov.merMod(object, use.hessian = use.hessian) :
   variance-covariance matrix computed from finite-difference Hessian is
 not positive definite or contains NA values: falling back to var-cov estimated from RX
@@ -167,3 +169,4 @@ not positive definite or contains NA values: falling back to var-cov estimated f
   variance-covariance matrix computed from finite-difference Hessian is
 not positive definite or contains NA values: falling back to var-cov estimated from RX
 
+The NB version of the model never finishes. What to do?
