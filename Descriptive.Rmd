@@ -20,8 +20,8 @@ library(MASS)
 
 ```{r dataload, include=FALSE}
 #set working directory
-setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -40,10 +40,6 @@ df$MOSHOME1 <- as.numeric(df$MOSHOME1)
 df$MOSHOME[is.na(df$MOSHOME)] <- 0
 df$MOSHOME1[is.na(df$MOSHOME1)] <- 0
 df$AGE <- as.numeric(df$AGE)
-df$Rshare1[is.na(df$Rshare1)] <- "No" ################
-df$HOMELESS1[is.na(df$HOMELESS1)] <- "No" ################
-df$IJWOTH1[is.na(df$IJWOTH1)] <- "Never (0% of the time)" ################
-df$PUBINJ1[is.na(df$PUBINJ1)] <- "Never (0% of the time)" ################
 df$Rshare1 <- factor(df$Rshare1)
 
 #reweight sample to address LTFU
@@ -52,10 +48,11 @@ df$Rshare1 <- factor(df$Rshare1)
 #df$I_AC <- df$FU1 == "No" & df$FU2 == 1
 #df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
 gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-df <- subset(df, SUBJECT!=4394) ################
-df <- subset(df, SUBJECT!=4457) ################
-df <- subset(df, SUBJECT!=5267) ################
-gFU2 <- glm(FU2 ~ FU1 + Rshare1 + PUBINJ1 + HOMELESS1 + MOSHOME1 + IJWOTH1 + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+#remove subjects with NA for key variables from the dataset
+df <- subset(df, SUBJECT!=4394) 
+df <- subset(df, SUBJECT!=4457) 
+df <- subset(df, SUBJECT!=5267) 
+gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
 df$pFU1 <- predict(gFU1, type = "response")
 df$pFU2 <- predict(gFU2, type = "response")
 df$wFU1 <- (df$FU1 == "Yes") * df$pFU1 + (df$FU1 == "No") * (1 - df$pFU1)
@@ -94,16 +91,58 @@ dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
 #df.labels$description[df.labels$VAR_ID=="GENDER"]
 
 #inspect the data
-names(dfslong)
-dim(dfslong)
+names(df)
+dim(df)
 length(unique(dfs$SUBJECT))
+
+table(dfs$GENDER, useNA = "ifany")
+table(dfs$FU1, useNA = "ifany")
+table(dfs$FU2, useNA = "ifany")
+
+#look at homeless variables
+table(dfs$HOMELESS, useNA = "ifany")
+table(dfs$HOMELESS1, useNA = "ifany")
+table(dfs$HOMELESS2, useNA = "ifany")
+
+#look at homeless variables ricky created
+table(dfs$NVHOUSED, useNA = "ifany")
+table(dfs$ALWYSHL, useNA = "ifany")
+table(dfs$HOUSED, useNA = "ifany")
+
+#look at initiation variables
+apply(dfs[c("HLP6M", "HLP6M1", "HLP6M2")], 2, table)
+
+#look at arrest
+table(dfs$ARREST2, useNA = "ifany")
 
 #look at public injecting variables. could dichotomize never vs at all.
 #could look at homelessness - public injection association
 #could look at public injecting leads to sharing syringes more often.
 #seems to be big diff in syringe sharing between LA and SF
+table(dfs$PUBINJ)
+table(dfs$PUBINJ1)
+table(dfs$PUBINJ2)
+
+#look at syringe sharing variable
+table(dfc$Rshare)
+table(dfc$Rshare1)
+table(dfc$Rshare2)
 ```
 
+Questions for Ricky:
+
+1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever). Ignore this variable.
+
+Homelessness dependent variable. Changes in drug use affect changes in homelessness? Could use the her_sum, coke_sum, etc. If someone said don't know it ends up as a negative one. Sum is how many times they used any kind of opioid (heroin, speedball, prescription opioids). Number of times they used they substance in the past 30 days (count data). 
+
+
+4. You have a question in the 12 month survey for "ever arrested" and we assume that's why there so many NAs for the question about arrest in the past 6 months at the 12-month follow-up (ARREST2). a) this wasn't asked before the 12-month f/u, right? b) what is the variable name for the "ever arrested" question at 12-months? 
+
+FU1 and FU2
+
+Some people reported stopping drug use, what predicts this? 
+
+Covariates: demographics. SSI (INCOME),  
 
 ```{r analysis, include=TRUE}
 #analysis using reweighted sample
@@ -118,6 +157,13 @@ Notes for Alan:
 
 (NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
 
-1) When we tried to reweight the sample to address LTFU (using IP"FU"W) we ran into some problems with the glm. Ended up having to set NAs to zeros in some variables (not desired, see rows 43-46) as well as having to drop a few cases that still were causing problems with the predict function (see rows 55-57). Any ideas?
+1) Something's not right with this model (see row 152). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
 
-2) Something's not right with this model (see row 110). We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages. The NB version of the model never finishes. Help?!
+Warning messages:
+1: In vcov.merMod(object, use.hessian = use.hessian) :
+  variance-covariance matrix computed from finite-difference Hessian is
+not positive definite or contains NA values: falling back to var-cov estimated from RX
+2: In vcov.merMod(object, correlation = correlation, sigm = sig) :
+  variance-covariance matrix computed from finite-difference Hessian is
+not positive definite or contains NA values: falling back to var-cov estimated from RX
+
