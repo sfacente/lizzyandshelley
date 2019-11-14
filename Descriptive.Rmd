@@ -20,8 +20,8 @@ library(MASS)
 
 ```{r dataload, include=FALSE}
 #set working directory
-#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -130,24 +130,20 @@ table(dfc$Rshare1)
 table(dfc$Rshare2)
 ```
 
-Questions for Ricky:
-
-1. C14 in the baseline survey is "Have you ever INJECTED someone for their first hit?" What variable name is that? We can only find those that apply to past 6 months (not ever). Ignore this variable.
-
-Homelessness dependent variable. Changes in drug use affect changes in homelessness? Could use the her_sum, coke_sum, etc. If someone said don't know it ends up as a negative one. Sum is how many times they used any kind of opioid (heroin, speedball, prescription opioids). Number of times they used they substance in the past 30 days (count data). 
-
-
-4. You have a question in the 12 month survey for "ever arrested" and we assume that's why there so many NAs for the question about arrest in the past 6 months at the 12-month follow-up (ARREST2). a) this wasn't asked before the 12-month f/u, right? b) what is the variable name for the "ever arrested" question at 12-months? 
-
-FU1 and FU2
-
-Some people reported stopping drug use, what predicts this? 
-
-Covariates: demographics. SSI (INCOME),  
 
 ```{r analysis, include=TRUE}
 #analysis using reweighted sample
-modelp <- glmer(log(TIMESHARE) ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", weights = w, data = dfslong)
+
+#maybe gee? but too much informative censoring. this isn't working, not sure why?
+id = dfslong$SUBJECT
+
+library(gee)
+modelgee <- gee(TIMESHARE ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG, id, data=dfslong,family=poisson, corstr = "independence")
+
+#maybe mixed effects model?
+modelp <- glmer(log(TIMESHARE) ~  + (1|SUBJECT), family = "poisson", weights = w, data = dfslong)
+summary(modelp)
+
 summary(modelp)
 
 #modelnb <- glmer.nb(log(TIMESHARE) ~ PUBINJ + MOSHOME + IJWOTH + GENDER + AGE + RACELG + (1|SUBJECT), weights = w,  data = dfslong, na.action = na.omit)
@@ -158,7 +154,7 @@ Notes for Alan:
 
 (NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
 
-Something's not right with this model (see row 150). Suspect it has to do with NAs in our dataset, but because of loss to F/U this is going to happen! Do we delete rows with NAs before analysis?
+Something's not right with this model (see row 136). Suspect it has to do with NAs in our dataset, but because of loss to F/U this is going to happen! Do we delete rows with NAs before analysis?
 
 We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages:
 
