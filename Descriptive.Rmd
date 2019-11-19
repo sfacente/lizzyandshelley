@@ -85,6 +85,9 @@ dfslong$ARREST <- as.factor(dfslong$ARREST)
 dfslong$JAIL <- as.factor(dfslong$JAIL)
 dfslong$VISIT <- as.factor(dfslong$VISIT)
 dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
+dfslong$PUBINJord <- as.numeric(ifelse(dfslong$PUBINJ=="Never (0% of the time)", 0, ifelse(dfslong$PUBINJ=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$PUBINJ=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$PUBINJ=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$PUBINJ==" Always (100% of the time)", 4, NA)))))))
+dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)", 0, ifelse(dfslong$IJWOTH=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$IJWOTH=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$IJWOTH=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$IJWOTH==" Always (100% of the time)", 4, NA)))))))
+dfslong$YRSHOME <- dfslong$MOSHOME/12
 ```
 
 ```{r dataplay, include=FALSE}
@@ -131,49 +134,22 @@ table(dfc$Rshare2)
 ```
 
 
-```{r analysis, include=TRUE}
+```{r analysis, include=TRUE, cache=TRUE}
 #analysis using reweighted sample
+######################################################################################################
+########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE, SHELLEY TO CHECK WITH MAYA#############
+######################################################################################################
 
-#maybe gee? but too much informative censoring. this isn't working, not sure why?
-id = dfslong$SUBJECT
-
+#gee model (no time-invariant covariates)
+#NOTE THAT THIS CURRENTLY INCLUDES POLICE, ARREST, and JAIL - do we want to drop?? Mixed effects models don't include these (though could)
 library(gee)
-modelgee <- gee(TIMESHARE ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG, id, data=dfslong,family=poisson, corstr = "independence")
+modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+summary(modelgee)
 
-#maybe mixed effects model?
-modelp <- glmer(TIMESHARE ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG+(1|id), family = "poisson", data = dfslong)
-summary(modelp)
+#mixed effects models
+modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+summary(modelpoisson)
 
-summary(modelp)
-
-#modelnb <- glmer.nb(log(TIMESHARE) ~ PUBINJ + MOSHOME + IJWOTH + GENDER + AGE + RACELG + (1|SUBJECT), weights = w,  data = dfslong, na.action = na.omit)
-#summary(modelnb)
+modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), data = dfslong, na.action = na.omit)
+summary(modelnb)
 ```
-
-Notes for Alan:
-
-(NB: We know that for the final project we'll need to do various things to explore, etc. but for now wanted to see if we could get some sort of regression to work, then were planning on backing up a bit to clean it up.)
-
-Something's not right with this model (see row 136). Suspect it has to do with NAs in our dataset, but because of loss to F/U this is going to happen! Do we delete rows with NAs before analysis?
-
-We were getting warnings about failure to converge with suggestion to rescale - tried making the outcome in log scale (and dropped HOMELESS and IJWOTH to simplify) and with those changes it eventually does converge after many minutes, but summary(modelp) produces some really funky stuff and then two warning messages:
-
-1: In vcov.merMod(object, use.hessian = use.hessian) :
-  variance-covariance matrix computed from finite-difference Hessian is
-not positive definite or contains NA values: falling back to var-cov estimated from RX
-2: In vcov.merMod(object, correlation = correlation, sigm = sig) :
-  variance-covariance matrix computed from finite-difference Hessian is
-not positive definite or contains NA values: falling back to var-cov estimated from RX
-
-The NB version of the model never finishes. What to do?
-
-interaction between homelessness and public injecting
-random coefficients for levels of pubinj and mos homelessness
-contrast mixed model with gee
-
-
-```{r}
-library(gee)
-gee_alan_mtg <- gee(TIMESHARE ~ factor(PUBINJ) + MOSHOME + GENDER + AGE + RACELG, id, family = "poisson", data = dfslong,na.action = na.omit)
-```
-
