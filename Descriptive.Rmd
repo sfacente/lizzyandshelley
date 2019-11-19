@@ -141,7 +141,7 @@ library(gee)
 modelgee <- gee(TIMESHARE ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG, id, data=dfslong,family=poisson, corstr = "independence")
 
 #maybe mixed effects model?
-modelp <- glmer(log(TIMESHARE) ~  + (1|SUBJECT), family = "poisson", weights = w, data = dfslong)
+modelp <- glmer(TIMESHARE ~ PUBINJ + MOSHOME + GENDER + AGE + RACELG+(1|id), family = "poisson", data = dfslong)
 summary(modelp)
 
 summary(modelp)
@@ -166,3 +166,14 @@ not positive definite or contains NA values: falling back to var-cov estimated f
 not positive definite or contains NA values: falling back to var-cov estimated from RX
 
 The NB version of the model never finishes. What to do?
+
+interaction between homelessness and public injecting
+random coefficients for levels of pubinj and mos homelessness
+contrast mixed model with gee
+
+
+```{r}
+library(gee)
+gee_alan_mtg <- gee(TIMESHARE ~ factor(PUBINJ) + MOSHOME + GENDER + AGE + RACELG, id, family = "poisson", data = dfslong,na.action = na.omit)
+```
+
