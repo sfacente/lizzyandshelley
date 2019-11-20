@@ -93,7 +93,15 @@ dfslong$JAIL <- as.factor(dfslong$JAIL)
 dfslong$VISIT <- as.factor(dfslong$VISIT)
 dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
 
+
 dfslong$PUBINJord <- as.numeric(ifelse(dfslong$PUBINJ=="Never (0% of the time)", 0, ifelse(dfslong$PUBINJ=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$PUBINJ=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$PUBINJ=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$PUBINJ==" Always (100% of the time)", 4, NA)))))))
+
+dfslong$PUBINJord <- as.numeric(ifelse(dfslong$PUBINJ=="Never (0% of the time)", 0, ifelse(dfslong$PUBINJ=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$PUBINJ=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$PUBINJ=="Usually (75% to 99% of the time)", 3, ifelse(dfslong$PUBINJ=="Always (100% of the time)", 4 ,NA))))))
+
+dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)", 0, ifelse(dfslong$IJWOTH=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$IJWOTH=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$IJWOTH=="Usually (75% to 99% of the time)", 3, ifelse(dfslong$IJWOTH=="Always (100% of the time)", 4, NA))))))
+tabledfslong$YRSHOME <- dfslong$MOSHOME/12
+```
+
 
 dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)", 0, ifelse(dfslong$IJWOTH=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$IJWOTH=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$IJWOTH=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$IJWOTH==" Always (100% of the time)", 4, NA)))))))
 
