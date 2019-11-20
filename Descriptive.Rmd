@@ -34,6 +34,9 @@ df.labels <- cbind(QDSlabels, df.labels)
 names(df.labels) <- c("VAR_ID", "description")
 rm(QDSlabels)
 
+#USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
+#df.labels$description[df.labels$VAR_ID=="GENDER"]
+
 #clean up data types
 df$MOSHOME <- as.numeric(df$MOSHOME)
 df$MOSHOME1 <- as.numeric(df$MOSHOME1)
@@ -42,22 +45,26 @@ df$MOSHOME1[is.na(df$MOSHOME1)] <- 0
 df$AGE <- as.numeric(df$AGE)
 df$Rshare1 <- factor(df$Rshare1)
 
+#commenting out because we may not be doing IPCW for the class project
 #remove subjects with NA for key variables from the dataset
-df <- subset(df, SUBJECT!=4394) 
-df <- subset(df, SUBJECT!=4457) 
-df <- subset(df, SUBJECT!=5267) 
+#df <- subset(df, SUBJECT!=4394) 
+#df <- subset(df, SUBJECT!=4457) 
+#df <- subset(df, SUBJECT!=5267) 
 
+#commenting out because we may not be doing IPCW for the class project
 #reweight sample to address LTFU
-gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-df$pFU1 <- predict(gFU1, type = "response")
-df$pFU2 <- predict(gFU2, type = "response")
-df$wFU1 <- (df$FU1 == "Yes") * df$pFU1 + (df$FU1 == "No") * (1 - df$pFU1)
-df$wFU2 <- (df$FU2 == 1) * df$pFU2 + (df$FU2 == 0) * (1 - df$pFU2)
-df$w <- 1/(df$wFU1 * df$wFU2)
-rm(gFU1)
-rm(gFU2)
-#df$I_A <- df$FU1 == "No" & df$FU2 == 0  #indicators, prob not needed
+#gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+#gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+#df$pFU1 <- predict(gFU1, type = "response")
+#df$pFU2 <- predict(gFU2, type = "response")
+#df$wFU1 <- (df$FU1 == "Yes") * df$pFU1 + (df$FU1 == "No") * (1 - df$pFU1)
+#df$wFU2 <- (df$FU2 == 1) * df$pFU2 + (df$FU2 == 0) * (1 - df$pFU2)
+#df$w <- 1/(df$wFU1 * df$wFU2)
+#rm(gFU1)
+#rm(gFU2)
+
+#indicators, prob not needed
+#df$I_A <- df$FU1 == "No" & df$FU2 == 0  
 #df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
 #df$I_AC <- df$FU1 == "No" & df$FU2 == 1
 #df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
@@ -70,10 +77,10 @@ df$ARREST <- rep(NA)
 df$POLICE <- rep(NA)
 df$JAIL <- rep(NA)
 
-#select variables
+#select variables, add "w" to the end of this if we do anything with weights
 dfs <- df %>%
   dplyr::select("SUBJECT", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", 
-        "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "w")
+        "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2")
 
 #make dataset long format
 dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ", "PUBINJ1", "PUBINJ2"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ", "IJWOTH", "POLICE", "ARREST", "JAIL"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
@@ -85,63 +92,24 @@ dfslong$ARREST <- as.factor(dfslong$ARREST)
 dfslong$JAIL <- as.factor(dfslong$JAIL)
 dfslong$VISIT <- as.factor(dfslong$VISIT)
 dfslong$MOSHOME <- as.numeric(dfslong$MOSHOME)
+
 dfslong$PUBINJord <- as.numeric(ifelse(dfslong$PUBINJ=="Never (0% of the time)", 0, ifelse(dfslong$PUBINJ=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$PUBINJ=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$PUBINJ=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$PUBINJ==" Always (100% of the time)", 4, NA)))))))
+
 dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)", 0, ifelse(dfslong$IJWOTH=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$IJWOTH=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$IJWOTH=="Usually (75% to 99% of the time)", 3, ifelse(ifelse(dfslong$IJWOTH==" Always (100% of the time)", 4, NA)))))))
+
 dfslong$YRSHOME <- dfslong$MOSHOME/12
-```
-
-```{r dataplay, include=FALSE}
-#USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
-#df.labels$description[df.labels$VAR_ID=="GENDER"]
-
-#inspect the data
-names(df)
-dim(df)
-length(unique(dfs$SUBJECT))
-
-table(dfs$GENDER, useNA = "ifany")
-table(dfs$FU1, useNA = "ifany")
-table(dfs$FU2, useNA = "ifany")
-
-#look at homeless variables
-table(dfs$HOMELESS, useNA = "ifany")
-table(dfs$HOMELESS1, useNA = "ifany")
-table(dfs$HOMELESS2, useNA = "ifany")
-
-#look at homeless variables ricky created
-table(dfs$NVHOUSED, useNA = "ifany")
-table(dfs$ALWYSHL, useNA = "ifany")
-table(dfs$HOUSED, useNA = "ifany")
-
-#look at initiation variables
-apply(dfs[c("HLP6M", "HLP6M1", "HLP6M2")], 2, table)
-
-#look at arrest
-table(dfs$ARREST2, useNA = "ifany")
-
-#look at public injecting variables. could dichotomize never vs at all.
-#could look at homelessness - public injection association
-#could look at public injecting leads to sharing syringes more often.
-#seems to be big diff in syringe sharing between LA and SF
-table(dfs$PUBINJ)
-table(dfs$PUBINJ1)
-table(dfs$PUBINJ2)
-
-#look at syringe sharing variable
-table(dfc$Rshare)
-table(dfc$Rshare1)
-table(dfc$Rshare2)
 ```
 
 
 ```{r analysis, include=TRUE, cache=TRUE}
-#analysis using reweighted sample
 ######################################################################################################
 ########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE, SHELLEY TO CHECK WITH MAYA#############
+########LIZZY COMMENTED OUT ALL THE LINES WITH REWEIGHTING SO IT WOULDN'T DISTRICT US FOR NOW#########
 ######################################################################################################
 
 #gee model (no time-invariant covariates)
 #NOTE THAT THIS CURRENTLY INCLUDES POLICE, ARREST, and JAIL - do we want to drop?? Mixed effects models don't include these (though could)
+#Why is there no main effect of public injecting? why doesn't the summary comment gives me more than just the coefficients?
 library(gee)
 modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee)
@@ -153,3 +121,5 @@ summary(modelpoisson)
 modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), data = dfslong, na.action = na.omit)
 summary(modelnb)
 ```
+
+plot(dfs)
