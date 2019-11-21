@@ -1,7 +1,7 @@
 ---
 title: "242 Final Project"
 author: "Lizzy Kinnard and Shelley Facente"
-date: "November 13, 2019"
+date: "November 21, 2019"
 output: pdf_document
 ---
 
@@ -112,7 +112,7 @@ Analysis:
 
 #gee model (no time-invariant covariates)
 #NOTE THAT THIS CURRENTLY INCLUDES POLICE, ARREST, and JAIL - do we want to drop?? Mixed effects models don't include these (though could)
-#Why is there no main effect of public injecting? why doesn't the summary comment gives me more than just the coefficients?
+#Why is there no main effect of public injecting?
 library(gee)
 modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee)
@@ -132,6 +132,9 @@ simple_plot <- glm(TIMESHARE ~ PUBINJord, family = "poisson", data = dfslong, na
 
 #code not working
 plot(dfslong$PUBINJord, predict(simple_plot, type="link"))
-
 ```
 
+Tasks for Lizzy:
+- create substance use indicator variables
+- look into those who weren’t homeless but injected outside
+- consider treating homelessness as a categorical rather than continuous variable. I am not sure what it means to have an interaction term with ordinal*continuous?
