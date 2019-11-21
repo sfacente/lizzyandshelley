@@ -53,21 +53,23 @@ df$Rshare1 <- factor(df$Rshare1)
 
 #commenting out because we may not be doing IPCW for the class project
 #reweight sample to address LTFU
-#gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-#gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-#df$pFU1 <- predict(gFU1, type = "response")
-#df$pFU2 <- predict(gFU2, type = "response")
-#df$wFU1 <- (df$FU1 == "Yes") * df$pFU1 + (df$FU1 == "No") * (1 - df$pFU1)
-#df$wFU2 <- (df$FU2 == 1) * df$pFU2 + (df$FU2 == 0) * (1 - df$pFU2)
-#df$w <- 1/(df$wFU1 * df$wFU2)
-#rm(gFU1)
-#rm(gFU2)
+
+#FIRST USE MICE TO IMPUTE COVARIATES
+
+I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
+gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
+df$pFU1 <- predict(gFU1, type = "response")
+df$pFU2 <- predict(gFU2, type = "response")
+df$w <- I_ABC/(df$pFU1 * df$pFU2)
+rm(gFU1)
+rm(gFU2)
 
 #indicators, prob not needed
 #df$I_A <- df$FU1 == "No" & df$FU2 == 0  
 #df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
 #df$I_AC <- df$FU1 == "No" & df$FU2 == 1
-#df$I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
+
 
 #select people with no LTFU
 #dfc <- subset(df, FU2==1 & FU1=="Yes")
