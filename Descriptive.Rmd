@@ -16,12 +16,13 @@ library(dplyr)
 library(reshape2)
 library(lme4)
 library(MASS)
+library(mice)
 ```
 
 ```{r dataload, include=FALSE}
 #set working directory
-setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -45,44 +46,77 @@ df$MOSHOME1[is.na(df$MOSHOME1)] <- 0
 df$AGE <- as.numeric(df$AGE)
 df$Rshare1 <- factor(df$Rshare1)
 
-#commenting out because we may not be doing IPCW for the class project
-#remove subjects with NA for key variables from the dataset
-#df <- subset(df, SUBJECT!=4394) 
-#df <- subset(df, SUBJECT!=4457) 
-#df <- subset(df, SUBJECT!=5267) 
-
-#commenting out because we may not be doing IPCW for the class project
-#reweight sample to address LTFU
-
-#FIRST USE MICE TO IMPUTE COVARIATES
-
-I_ABC <- df$FU1 == "Yes" & df$FU2 == 1
-gFU1 <- glm(FU1 ~ Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-gFU2 <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE + RACELG, family = "binomial", data = df, na.action = na.omit) 
-df$pFU1 <- predict(gFU1, type = "response")
-df$pFU2 <- predict(gFU2, type = "response")
-df$w <- I_ABC/(df$pFU1 * df$pFU2)
-rm(gFU1)
-rm(gFU2)
-
-#indicators, prob not needed
-#df$I_A <- df$FU1 == "No" & df$FU2 == 0  
-#df$I_AB <- df$FU1 == "Yes" & df$FU2 == 0
-#df$I_AC <- df$FU1 == "No" & df$FU2 == 1
-
-
-#select people with no LTFU
-#dfc <- subset(df, FU2==1 & FU1=="Yes")
-
 #create key variables not asked at baseline
 df$ARREST <- rep(NA)
 df$POLICE <- rep(NA)
 df$JAIL <- rep(NA)
 
-#select variables, add "w" to the end of this if we do anything with weights
+#select variables
 dfs <- df %>%
-  dplyr::select("SUBJECT", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", 
-        "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2")
+  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2")
+
+#look at missingness
+missing <- data.frame(md.pattern(dfs))
+
+#remove subjects with NA for exposure or outcome 
+dfs <- subset(dfs, SUBJECT!=4394) 
+dfs <- subset(dfs, SUBJECT!=4457) 
+dfs <- subset(dfs, SUBJECT!=5055)
+dfs <- subset(dfs, SUBJECT!=5267)
+dfs <- subset(dfs, SUBJECT!=5276)
+dfs <- subset(dfs, SUBJECT!=5277)
+
+# #figure out any additional cases that will be dropped from glms below
+# dfsglm <- dfs %>%
+#   dplyr::select("SUBJECT", "GENDER", "AGE", "HOMELESS", "MOSHOME", "PUBINJ", "IJWOTH","RECSHR")
+# dfsglm$SUBJECT[which(! complete.cases(dfsglm))]
+
+#impute missing covariates
+keeps <- c("SUBJECT", "GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
+keeps2 <- c("GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
+imputation <- mice(dfs[, (names(dfs) %in% keeps)], m=5, maxit=5, printFlag=TRUE, seed = 242)
+dfs1 <- complete(imputation, 1)
+dfs1 <- merge(dfs1, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs2 <- complete(imputation, 2)
+dfs2 <- merge(dfs2, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs3 <- complete(imputation, 3)
+dfs3 <- merge(dfs3, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs4 <- complete(imputation, 4)
+dfs4 <- merge(dfs4, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs5 <- complete(imputation, 5)
+dfs5 <- merge(dfs5, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+
+#reweight sample to address LTFU
+I_ABC <- dfs$FU1 == "Yes" & dfs$FU2 == 1
+gFU1a <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs1, na.action = na.omit)
+gFU1b <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs2, na.action = na.omit)
+gFU1c <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs3, na.action = na.omit)
+gFU1d <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs4, na.action = na.omit)
+gFU1e <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs5, na.action = na.omit)
+pFU1a <- predict(gFU1a, type = "response")
+pFU1b <- predict(gFU1b, type = "response")
+pFU1c <- predict(gFU1c, type = "response")
+pFU1d <- predict(gFU1d, type = "response")
+pFU1e <- predict(gFU1e, type = "response")
+impFU1 <-data.frame(pFU1a, pFU1b, pFU1c, pFU1d, pFU1e)
+dfs$pFU1 <- rowMeans(impFU1)
+gFU2a <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs1, na.action = na.omit) 
+gFU2b <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs2, na.action = na.omit) 
+gFU2c <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs3, na.action = na.omit) 
+gFU2d <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs4, na.action = na.omit) 
+gFU2e <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs5, na.action = na.omit) 
+pFU2a <- predict(gFU2a, type = "response")
+pFU2b <- predict(gFU2b, type = "response")
+pFU2c <- predict(gFU2c, type = "response")
+pFU2d <- predict(gFU2d, type = "response")
+pFU2e <- predict(gFU2e, type = "response")
+impFU2 <-data.frame(pFU2a, pFU2b, pFU2c, pFU2d, pFU2e)
+dfs$pFU2 <- rowMeans(impFU2)
+dfs$w <- I_ABC/(dfs$pFU1 * dfs$pFU2)
+rm(gFU1a, gFU1b, gFU1c, gFU1d, gFU1e, gFU2a, gFU2b, gFU2c, gFU2d, gFU2e, pFU1a, pFU1b, pFU1c, pFU1d, pFU1e, pFU2a, pFU2b, pFU2c, pFU2d, pFU2e, impFU1, impFU2)
+
+#select people with no LTFU (complete case)
+#dfc <- subset(df, FU2==1 & FU1=="Yes")
 
 #make dataset long format
 dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ", "PUBINJ1", "PUBINJ2"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ", "IJWOTH", "POLICE", "ARREST", "JAIL"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
