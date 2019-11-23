@@ -151,6 +151,11 @@ library(gee)
 modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee)
 
+#turns out that race makes the GEE crash. so here we have age and gender (which are time invarying) but need to condense race into fewer categories. 
+modelgee_minus_race <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL + GENDER + AGE, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+
+
+
 #mixed effects models
 modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
 summary(modelpoisson)
