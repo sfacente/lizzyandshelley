@@ -38,93 +38,90 @@ rm(QDSlabels)
 #USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
 #df.labels$description[df.labels$VAR_ID=="GENDER"]
 
-
-
-###################################
 #create substance use indicators
 
-#speedball
-table(df$SB30, useNA = "ifany")
-table(df$SB301, useNA = "ifany")
-table(df$SB302, useNA = "ifany")
+# #speedball
+# table(df$SB30, useNA = "ifany")
+# table(df$SB301, useNA = "ifany")
+# table(df$SB302, useNA = "ifany")
 
-#speedball injection
-table(df$SBINJ, useNA = "ifany")
+# #speedball injection
+# table(df$SBINJ, useNA = "ifany")
 
 df$SBINJ1 <- ifelse(df$SBINJ1=="No", "No", ifelse(df$SBINJ1=="Yes", "Yes", NA))
-table(df$SBINJ1, useNA = "ifany")
-table(df$SBINJ2, useNA = "ifany")
-
-#goofball
-table(df$GB30, useNA = "ifany")
-table(df$GB301, useNA = "ifany")
-table(df$GB302, useNA = "ifany")
-
-#goofball injection
-table(df$GBINJ, useNA = "ifany")
+# table(df$SBINJ1, useNA = "ifany")
+# table(df$SBINJ2, useNA = "ifany")
+# 
+# #goofball
+# table(df$GB30, useNA = "ifany")
+# table(df$GB301, useNA = "ifany")
+# table(df$GB302, useNA = "ifany")
+# 
+# #goofball injection
+# table(df$GBINJ, useNA = "ifany")
 
 df$GBINJ1 <- ifelse(df$GBINJ1=="No", "No", ifelse(df$GBINJ1=="Yes", "Yes", NA))
-table(df$GBINJ1, useNA = "ifany")
-table(df$GBINJ2, useNA = "ifany")
+# table(df$GBINJ1, useNA = "ifany")
+# table(df$GBINJ2, useNA = "ifany")
+# 
+# #crack
+# table(df$CRCK30, useNA = "ifany")
+# table(df$CRCK301, useNA = "ifany")
+# table(df$CRCK302, useNA = "ifany")
+# 
+# #crack injection
+# table(df$CRKINJ, useNA = "ifany")
 
-#crack
-table(df$CRCK30, useNA = "ifany")
-table(df$CRCK301, useNA = "ifany")
-table(df$CRCK302, useNA = "ifany")
-
-#crack injection
-table(df$CRKNINJ, useNA = "ifany")
-
-df$CRKNINJ1 <- ifelse(df$CRKNINJ1=="No", "No", ifelse(df$CRKNINJ1=="Yes", "Yes", NA))
-table(df$CRKNINJ1, useNA = "ifany")
-table(df$CRKNINJ2, useNA = "ifany")
-
-#powder cocaine
-table(df$PCOKE30, useNA = "ifany")
-table(df$PCOKE301, useNA = "ifany")
-table(df$PCOKE302, useNA = "ifany")
-
-#powder cocaine injection
-table(df$CCINJ, useNA = "ifany")
+df$CRKINJ1 <- ifelse(df$CRKINJ1=="No", "No", ifelse(df$CRKINJ1=="Yes", "Yes", NA))
+# table(df$CRKINJ1, useNA = "ifany")
+# table(df$CRKINJ2, useNA = "ifany")
+# 
+# #powder cocaine
+# table(df$PCOKE30, useNA = "ifany")
+# table(df$PCOKE301, useNA = "ifany")
+# table(df$PCOKE302, useNA = "ifany")
+# 
+# #powder cocaine injection
+# table(df$CCINJ, useNA = "ifany")
 
 df$CCINJ1 <- ifelse(df$CCINJ1=="No", "No", ifelse(df$CCINJ1=="Yes", "Yes", NA))
-table(df$CCINJ1, useNA = "ifany")
-table(df$CCINJ2, useNA = "ifany")
-
-#meth
-table(df$METH30, useNA = "ifany")
-table(df$METH301, useNA = "ifany")
-table(df$METH302, useNA = "ifany")
-
-#meth injection
-table(df$MTINJ, useNA = "ifany")
+# table(df$CCINJ1, useNA = "ifany")
+# table(df$CCINJ2, useNA = "ifany")
+# 
+# #meth
+# table(df$METH30, useNA = "ifany")
+# table(df$METH301, useNA = "ifany")
+# table(df$METH302, useNA = "ifany")
+# 
+# #meth injection
+# table(df$MTINJ, useNA = "ifany")
 
 df$MTINJ1 <- ifelse(df$MTINJ1=="No", "No", ifelse(df$MTINJ1=="Yes", "Yes", NA))
 
-table(df$MTINJ1, useNA = "ifany")
-table(df$MTINJ2, useNA = "ifany")
-
-#heroin
-table(df$HER30, useNA = "ifany")
-table(df$HER301, useNA = "ifany")
-table(df$HER302, useNA = "ifany")
-
-#heroin injection
-table(df$HRINJ, useNA = "ifany")
+# table(df$MTINJ1, useNA = "ifany")
+# table(df$MTINJ2, useNA = "ifany")
+# 
+# #heroin
+# table(df$HER30, useNA = "ifany")
+# table(df$HER301, useNA = "ifany")
+# table(df$HER302, useNA = "ifany")
+# 
+# #heroin injection
+# table(df$HRINJ, useNA = "ifany")
 
 df$HRINJ1 <- ifelse(df$HRINJ1=="No", "No", ifelse(df$HRINJ1=="Yes", "Yes", NA))
-table(df$HRINJ1, useNA = "ifany")
-table(df$HRINJ2, useNA = "ifany")
-
-#marijuana
-table(df$MJ30, useNA = "ifany")
-table(df$MJ301, useNA = "ifany")
-table(df$MJ302, useNA = "ifany")
-
-#alcohol
-table(df$ALCTX, useNA = "ifany")
-table(df$ALCTX1, useNA = "ifany")
-table(df$ALCTX2, useNA = "ifany")
+# table(df$HRINJ1, useNA = "ifany")
+# table(df$HRINJ2, useNA = "ifany")
+# 
+# #marijuana
+# table(df$MJ30, useNA = "ifany")
+# table(df$MJ301, useNA = "ifany")
+# table(df$MJ302, useNA = "ifany")
+# 
+# #alcohol
+# table(df$ALCTX, useNA = "ifany")
+# table(df$ALCTX1, useNA = "ifany")
+# table(df$ALCTX2, useNA = "ifany")
 
 df$ALCDAY <- as.numeric(df$ALCDAY)
 df$ALCDAY1 <- as.numeric(df$ALCDAY1)
@@ -144,12 +141,10 @@ df$binge1 <- ifelse(df$ALCDAY1==0, 0, ifelse(df$ALCTX1<4, 0, ifelse(df$ALCTX1>3,
 #binge FU2
 df$binge2 <- ifelse(df$ALCDAY2==0, 0, ifelse(df$ALCTX2<4, 0, ifelse(df$ALCTX2>3, 1, NA)))
 
-#make sure the binge variables worked
-table(df$binge)
-table(df$binge1)
-table(df$binge2)
-###################################
-
+# #make sure the binge variables worked
+# table(df$binge)
+# table(df$binge1)
+# table(df$binge2)
 
 #clean up data types
 df$MOSHOME <- as.numeric(df$MOSHOME)
@@ -166,7 +161,7 @@ df$JAIL <- rep(NA)
 
 #select variables
 dfs <- df %>%
-  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2")
+  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "SBINJ", "SBINJ1", "SBINJ2", "GBINJ", "GBINJ1", "GBINJ2", "CRKINJ", "CRKINJ1", "CRKINJ2", "CCINJ", "CCINJ1", "CCINJ2", "MTINJ", "MTINJ1", "MTINJ2", "HERINJ", "HERINJ1", "HERINJ2")
 
 #look at missingness
 missing <- data.frame(md.pattern(dfs))
@@ -185,19 +180,19 @@ dfs <- subset(dfs, SUBJECT!=5277)
 # dfsglm$SUBJECT[which(! complete.cases(dfsglm))]
 
 #impute missing covariates
-keeps <- c("SUBJECT", "GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
-keeps2 <- c("GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
-imputation <- mice(dfs[, (names(dfs) %in% keeps)], m=5, maxit=5, printFlag=TRUE, seed = 242)
+impute <- c("SUBJECT", "GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
+keeps <- c("GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
+imputation <- mice(dfs[, (names(dfs) %in% impute)], m=5, maxit=5, printFlag=TRUE, seed = 242)
 dfs1 <- complete(imputation, 1)
-dfs1 <- merge(dfs1, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs1 <- merge(dfs1, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 dfs2 <- complete(imputation, 2)
-dfs2 <- merge(dfs2, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs2 <- merge(dfs2, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 dfs3 <- complete(imputation, 3)
-dfs3 <- merge(dfs3, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs3 <- merge(dfs3, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 dfs4 <- complete(imputation, 4)
-dfs4 <- merge(dfs4, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs4 <- merge(dfs4, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 dfs5 <- complete(imputation, 5)
-dfs5 <- merge(dfs5, dfs[, !(names(dfs) %in% keeps2)], by = "SUBJECT")
+dfs5 <- merge(dfs5, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 
 #reweight sample to address LTFU
 I_ABC <- dfs$FU1 == "Yes" & dfs$FU2 == 1
@@ -213,11 +208,11 @@ pFU1d <- predict(gFU1d, type = "response")
 pFU1e <- predict(gFU1e, type = "response")
 impFU1 <-data.frame(pFU1a, pFU1b, pFU1c, pFU1d, pFU1e)
 dfs$pFU1 <- rowMeans(impFU1)
-gFU2a <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs1, na.action = na.omit) 
-gFU2b <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs2, na.action = na.omit) 
-gFU2c <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs3, na.action = na.omit) 
-gFU2d <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs4, na.action = na.omit) 
-gFU2e <- glm(FU2 ~ FU1 + Rshare + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs5, na.action = na.omit) 
+gFU2a <- glm(FU2 ~ FU1 + RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs1, na.action = na.omit) 
+gFU2b <- glm(FU2 ~ FU1 + RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs2, na.action = na.omit) 
+gFU2c <- glm(FU2 ~ FU1 + RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs3, na.action = na.omit) 
+gFU2d <- glm(FU2 ~ FU1 + RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs4, na.action = na.omit) 
+gFU2e <- glm(FU2 ~ FU1 + RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs5, na.action = na.omit) 
 pFU2a <- predict(gFU2a, type = "response")
 pFU2b <- predict(gFU2b, type = "response")
 pFU2c <- predict(gFU2c, type = "response")
@@ -259,9 +254,9 @@ Analysis:
 
 #gee model (no time-invariant covariates)
 #NOTE THAT THIS CURRENTLY INCLUDES POLICE, ARREST, and JAIL - do we want to drop?? Mixed effects models don't include these (though could)
-#Why is there no main effect of public injecting?
+
 library(gee)
-modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee)
 
 #turns out that race makes the GEE crash. so here we have age and gender (which are time invarying) but need to condense race into fewer categories. 
