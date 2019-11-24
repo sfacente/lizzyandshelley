@@ -38,6 +38,119 @@ rm(QDSlabels)
 #USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
 #df.labels$description[df.labels$VAR_ID=="GENDER"]
 
+
+
+###################################
+#create substance use indicators
+
+#speedball
+table(df$SB30, useNA = "ifany")
+table(df$SB301, useNA = "ifany")
+table(df$SB302, useNA = "ifany")
+
+#speedball injection
+table(df$SBINJ, useNA = "ifany")
+
+df$SBINJ1 <- ifelse(df$SBINJ1=="No", "No", ifelse(df$SBINJ1=="Yes", "Yes", NA))
+table(df$SBINJ1, useNA = "ifany")
+table(df$SBINJ2, useNA = "ifany")
+
+#goofball
+table(df$GB30, useNA = "ifany")
+table(df$GB301, useNA = "ifany")
+table(df$GB302, useNA = "ifany")
+
+#goofball injection
+table(df$GBINJ, useNA = "ifany")
+
+df$GBINJ1 <- ifelse(df$GBINJ1=="No", "No", ifelse(df$GBINJ1=="Yes", "Yes", NA))
+table(df$GBINJ1, useNA = "ifany")
+table(df$GBINJ2, useNA = "ifany")
+
+#crack
+table(df$CRCK30, useNA = "ifany")
+table(df$CRCK301, useNA = "ifany")
+table(df$CRCK302, useNA = "ifany")
+
+#crack injection
+table(df$CRKNINJ, useNA = "ifany")
+
+df$CRKNINJ1 <- ifelse(df$CRKNINJ1=="No", "No", ifelse(df$CRKNINJ1=="Yes", "Yes", NA))
+table(df$CRKNINJ1, useNA = "ifany")
+table(df$CRKNINJ2, useNA = "ifany")
+
+#powder cocaine
+table(df$PCOKE30, useNA = "ifany")
+table(df$PCOKE301, useNA = "ifany")
+table(df$PCOKE302, useNA = "ifany")
+
+#powder cocaine injection
+table(df$CCINJ, useNA = "ifany")
+
+df$CCINJ1 <- ifelse(df$CCINJ1=="No", "No", ifelse(df$CCINJ1=="Yes", "Yes", NA))
+table(df$CCINJ1, useNA = "ifany")
+table(df$CCINJ2, useNA = "ifany")
+
+#meth
+table(df$METH30, useNA = "ifany")
+table(df$METH301, useNA = "ifany")
+table(df$METH302, useNA = "ifany")
+
+#meth injection
+table(df$MTINJ, useNA = "ifany")
+
+df$MTINJ1 <- ifelse(df$MTINJ1=="No", "No", ifelse(df$MTINJ1=="Yes", "Yes", NA))
+
+table(df$MTINJ1, useNA = "ifany")
+table(df$MTINJ2, useNA = "ifany")
+
+#heroin
+table(df$HER30, useNA = "ifany")
+table(df$HER301, useNA = "ifany")
+table(df$HER302, useNA = "ifany")
+
+#heroin injection
+table(df$HRINJ, useNA = "ifany")
+
+df$HRINJ1 <- ifelse(df$HRINJ1=="No", "No", ifelse(df$HRINJ1=="Yes", "Yes", NA))
+table(df$HRINJ1, useNA = "ifany")
+table(df$HRINJ2, useNA = "ifany")
+
+#marijuana
+table(df$MJ30, useNA = "ifany")
+table(df$MJ301, useNA = "ifany")
+table(df$MJ302, useNA = "ifany")
+
+#alcohol
+table(df$ALCTX, useNA = "ifany")
+table(df$ALCTX1, useNA = "ifany")
+table(df$ALCTX2, useNA = "ifany")
+
+df$ALCDAY <- as.numeric(df$ALCDAY)
+df$ALCDAY1 <- as.numeric(df$ALCDAY1)
+df$ALCDAY2 <- as.numeric(df$ALCDAY2)
+
+df$ALCTX <- as.numeric(df$ALCTX)
+df$ALCTX1 <- as.numeric(df$ALCTX1)
+df$ALCTX2 <- as.numeric(df$ALCTX2)
+
+#binge alcohol on a typical day
+#binge baseline
+df$binge <- ifelse(df$ALCDAY==0, 0, ifelse(df$ALCTX<4, 0, ifelse(df$ALCTX>3, 1, NA)))
+
+#binge FU1 
+df$binge1 <- ifelse(df$ALCDAY1==0, 0, ifelse(df$ALCTX1<4, 0, ifelse(df$ALCTX1>3, 1, NA)))
+
+#binge FU2
+df$binge2 <- ifelse(df$ALCDAY2==0, 0, ifelse(df$ALCTX2<4, 0, ifelse(df$ALCTX2>3, 1, NA)))
+
+#make sure the binge variables worked
+table(df$binge)
+table(df$binge1)
+table(df$binge2)
+###################################
+
+
 #clean up data types
 df$MOSHOME <- as.numeric(df$MOSHOME)
 df$MOSHOME1 <- as.numeric(df$MOSHOME1)
@@ -154,7 +267,7 @@ summary(modelgee)
 #turns out that race makes the GEE crash. so here we have age and gender (which are time invarying) but need to condense race into fewer categories. 
 modelgee_minus_race <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL + GENDER + AGE, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 
-
+summary(modelgee_minus_race)
 
 #mixed effects models
 modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
