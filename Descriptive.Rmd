@@ -161,7 +161,7 @@ df$JAIL <- rep(NA)
 
 #select variables
 dfs <- df %>%
-  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "SBINJ", "SBINJ1", "SBINJ2", "GBINJ", "GBINJ1", "GBINJ2", "CRKINJ", "CRKINJ1", "CRKINJ2", "CCINJ", "CCINJ1", "CCINJ2", "MTINJ", "MTINJ1", "MTINJ2", "HERINJ", "HERINJ1", "HERINJ2")
+  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "ANYSTIM", "ANYSTIM1", "ANYSTIM2", "ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")
 
 #look at missingness
 missing <- data.frame(md.pattern(dfs))
@@ -176,12 +176,12 @@ dfs <- subset(dfs, SUBJECT!=5277)
 
 # #figure out any additional cases that will be dropped from glms below
 # dfsglm <- dfs %>%
-#   dplyr::select("SUBJECT", "GENDER", "AGE", "HOMELESS", "MOSHOME", "PUBINJ", "IJWOTH","RECSHR")
+#   dplyr::select("SUBJECT", "GENDER", "AGE", "HOMELESS", "MOSHOME", "PUBINJ", "IJWOTH","RECSHR", "binge", "ANYSTIM", "ANYOPIATE")
 # dfsglm$SUBJECT[which(! complete.cases(dfsglm))]
 
 #impute missing covariates
-impute <- c("SUBJECT", "GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
-keeps <- c("GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2")
+impute <- c("SUBJECT", "GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2", "binge", "ANYSTIM", "ANYOPIATE", "binge1", "ANYSTIM1", "ANYOPIATE1", "binge2", "ANYSTIM2", "ANYOPIATE2")
+keeps <- c("GENDER", "AGE", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE1", "POLICE2", "ARREST1", "ARREST2", "JAIL1", "JAIL2", "binge", "ANYSTIM", "ANYOPIATE", "binge1", "ANYSTIM1", "ANYOPIATE1", "binge2", "ANYSTIM2", "ANYOPIATE2")
 imputation <- mice(dfs[, (names(dfs) %in% impute)], m=5, maxit=5, printFlag=TRUE, seed = 242)
 dfs1 <- complete(imputation, 1)
 dfs1 <- merge(dfs1, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
@@ -196,11 +196,11 @@ dfs5 <- merge(dfs5, dfs[, !(names(dfs) %in% keeps)], by = "SUBJECT")
 
 #reweight sample to address LTFU
 I_ABC <- dfs$FU1 == "Yes" & dfs$FU2 == 1
-gFU1a <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs1, na.action = na.omit)
-gFU1b <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs2, na.action = na.omit)
-gFU1c <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs3, na.action = na.omit)
-gFU1d <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs4, na.action = na.omit)
-gFU1e <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + MOSHOME + IJWOTH + GENDER + AGE, family = "binomial", data = dfs5, na.action = na.omit)
+gFU1a <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + JAIL + IJWOTH + GENDER + AGE + ANYSTIM, family = "binomial", data = dfs1, na.action = na.omit)
+gFU1b <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + IJWOTH + GENDER + AGE + ANYSTIM, family = "binomial", data = dfs2, na.action = na.omit)
+gFU1c <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + IJWOTH + GENDER + AGE + ANYSTIM, family = "binomial", data = dfs3, na.action = na.omit)
+gFU1d <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + IJWOTH + GENDER + AGE + ANYSTIM, family = "binomial", data = dfs4, na.action = na.omit)
+gFU1e <- glm(FU1 ~ RECSHR + PUBINJ + HOMELESS + IJWOTH + GENDER + AGE + ANYSTIM, family = "binomial", data = dfs5, na.action = na.omit)
 pFU1a <- predict(gFU1a, type = "response")
 pFU1b <- predict(gFU1b, type = "response")
 pFU1c <- predict(gFU1c, type = "response")
@@ -227,7 +227,7 @@ rm(gFU1a, gFU1b, gFU1c, gFU1d, gFU1e, gFU2a, gFU2b, gFU2c, gFU2d, gFU2e, pFU1a, 
 #dfc <- subset(df, FU2==1 & FU1=="Yes")
 
 #make dataset long format
-dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ", "PUBINJ1", "PUBINJ2"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ", "IJWOTH", "POLICE", "ARREST", "JAIL"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
+dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ", "PUBINJ1", "PUBINJ2"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2"), c("binge", "binge1", "binge2"), c("ANYSTIM", "ANYSTIM1", "ANYSTIM2"), c("ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ", "IJWOTH", "POLICE", "ARREST", "JAIL", "binge", "ANYSTIM", "ANYOPIATE"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
 
 #update variable types
 dfslong$TIMESHARE <- as.numeric(dfslong$TIMESHARE)
@@ -247,28 +247,20 @@ dfslong$YRSHOME <- dfslong$MOSHOME/12
 Analysis:
 
 ```{r analysis, include=TRUE, cache=TRUE}
-######################################################################################################
-########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE, SHELLEY TO CHECK WITH MAYA#############
-########LIZZY COMMENTED OUT ALL THE LINES WITH REWEIGHTING SO IT WOULDN'T DISTRICT US FOR NOW#########
-######################################################################################################
+######################################################################
+########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE#########
+######################################################################
 
-#gee model (no time-invariant covariates)
-#NOTE THAT THIS CURRENTLY INCLUDES POLICE, ARREST, and JAIL - do we want to drop?? Mixed effects models don't include these (though could)
-
+#gee model
 library(gee)
 modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee)
 
-#turns out that race makes the GEE crash. so here we have age and gender (which are time invarying) but need to condense race into fewer categories. 
-modelgee_minus_race <- gee(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + POLICE + ARREST + JAIL + GENDER + AGE, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
-
-summary(modelgee_minus_race)
-
 #mixed effects models
-modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
 summary(modelpoisson)
 
-modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + HOMELESS + PUBINJord*IJWOTHord + GENDER + AGE + RACELG + (1|SUBJECT), data = dfslong, na.action = na.omit)
+modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
 summary(modelnb)
 ```
 
@@ -283,5 +275,5 @@ plot(dfslong$PUBINJord, predict(simple_plot, type="link"))
 
 Tasks for Lizzy:
 - create substance use indicator variables
-- look into those who weren’t homeless but injected outside
+- look into those who weren't homeless but injected outside
 - consider treating homelessness as a categorical rather than continuous variable. I am not sure what it means to have an interaction term with ordinal*continuous?
