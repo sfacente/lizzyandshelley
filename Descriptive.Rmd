@@ -244,6 +244,10 @@ exp(summary(modelpoisson)$coefficients)
 modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
 summary(modelnb)
 exp(summary(modelnb)$coefficients)
+
+#using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
+est <- confint(modelnb, "PUBINJord", level=0.95, method="Wald")
+exp(est)
 ```
 
 Compare poisson and negative binomial models. I think it appears NB is better.
@@ -251,4 +255,7 @@ Compare poisson and negative binomial models. I think it appears NB is better.
 lrtest(modelpoisson, modelnb)
 AIC(modelpoisson, modelnb)
 ```
+
+
+
 
