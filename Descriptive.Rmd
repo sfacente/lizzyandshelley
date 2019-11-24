@@ -17,12 +17,14 @@ library(reshape2)
 library(lme4)
 library(MASS)
 library(mice)
+library(biostat3)
+library(lmtest)
 ```
 
 ```{r dataload, include=FALSE}
 #set working directory
-#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -105,7 +107,6 @@ df$binge1 <- ifelse(df$ALCDAY1==0, 0, ifelse(df$ALCTX1<4, 0, ifelse(df$ALCTX1>3,
 #binge FU2
 df$binge2 <- ifelse(df$ALCDAY2==0, 0, ifelse(df$ALCTX2<4, 0, ifelse(df$ALCTX2>3, 1, NA)))
 
-
 #any stimulant injection
 #any stimulant injection baseline
 df$ANYSTIM <- ifelse(df$CRKINJ=="Yes" | df$CCINJ=="Yes" | df$MTINJ=="Yes" | df$STINJ=="Yes", 1, ifelse(df$CRKINJ=="No" & df$CCINJ=="No" & df$MTINJ=="No" & df$STINJ=="No", 0, NA))
@@ -115,10 +116,11 @@ df$ANYSTIM1 <- ifelse(df$CRKINJ1=="Yes" | df$CCINJ1=="Yes" | df$MTINJ1=="Yes" | 
 df$ANYSTIM2 <- ifelse(df$CRKINJ2=="Yes" | df$CCINJ2=="Yes" | df$MTINJ2=="Yes" | df$STINJ2=="Yes", 1, ifelse(df$CRKINJ2=="No" & df$CCINJ2=="No" & df$MTINJ2=="No" & df$STINJ2=="No", 0, NA))
 
 #any opioid injection
+#any opioid injection baseline
 df$ANYOPIATE <- ifelse(df$HRINJ=="Yes" | df$OPINJ=="Yes", 1, ifelse(df$HRINJ=="No" & df$OPINJ=="No", 0, NA))
-
+#any opioid injection FU1
 df$ANYOPIATE1 <- ifelse(df$HRINJ1=="Yes" | df$OPINJ1=="Yes", 1, ifelse(df$HRINJ1=="No" & df$OPINJ1=="No", 0, NA))
-
+#any opioid injection FU2
 df$ANYOPIATE2 <- ifelse(df$HRINJ2=="Yes" | df$OPINJ2=="Yes", 1, ifelse(df$HRINJ2=="No" & df$OPINJ2=="No", 0, NA))
 
 #clean up data types
@@ -219,9 +221,9 @@ dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)",
 dfslong$YRSHOME <- dfslong$MOSHOME/12
 ```
 
-Analysis:
+Analysis with no weights:
 
-```{r analysis, include=TRUE, cache=TRUE}
+```{r analysis no weights, include=TRUE, cache=TRUE}
 ######################################################################
 ########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE#########
 ######################################################################
@@ -232,23 +234,21 @@ modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIA
 summary(modelgee)
 
 #mixed effects models
+
+#poisson
 modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
 summary(modelpoisson)
+exp(summary(modelpoisson)$coefficients)
 
+#negative binomial
 modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
 summary(modelnb)
+exp(summary(modelnb)$coefficients)
 ```
 
-
+Compare poisson and negative binomial models. I think it appears NB is better.
 ```{r}
-#trying to plot public injecting against sharing to see what it looks like visually
-simple_plot <- glm(TIMESHARE ~ PUBINJord, family = "poisson", data = dfslong, na.action = na.omit)
-
-#code not working
-plot(dfslong$PUBINJord, predict(simple_plot, type="link"))
+lrtest(modelpoisson, modelnb)
+AIC(modelpoisson, modelnb)
 ```
 
-Tasks for Lizzy:
-- create substance use indicator variables
-- look into those who weren't homeless but injected outside
-- consider treating homelessness as a categorical rather than continuous variable. I am not sure what it means to have an interaction term with ordinal*continuous?
