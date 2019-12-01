@@ -133,6 +133,14 @@ df$AGE <- as.numeric(df$AGE)
 df$Rshare1 <- factor(df$Rshare1)
 df$HOMELESS <- as.numeric(df$HOMELESS)
 
+#calculate syringe sharing rate
+df$RECSHR <- as.numeric(levels(df$RECSHR))[df$RECSHR]
+df$RECSHR2 <- as.numeric(levels(df$RECSHR2))[df$RECSHR2]
+shared0 <- sum(df$RECSHR>0, na.rm = TRUE)
+shared2 <- sum(df$RECSHR2>0, na.rm = TRUE)
+sharerate0pm <- (sum(df$RECSHR[df$RECSHR>0], na.rm = TRUE)/shared0)/6
+sharerate2pm <- (sum(df$RECSHR2[df$RECSHR2>0], na.rm = TRUE)/shared2)/6
+
 #create key variables not asked at baseline
 df$ARREST <- rep(NA)
 df$POLICE <- rep(NA)
