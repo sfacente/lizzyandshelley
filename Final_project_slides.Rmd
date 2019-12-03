@@ -582,7 +582,7 @@ modelnb_categorical <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AG
 summary(modelnb_categorical)
 NB.pvalue <- data.frame(summary(modelnb_categorical)$coefficients)
 NB.est <- data.frame(exp(summary(modelnb_categorical)$coefficients))
-NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4])
+NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
 
 # #using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
 # est_categorical <- confint(modelnb_categorical, c("PUBINJ_3cat1", "PUBINJ_3cat2"), level=0.95, method="Wald")
@@ -612,10 +612,10 @@ out.all <- out.all[-1,]; out.all
 GET THIS WORKING - SHELLEY  
 %%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-<!--Compare poisson and negative binomial models. NB is better.-->
+<!--Compare poisson and negative binomial mixed models. NB is better. Less negative log likelihood and lower AIC.-->
 ```{r compare, include = FALSE}
 lrtest(modelpoisson_categorical, modelnb_categorical)
-#AIC(modelpoisson_categorical, modelnb_categorical, modelgee_categorical)
+AIC(modelpoisson_categorical, modelnb_categorical)
 ```
 
 # Results
