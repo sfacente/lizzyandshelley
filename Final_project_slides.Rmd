@@ -569,16 +569,9 @@ NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-out.all <- data.frame(gee.out, pois.out, NB.out); out.all
-```
-
-# Unformatted output
-\fontsize{6}{6}\selectfont
-
-```{r output, ECHO=TRUE}
+out.all <- data.frame(gee.out, pois.out, NB.out)
 out.all <- out.all[-1,]; out.all
 ```
-
 
 #Compare models 
 
