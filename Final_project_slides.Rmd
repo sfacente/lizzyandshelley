@@ -287,8 +287,11 @@ Elizabeth Kinnard and Shelley Facente
 \underline{Methods}: PWID (N=984) were recruited using targeted sampling and completed surveys during three study visits (baseline, 6-month, and 12-month) in 2016 and 2017. The explanatory variable was frequency of having injected in public (never, occasionally/sometimes, or usually/always), and the outcome variable was number of times having used syringes that had already been used by someone else in the past six months. Explanatory and outcome variables were measured across all three timepoints. We used a longitudinal negative binomial mixed-effects model to assess the relationship of interest.
 
 \underline{Results}: At baseline, 78% of participants had injected publicly in the past six months, with 38% of the sample reporting that they usually/always injected publicly. Over a quarter (26%) had injected with a previously used syringe in the six months preceding baseline, with an average of 20.9 instances of receptive syringe sharing during this period. The majority (83%) reported current homelessness at baseline. In multivariable analysis across all timepoints, participants who usually/always injected publicly had 1.71 (95% CI: 1.30, 2.24) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for age, gender, homelessness, stimulant injecting, opioid injecting, and binge drinking.
+__##########LIZZY TO UPDATE############__
 
 \underline{Conclusion}: Usually/always injecting publicly is associated with a higher frequency of receptive syringe sharing among PWID, suggesting the need for safer environment interventions, such as supervised consumption sites.
+
+
 
 \normalsize
 
