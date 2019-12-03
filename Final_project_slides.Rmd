@@ -3,7 +3,6 @@ title: "242 Final Project"
 author: "Lizzy Kinnard and Shelley Facente"
 date: "November 21, 2019"
 output: beamer_presentation
-theme: "Madrid"
 ---
 
 ```{r setup, include=FALSE}
@@ -21,9 +20,35 @@ library(mice)
 library(biostat3)
 library(lmtest)
 library(gee)
+library(sandwich)
+
+glmer.post.estimate=function(glmob,comps,labs=NULL,rounded=4,exponentiate=FALSE) {
+  if(is.matrix(comps)==FALSE) {
+    comps=t(as.matrix(comps))}
+  vc=vcov(glmob)
+  ests = fixef(glmob)
+  linear.ests=as.vector(comps%*%ests)
+  vcests=comps%*%vc%*%t(comps)
+  ses=sqrt(diag(vcests))
+  pvalue=(2*(1-pnorm(abs(linear.ests/ses))))
+  if(exponentiate) {
+    l95ci = exp(linear.ests - 1.96 * ses)
+    exp_beta = exp(linear.ests)
+    u95ci = exp(linear.ests + 1.96 * ses)
+    summ = cbind(Ratio.est=format(round(exp_beta,rounded),nsmall=rounded),CI=paste(format(round(l95ci,rounded),nsmall=rounded),format(round(u95ci,rounded),nsmall=rounded),sep=" - "), pvalue=format(round(pvalue,rounded),nsmall=rounded))     
+    rownames(summ)=labs
+  }
+  if(exponentiate==FALSE) {
+    l95ci = (linear.ests - 1.96 * ses)
+    beta = (linear.ests)
+    u95ci = (linear.ests + 1.96 * ses)
+    summ = cbind(Est=format(round(beta,rounded),nsmall=rounded),CI=paste(format(round(l95ci,rounded),nsmall=rounded),format(round(u95ci,rounded),nsmall=rounded),sep=" - "), pvalue=format(round(pvalue,rounded+1),nsmall=rounded))  
+    rownames(summ)=labs
+  }
+  return(summ) }
 ```
 
-```{r dataload, include=FALSE}
+```{r dataload, include=FALSE, cache = TRUE}
 #set working directory
 #setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
 setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
@@ -244,12 +269,19 @@ dfslong$YRSHOME <- dfslong$MOSHOME/12
 ```
 
 #
-## Title: \normalfont{**SNARKY: Sharing Needles As a Result of Kowtowing to Yuppies**}
+## SNARKY: Sharing Needles As a Result of Kowtowing to Yuppies
 
-## Authors: \normalfont{Elizabeth Kinnard and Shelley Facente}
+\vspace{8pt}
+
+Elizabeth Kinnard and Shelley Facente
+
+\vspace{10pt}
 
 ## Abstract:
-\small
+
+\vspace{5pt}
+
+\fontsize{7}{7}\selectfont
 \underline{Aim}: People who inject drugs (PWID) in public have a higher risk of homelessness, incarceration, rushed injection, and overdose than people who do not inject drugs in public. There is limited research on the relationship between public injection and syringe sharing, a risk factor for infectious diseases. The aim of this study was to investigate longitudinal associations between frequency of public injection and syringe sharing among PWID in San Francisco and Los Angeles, California. 
 
 \underline{Methods}: PWID (N=984) were recruited using targeted sampling and completed surveys during three study visits (baseline, 6-month, and 12-month) in 2016 and 2017. The explanatory variable was frequency of having injected in public (never, occasionally/sometimes, or usually/always), and the outcome variable was number of times having used syringes that had already been used by someone else in the past six months. Explanatory and outcome variables were measured across all three timepoints. We used a longitudinal negative binomial mixed-effects model to assess the relationship of interest.
@@ -261,17 +293,19 @@ dfslong$YRSHOME <- dfslong$MOSHOME/12
 \normalsize
 
 
-# Research Question
+# 
+\usebeamerfont*{frametitle} \usebeamercolor[fg]{frametitle} Research Question
 
-\vspace{20pt}
-Among people who inject drugs (PWID), is frequency of public injection (e.g. on a sidewalk) associated with increased frequency of injecting with a syringe previously used by someone else?
+\vspace{12pt}
+
+\textcolor{black}{Among people who inject drugs (PWID), is frequency of public injection (e.g. on a sidewalk) associated with increased frequency of injecting with a syringe previously used by someone else?}
 
 # Description of Study
 This study was a randomized controlled trial to determine efficacy of an intervention to prevent people from helping others to inject drugs for the first time. 984 participants were recruited in San Francisco and Los Angeles using targeted sampling, and completed surveys at three study visits from 2016-2017.
   
 For this analysis we ignored study arm and treated data over the three study visits (baseline, 6-month, and 12-month follow-up) as repeated measures. Surveys included data on demographic variables (age, gender, race), as well as time-varying variables including months homeless, types of substances used and routes of administration, frequency of substance use, frequency of injecting in public, and number of times in the past 6 months using syringes that were already used by someone else.
 
-```{r}
+```{r table, include = FALSE}
 baseline <- dfs
 FU1 <- subset(dfs, FU1=="Yes")
 FU2 <- subset(dfs, FU2=="1")
@@ -406,22 +440,22 @@ opiate1 <- sum(FU1$ANYOPIATE1)
 opiate1p <- opiate1/nrow(FU1)*100
 opiate2 <- sum(FU2$ANYOPIATE2)
 opiate2p <- opiate2/nrow(FU2)*100
-bingeb <- sum(baseline$binge)
+bingeb <- sum(baseline$binge, na.rm=TRUE)
 bingebp <- bingeb/nrow(baseline)*100
-binge1 <- sum(FU1$binge1)
+binge1 <- sum(FU1$binge1, na.rm=TRUE)
 binge1p <- binge1/nrow(FU1)*100
-binge2 <- sum(FU2$binge2)
+binge2 <- sum(FU2$binge2, na.rm=TRUE)
 binge2p <- binge2/nrow(FU2)*100
 ```
 
 # Description of Sample
-One of the biggest challenges of this analysis was appropriately dealing with informative censoring with large loss-to-follow-up. The table below shows the number of people and key variables at each study timepoint (note that 6 participants were dropped from the analysis due to substantial amounts of missing data):
+One of the biggest challenges of this analysis was appropriately dealing with informative censoring with large loss-to-follow-up. <!--The table below shows the number of people and key variables at each study timepoint (note that 6 participants were dropped from the analysis due to substantial amounts of missing data):-->
 
-\tiny
+\fontsize{5}{5}\selectfont
 
-| \fontcolor{white}{.}| \fontcolor{white}{.} | Baseline | 6-month F/U | 12-month F/U |
-| ----------- | -------- | --------- | --------|
-| | Total | `r nrow(baseline)` (100%) | `r nrow(FU1)` (`r round(FU1nper, 1)`%) | `r nrow(FU2)` (`r round(FU2nper, 1)`%) |
+| \textcolor{white}{.}| \textcolor{white}{.} | Baseline | 6-month F/U | 12-month F/U |
+| ----------- | -------- | --------- | --------| --------|
+| Total |  | `r nrow(baseline)` (100%) | `r nrow(FU1)` (`r round(FU1nper, 1)`%) | `r nrow(FU2)` (`r round(FU2nper, 1)`%) |
 |  |  |  | | | 
 |     | Min | `r minageb` | `r minage1` | `r minage2` |
 | Age | Median | `r medageb` | `r medage1` | `r medage2` |
@@ -456,14 +490,19 @@ One of the biggest challenges of this analysis was appropriately dealing with in
 \normalsize
 
 # Statistical Model
-We converted our research question into a parameter of interest using a series of longitudinal regression models with the following form:
+We converted our research question into a parameter of interest using a series of longitudinal regression models where:
+\vspace{-9pt}
 
 \begin{align*}
-log (E[Y|\textbf{X}]) &= \beta_0 + \beta_{0i} + (\beta_1 + \beta_{1i} + \beta_{1j}) X_{1ij} + (\beta_2 + \beta_{2i} + \beta_{2j}) X_{2ij} + \beta_3X_3 + \beta_4X_4 + \\ 
-&\ \ (\beta_5 + \beta_{5i} + \beta_{5j}) X_{5ij} + (\beta_6 + \beta_{6i} + \beta_{6j}) X_{6ij} + (\beta_7 + \beta_{7i} + \beta_{7j}) X_{7ij}
+log (E[Y|\textbf{X}]) &= \beta_0 + \beta_{0i} + (\beta_1 + \beta_{1i} + \beta_{1j}) X_{1ij} + (\beta_2 + \beta_{2i} + \beta_{2j}) X_{2ij} + \\
+&\ \ \ \beta_3X_3 + \beta_4X_4 + (\beta_5 + \beta_{5i} + \beta_{5j}) X_{5ij} + \\
+&\ \ \ (\beta_6 + \beta_{6i} + \beta_{6j}) X_{6ij} + (\beta_7 + \beta_{7i} + \beta_{7j}) X_{7ij}
 \end{align*}
 
+\small
 where:
+
+\vspace{-4pt}
 
 * Y = number of times shared syringes (outcome)
 * $X_1$ = frequency of public injection (exposure)
@@ -476,92 +515,122 @@ where:
 
 All variables have a recall period of 6 months, where applicable. 
 
+\normalsize
+
 # Methods used to fit model and derive inference
+\footnotesize
 We fit 3 models to answer this question: GEE, and mixed effects models using both poisson and negative binomial distributions.
 
 The \textbf{GEE model} estimated the marginal effects of public injection frequency on receptive syringe sharing across the three timepoints, controlling for homelessness, gender, age, stimulant or opiate injection, and binge drinking. GEEs treat the correlation between subjects as a "nuisance" parameter. We did this using the $\tt{gee}$ package in R, assuming an exchangeable correlation structure and a poisson distribution. 
 
-The \textbf{mixed effects models} estimate the marginal longitudinal effect of public injection frequency on receptive syringe sharing, controlling for the same confounders, but allow for both a random intercept term and a random effect term for frequency of public injection (our exposure), homelessness, and the substance use variables. These models use maximum likelihood to estimate the coefficients in the model, but rely on correct specification of both the mean model and the correlation structure of the residual errors. We did this using the $\tt{glmer}$ function in the $\tt{MASS}$ package in R, specifying *family = "poisson"*, and using the $\tt{glmer.nb}$ function in the $\tt{lme4}$ package in R for the negative binomial model. For the mixed models we calculated 95% confidence intervals using the sandwich estimator. 
+The \textbf{mixed effects models} estimate the marginal longitudinal effect of public injection frequency on receptive syringe sharing, controlling for the same confounders, but allow for both a random intercept term and a random effect term for frequency of public injection (our exposure), homelessness, and the substance use variables. These models use maximum likelihood to estimate the coefficients in the model, but rely on correct specification of both the mean model and the correlation structure of the residual errors. We did this using the $\tt{glmer}$ function in the $\tt{MASS}$ package in R, specifying $\tt{family = "poisson"}$, and using the $\tt{glmer.nb}$ function in the $\tt{lme4}$ package in R for the negative binomial model. For the mixed models we calculated 95% confidence intervals using the sandwich estimator. 
+
+\normalsize
 
 <!--
-Analysis with no weights:
+Analysis with no weights:-->
 
 ```{r analysis no weights, include=FALSE, cache=TRUE}
 ######################################################################
 ########NOTE THAT RIGHT NOW WE ARE NOT REWEIGHTING THE SAMPLE#########
 ######################################################################
 
-#gee model
-modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
-summary(modelgee)
+# #gee model
+#modelgee <- gee(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+#summary(modelgee)
 
-#mixed effects models
+# #mixed effects models
 
-#poisson
-modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
-summary(modelpoisson)
-exp(summary(modelpoisson)$coefficients)
+# #poisson
+#modelpoisson <- glmer(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+#summary(modelpoisson)
+#exp(summary(modelpoisson)$coefficients)
 
-#negative binomial
-modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
-summary(modelnb)
-exp(summary(modelnb)$coefficients)
+# #negative binomial
+#modelnb <- glmer.nb(TIMESHARE ~ PUBINJord*YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+#summary(modelnb)
+#exp(summary(modelnb)$coefficients)
 
-#using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
-est <- confint(modelnb, "PUBINJord", level=0.95, method="Wald")
-exp(est)
+# #using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
+#est <- confint(modelnb, "PUBINJord", level=0.95, method="Wald")
+#exp(est)
 ```
 
-Playing around with public injecting as categorical instead of ordinal.
+<!--Playing around with public injecting as categorical instead of ordinal.
 -->
-```{r, include = FALSE, cache = TRUE}
+```{r models, include = FALSE, cache = TRUE}
 #gee
-modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + YRSHOME + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee_categorical)
-exp(modelgee_categorical$coefficients)
+gee.names <- data.frame(names(modelgee_categorical$coefficients))
+gee.out <- data.frame(coef(summary(modelgee_categorical)))
+gee.out <- data.frame(gee.out, pvalue=2*(1-pnorm(abs(gee.out[,5]))))
+gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE=gee.out[,4], pvalue.GEE=gee.out[,6]); gee.out
 
 #poisson
 modelpoisson_categorical <- glmer(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
 summary(modelpoisson_categorical)
-exp(summary(modelpoisson_categorical)$coefficients)
+pois.pvalue <- data.frame(summary(modelpoisson_categorical)$coefficients)
+pois.est <- data.frame(exp(summary(modelpoisson_categorical)$coefficients))
+pois.out <- data.frame(Est.MM.Pois=pois.est[,1], pvalue.MM.Pois=pois.pvalue[,4]); pois.out
 
 #negative binomial
 modelnb_categorical <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
 summary(modelnb_categorical)
-exp(summary(modelnb_categorical)$coefficients)
+NB.pvalue <- data.frame(summary(modelnb_categorical)$coefficients)
+NB.est <- data.frame(exp(summary(modelnb_categorical)$coefficients))
+NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4])
 
-#using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
-est_categorical <- confint(modelnb_categorical, c("PUBINJ_3cat1", "PUBINJ_3cat2"), level=0.95, method="Wald")
-exp(est_categorical)
+# #using confint.merMod from lme4 to get 95% CI for public injecting. I think we want method="profile" instead of method="Wald" but I couldn't get it to work.
+# est_categorical <- confint(modelnb_categorical, c("PUBINJ_3cat1", "PUBINJ_3cat2"), level=0.95, method="Wald")
+# exp(est_categorical)
 
-###############
-# NEED TO ESTIMATE CONFIDENCE INTERVALS FOR ALL 3 MODELS USING SANDWICH ESTIMATOR
-###############
+# #NB sandwich estimator
+#robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
+#SE_nb <- sqrt(diag(robVar_nb))
+#out.NB <- data.frame(Est.NB = coef(modelnb_categorical), SE.NB = SE_nb)
+#out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
+
+#all the model output
+out.all <- data.frame(gee.out, pois.out, NB.out); out.all
 ```
+
+# Unformatted output
+\fontsize{6}{6}\selectfont
+
+```{r output, ECHO=TRUE}
+out.all <- out.all[-1,]; out.all
+```
+
+
+#Compare models 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+GET THIS WORKING - SHELLEY  
+%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 <!--Compare poisson and negative binomial models. NB is better.-->
-```{r, include = FALSE}
+```{r compare, include = FALSE}
 lrtest(modelpoisson_categorical, modelnb_categorical)
-AIC(modelpoisson_categorical, modelnb_categorical, modelgee_categorical)
+#AIC(modelpoisson_categorical, modelnb_categorical, modelgee_categorical)
 ```
-
 
 # Results
 Make nice tables presenting the results. Attempt to make a compelling graph that addresses the question of interest.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
-MAKE THE TABLE OF RESULTS
-%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%
-MAKE THE GRAPH
-%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%  
+MAKE THE TABLE OF RESULTS - Shelley  
+%%%%%%%%%%%%%%%%%%%%%%%%%  
+  
+%%%%%%%%%%%%%%%  
+MAKE THE GRAPH - Lizzy  
+%%%%%%%%%%%%%%%  
 
 # Discussion
 Interpret your results both with regard to the substantive question of interest as well as any statistical issues.
 
-%%%%%%%%%%%%%%
-DO THIS SLIDE
-%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%  
+DO THIS SLIDE - Lizzy  
+%%%%%%%%%%%%%%  
 
 
