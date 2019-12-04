@@ -26,8 +26,8 @@ library(ggpubr)
 
 ```{r dataload, include=FALSE, cache = TRUE}
 #set working directory
-setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -253,7 +253,7 @@ dfslong$YRSHOME <- dfslong$MOSHOME/12
 
 Elizabeth Kinnard and Shelley Facente
 
-\vspace{10pt}
+\vspace{2pt}
 
 ## Abstract:
 
@@ -264,7 +264,7 @@ Elizabeth Kinnard and Shelley Facente
 
 \underline{Methods}: PWID (N=984) were recruited using targeted sampling and completed surveys during three study visits (baseline, 6-month, and 12-month) in 2016 and 2017. The explanatory variable was frequency of having injected in public (never, occasionally/sometimes, or usually/always), and the outcome variable was number of times having used syringes that had already been used by someone else in the past six months. Explanatory and outcome variables were measured across all three timepoints. We used a longitudinal negative binomial mixed-effects model to assess the relationship of interest.
 
-\underline{Results}: At baseline, 78% of participants had injected publicly in the past six months, with 38% of the sample reporting that they usually/always injected publicly. Over a quarter (26%) had injected with a previously used syringe in the six months preceding baseline, with an average of 20.9 instances of receptive syringe sharing during this period. The majority (83%) reported current homelessness at baseline. In multivariable analysis across all timepoints, participants who usually/always injected publicly had 7.99 (p < .001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for age, gender, homelessness, stimulant injecting, opioid injecting, and binge drinking. Participants who occasionally/sometimes injected publicly had 3.28 (p < .001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates. 
+\underline{Results}: At baseline, 78% of participants had injected publicly in the past six months, with 38% of the sample reporting that they usually/always injected publicly. Over a quarter (26%) had injected with a previously used syringe in the six months preceding baseline, with an average of 20.9 instances of receptive syringe sharing during this period. The majority (83%) reported current homelessness at baseline. In multivariable analysis across all timepoints, participants who usually/always injected publicly had 7.99 (95% CI: 5.11-10.88, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for age, gender, homelessness, stimulant injecting, opioid injecting, and binge drinking. Participants who occasionally/sometimes injected publicly had 3.28 (95% CI: 0.50-6.06, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates. 
 
 \underline{Conclusion}: Injecting publicly is associated with a higher frequency of receptive syringe sharing among PWID, suggesting the need for safer environment interventions, such as supervised consumption sites.
 
@@ -747,14 +747,7 @@ bingenbu <- round(out.all[9,7] + 1.96*(NB.est[10,2]), 2)
 \footnotesize
 We can see from these results that the inference is similar across models, though the magnitude of the effect is much stronger in the negative binomial model, and the standard error is much larger for the GEE model.
 
-
-# Attempt a compelling graph related to your research question
-  
-%%%%%%%%%%%%%%%  
-MAKE THE GRAPH - Lizzy  
-%%%%%%%%%%%%%%%  
-
-```{r}
+```{r graph, include = FALSE, eval = FALSE}
 #library(ggplot2)
 #library(lme4)
 
@@ -786,7 +779,8 @@ MAKE THE GRAPH - Lizzy
 
 # Discussion
 
-In multivariable analysis across all timepoints, participants who usually/always injected publicly had 7.99 (95% CI: 5.11-10.88, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates. Participants who occasionally/sometimes injected publicly had 3.28 (95% CI: 0.50-6.06, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates. 
+\footnotesize
+__In multivariable analysis across all timepoints, participants who usually/always injected publicly had 7.99 (95% CI: 5.11-10.88, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates. Participants who occasionally/sometimes injected publicly had 3.28 (95% CI: 0.50-6.06, p <.001) times higher counts of receptive syringe sharing over the past six months, compared to those who never publicly injected, controlling for covariates.__ 
 
 \underline{Conclusion}: Injecting publicly is associated with receptive syringe sharing among PWID, with higher frequency of public injection corresponding to higher frequency of sharing syringes. This suggests that PWID may be rushing their injections in public settings by using shared syringes. Future research should explore the role that police presence plays in this relationship, e.g. as a mediator on the pathway. Findings underscore the need for safer environment interventions, such as supervised consumption sites, where PWID can take their time injecting and use sterile equipment.
 
