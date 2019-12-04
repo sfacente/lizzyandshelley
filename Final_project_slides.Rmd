@@ -647,6 +647,72 @@ We are not able to run comparison tests of fit for GEE compared to our mixed mod
 
 # Results
 
+```{r cis, include = FALSE, echo = FALSE}
+sometimesgeel <- round(out.all[1,2] - 1.96*(out.all[1,3]), 2)
+sometimesgeeu <- round(out.all[1,2] + 1.96*(out.all[1,3]), 2)
+sometimespoisl <- round(out.all[1,5] - 1.96*(pois.est[2,2]), 2)
+sometimespoisu <- round(out.all[1,5] + 1.96*(pois.est[2,2]), 2)
+sometimesnbl <- round(out.all[1,7] - 1.96*(NB.est[2,2]), 2)
+sometimesnbu <- round(out.all[1,7] + 1.96*(NB.est[2,2]), 2)
+
+alwaysgeel <- round(out.all[2,2] - 1.96*(out.all[2,3]), 2)
+alwaysgeeu <- round(out.all[2,2] + 1.96*(out.all[2,3]), 2)
+alwayspoisl <- round(out.all[2,5] - 1.96*(pois.est[3,2]), 2)
+alwayspoisu <- round(out.all[2,5] + 1.96*(pois.est[3,2]), 2)
+alwaysnbl <- round(out.all[2,7] - 1.96*(NB.est[3,2]), 2)
+alwaysnbu <- round(out.all[2,7] + 1.96*(NB.est[3,2]), 2)
+
+homelessgeel <- round(out.all[3,2] - 1.96*(out.all[3,3]), 2)
+homelessgeeu <- round(out.all[3,2] + 1.96*(out.all[3,3]), 2)
+homelesspoisl <- round(out.all[3,5] - 1.96*(pois.est[4,2]), 2)
+homelesspoisu <- round(out.all[3,5] + 1.96*(pois.est[4,2]), 2)
+homelessnbl <- round(out.all[3,7] - 1.96*(NB.est[4,2]), 2)
+homelessnbu <- round(out.all[3,7] + 1.96*(NB.est[4,2]), 2)
+
+femalegeel <- round(out.all[4,2] - 1.96*(out.all[4,3]), 2)
+femalegeeu <- round(out.all[4,2] + 1.96*(out.all[4,3]), 2)
+femalepoisl <- round(out.all[4,5] - 1.96*(pois.est[5,2]), 2)
+femalepoisu <- round(out.all[4,5] + 1.96*(pois.est[5,2]), 2)
+femalenbl <- round(out.all[4,7] - 1.96*(NB.est[5,2]), 2)
+femalenbu <- round(out.all[4,7] + 1.96*(NB.est[5,2]), 2)
+
+tggeel <- round(out.all[5,2] - 1.96*(out.all[5,3]), 2)
+tggeeu <- round(out.all[5,2] + 1.96*(out.all[5,3]), 2)
+tgpoisl <- round(out.all[5,5] - 1.96*(pois.est[6,2]), 2)
+tgpoisu <- round(out.all[5,5] + 1.96*(pois.est[6,2]), 2)
+tgnbl <- round(out.all[5,7] - 1.96*(NB.est[6,2]), 2)
+tgnbu <- round(out.all[5,7] + 1.96*(NB.est[6,2]), 2)
+
+agegeel <- round(out.all[6,2] - 1.96*(out.all[6,3]), 2)
+agegeeu <- round(out.all[6,2] + 1.96*(out.all[6,3]), 2)
+agepoisl <- round(out.all[6,5] - 1.96*(pois.est[7,2]), 2)
+agepoisu <- round(out.all[6,5] + 1.96*(pois.est[7,2]), 2)
+agenbl <- round(out.all[6,7] - 1.96*(NB.est[7,2]), 2)
+agenbu <- round(out.all[6,7] + 1.96*(NB.est[7,2]), 2)
+
+stimgeel <- round(out.all[7,2] - 1.96*(out.all[7,3]), 2)
+stimgeeu <- round(out.all[7,2] + 1.96*(out.all[7,3]), 2)
+stimpoisl <- round(out.all[7,5] - 1.96*(pois.est[8,2]), 2)
+stimpoisu <- round(out.all[7,5] + 1.96*(pois.est[8,2]), 2)
+stimnbl <- round(out.all[7,7] - 1.96*(NB.est[8,2]), 2)
+stimnbu <- round(out.all[7,7] + 1.96*(NB.est[8,2]), 2)
+
+opiategeel <- round(out.all[8,2] - 1.96*(out.all[8,3]), 2)
+opiategeeu <- round(out.all[8,2] + 1.96*(out.all[8,3]), 2)
+opiatepoisl <- round(out.all[8,5] - 1.96*(pois.est[9,2]), 2)
+opiatepoisu <- round(out.all[8,5] + 1.96*(pois.est[9,2]), 2)
+opiatenbl <- round(out.all[8,7] - 1.96*(NB.est[9,2]), 2)
+opiatenbu <- round(out.all[8,7] + 1.96*(NB.est[9,2]), 2)
+
+bingegeel <- round(out.all[9,2] - 1.96*(out.all[9,3]), 2)
+bingegeeu <- round(out.all[9,2] + 1.96*(out.all[9,3]), 2)
+bingepoisl <- round(out.all[9,5] - 1.96*(pois.est[10,2]), 2)
+bingepoisu <- round(out.all[9,5] + 1.96*(pois.est[10,2]), 2)
+bingenbl <- round(out.all[9,7] - 1.96*(NB.est[10,2]), 2)
+bingenbu <- round(out.all[9,7] + 1.96*(NB.est[10,2]), 2)
+```
+
+
 \tiny
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GEE \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ Mixed Model \ \ \ \ \ \ \ \ \ \ \ \ \ \ Mixed Model   
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (Poisson)  \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ (Poisson) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  (Neg Binom.) 
@@ -696,5 +762,3 @@ Interpret your results both with regard to the substantive question of interest 
 %%%%%%%%%%%%%%  
 DO THIS SLIDE - Lizzy  
 %%%%%%%%%%%%%%  
-
-
