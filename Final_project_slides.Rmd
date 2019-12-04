@@ -543,7 +543,9 @@ modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + 
 summary(modelgee_categorical)
 gee.names <- data.frame(names(modelgee_categorical$coefficients))
 gee.out <- data.frame(coef(summary(modelgee_categorical)))
-gee.out <- data.frame(gee.out, pvalue=2*(1-pnorm(abs(gee.out[,5]))))
+pvalue <- data.frame(pvalue=2*(1-pnorm(abs(gee.out[,5]))))
+gee.out <- data.frame(exp(coef(summary(modelgee_categorical))))
+gee.out <- data.frame(gee.out, pvalue)
 gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE=gee.out[,4], pvalue.GEE=gee.out[,6]); gee.out
 
 #poisson
@@ -581,10 +583,10 @@ out.all <- out.all[-1,]; out.all
 
 \small
 Since we have count data, we first created a histogram of the outcome (number of times sharing needles after someone else had already used them, over the prior six months). The left panel (A) includes all participants, and the right panel (B) includes only participants who reported sharing needles at least once during the recall period. 
-```{r hist, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 4}
+```{r hist, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 4, cache = TRUE}
 #Create a histogram of the outcome, since we're using counts and Alan said "Always start with this"
 hist1 <- ggplot(dfslong, aes(x=TIMESHARE)) + geom_histogram(aes(y=..density..), colour="black", fill="white")+ geom_density(alpha=.2, fill="darkblue")+ scale_x_continuous(limits = c(0, 100)) + xlab("Number of times sharing used syringes") + ylab("Density") + ggtitle("A")
-hist2 <- ggplot(subset(dfslong, dfslong$TIMESHARE>0), aes(x=TIMESHARE)) + geom_histogram(aes(y=..density..), colour="black", fill="white")+ geom_density(alpha=.2, fill="darkblue")+ scale_x_continuous(limits = c(0, 100)) + xlab("Number of times sharing used syringes") + ylab("Density") + ggtitle("B")
+hist2 <- ggplot(subset(dfslong, dfslong$TIMESHARE>0), aes(x=TIMESHARE)) + geom_histogram(aes(y=..density..), colour="black", fill="white")+ geom_density(alpha=.2, fill="darkblue")+ scale_x_continuous(limits = c(1, 100)) + xlab("Number of times sharing used syringes") + ylab("Density") + ggtitle("B")
 hists <- ggarrange(hist1, hist2, ncol = 2, nrow = 1)
 suppressWarnings(print(hists))
 ```
@@ -744,19 +746,27 @@ bingenbu <- round(out.all[9,7] + 1.96*(NB.est[10,2]), 2)
 \vspace{-14pt}
 \ \ \ \ \ \ *p-values based on robust SEs  
   
-\footnotesize
-We can see from these results that the inference is similar across models, though the magnitude of the effect is much stronger in the negative binomial model, and the standard error is much larger for the GEE model.
+\scriptsize
+We can see from these results that the inference is similar across models, though the magnitude of the effect of public injection is much stronger in the negative binomial mixed model. The standard error is also much larger for the GEE model, as evidenced by larger p-values. 
 
-```{r graph, include = FALSE, eval = FALSE}
+#Plot of Results
 
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-               "#0072B2", "#D55E00", "#CC79A7")
+\vspace{6pt}
 
-plot_to_print <- ggplot(data = dfslong, aes(x = VISIT, y = TIMESHARE,
-                            group=interaction(VISIT, PUBINJ_3cat))) +
-  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) +
-  ggtitle("Outcome over time: syringe sharing by public injection frequency") +
-  labs(y= "Times shared", x = "Public Injecting") ; plot_to_print
+```{r graph, include = TRUE, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 5.5}
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+library(RColorBrewer)
+dfslong2 <- subset(dfslong, !is.na(dfslong$PUBINJ_3cat))
+plot1 <- ggplot(data = subset(dfslong2, VISIT=="baseline"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "Baseline") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+plot2 <- ggplot(data = subset(dfslong2, VISIT=="FU1"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "6-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+plot3 <- ggplot(data = subset(dfslong2, VISIT=="FU2"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "12-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+plots <- ggarrange(plot1, plot2, plot3, ncol = 3, nrow = 1)
+plots <- annotate_figure(plots, top = text_grob("Outcome over time: syringe sharing by public injection frequency", size = 20))
+suppressWarnings(print(plots))
 
 ###tried to make visit numeric/integer and see if that helped but it didn't, so commenting this chunk out###
 
@@ -771,6 +781,10 @@ plot_to_print <- ggplot(data = dfslong, aes(x = VISIT, y = TIMESHARE,
 
 ```
 
+\vspace{10pt}
+
+\footnotesize
+From these plots we can see there are numerous outliers at each visit, which again support the use of the negative binomial model for our findings.
 
 # Discussion
 
