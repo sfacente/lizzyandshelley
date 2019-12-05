@@ -469,14 +469,26 @@ One of the biggest challenges of this analysis was appropriately dealing with in
 \normalsize
 
 # Statistical Model
-We converted our research question into a parameter of interest using a series of longitudinal regression models where:
+\small
+We converted our research question into a parameter of interest using a series of simple mixed effects regression models with the following form:
+\vspace{-9pt}
+
+\begin{align*}
+log (E[Y|\textbf{X}]) &= \beta_0 + \beta_{0i} + \beta_1X_{1ij} + \beta_2X_{2ij} + \beta_3X_{3i} + \beta_4X_{4i} + \beta_5X_{5ij} \ + \\
+& \ \ \ \ \beta_6X_{6ij} + \beta_7X_{7ij} + e_{ij}, b_{0i} \sim N(0, \sigma^2_0), e_{ij} \sim N(0, \sigma^2_0)
+\end{align*}
+
+
+<!--We converted our research question into a parameter of interest using a series of longitudinal regression models where:
 \vspace{-9pt}
 
 \begin{align*}
 log (E[Y|\textbf{X}]) &= \beta_0 + \beta_{0i} + (\beta_1 + \beta_{1i} + \beta_{1j}) X_{1ij} + (\beta_2 + \beta_{2i} + \beta_{2j}) X_{2ij} + \\
 &\ \ \ \beta_3X_3 + \beta_4X_4 + (\beta_5 + \beta_{5i} + \beta_{5j}) X_{5ij} + \\
 &\ \ \ (\beta_6 + \beta_{6i} + \beta_{6j}) X_{6ij} + (\beta_7 + \beta_{7i} + \beta_{7j}) X_{7ij}
-\end{align*}
+\end{align*}-->
+
+\vspace{-7pt}
 
 \small
 where:
@@ -492,17 +504,22 @@ where:
 * $X_6$ = any opiate injection
 * $X_7$ = any binge drinking
 
+as well as a population average model (GEE) with the same predictors.
+
 All variables have a recall period of 6 months, where applicable. 
 
 \normalsize
 
 # Methods used to fit model and derive inference
 \footnotesize
-We fit 3 models to answer this question: GEE, and mixed effects models using both poisson and negative binomial distributions.
+We fit 3 models to answer this question: GEE, and simple mixed effects models using both poisson and negative binomial distributions.
 
 The \textbf{GEE model} estimated the marginal effects of public injection frequency on receptive syringe sharing across the three timepoints, controlling for homelessness, gender, age, stimulant or opiate injection, and binge drinking. GEEs treat the correlation between subjects as a "nuisance" parameter. We did this using the $\tt{gee}$ package in R, assuming an exchangeable correlation structure and a poisson distribution. 
 
-The \textbf{mixed effects models} estimate the marginal longitudinal effect of public injection frequency on receptive syringe sharing, controlling for the same confounders, but allow for both a random intercept term and a random effect term for frequency of public injection (our exposure), homelessness, and the substance use variables. These models use maximum likelihood to estimate the coefficients in the model, but rely on correct specification of both the mean model and the correlation structure of the residual errors. We did this using the $\tt{glmer}$ function in the $\tt{MASS}$ R package, and using the $\tt{glmer.nb}$ function in the $\tt{lme4}$ R package for the negative binomial model. 
+The \textbf{mixed effects models} estimate the marginal longitudinal effect of public injection frequency on receptive syringe sharing, controlling for the same confounders and allow for a random intercept term. These models use maximum likelihood to estimate the coefficients in the model, but rely on correct specification of both the mean model and the correlation structure of the residual errors. We did this using the $\tt{glmer}$ function in the $\tt{MASS}$ R package, and using the $\tt{glmer.nb}$ function in the $\tt{lme4}$ R package for the negative binomial model.
+
+<!--
+The \textbf{mixed effects models} estimate the marginal longitudinal effect of public injection frequency on receptive syringe sharing, controlling for the same confounders, but allow for both a random intercept term and a random effect term for frequency of public injection (our exposure), homelessness, and the substance use variables. These models use maximum likelihood to estimate the coefficients in the model, but rely on correct specification of both the mean model and the correlation structure of the residual errors. We did this using the $\tt{glmer}$ function in the $\tt{MASS}$ R package, and using the $\tt{glmer.nb}$ function in the $\tt{lme4}$ R package for the negative binomial model. -->
 
 \normalsize
 
@@ -579,7 +596,7 @@ out.all <- data.frame(gee.out, pois.out, NB.out)
 out.all <- out.all[-1,]; out.all
 ```
 
-#Compare models (1)
+#Compare models 
 
 \small
 Since we have count data, we first created a histogram of the outcome (number of times sharing needles after someone else had already used them, over the prior six months). The left panel (A) includes all participants, and the right panel (B) includes only participants who reported sharing needles at least once during the recall period. 
@@ -593,7 +610,7 @@ suppressWarnings(print(hists))
 
 This shows us that the vast majority of participants (more than half) reported zero for the outcome, which may cause problems for a poisson model. It is also extremely right-skewed, also implying that a negative binomial model may be a better fit.
 
-#Compare models (2)
+#
 
 \small
 We also want to compare models with a few different tests, to see which appears to have the best fit.
@@ -632,18 +649,34 @@ AIC <- AIC(modelpoisson_categorical, modelnb_categorical); AIC
 \ \ \ \ \ \  This also suggests that the negative binomial model is a better fit.  
 \textcolor{white}{.}
 
-#Compare models (3)
+#
 
 \small
-We are concerned about strong violations of the assumption of no informative censoring, for our GEE model. Yet we are also concerned about overdispersion, as well as the large number of zeros in our outcome, both of which may cause our poisson mixed methods model to be a poor fit. 
+The random intercept term in our mixed models allow us to see the subject-level variance in our sample. 
 
-\vspace{12pt}
+\tiny
 
-For these reasons, it is not surprising that the negative binomial model may be the best fit.
+|Model | subject-level variance |
+|------| ------- |
+|Poisson | \ \ \ \ \ \ `r round(poisrand[4], 2)` |
+|Neg Binom. | \ \ \ \ \ \ \ `r round(NBrand[4], 2)` |
 
-\vspace{12pt}
+\vspace{-6pt}
+
+\small
+Variance this large suggests that GEE may be a more reasonable approximation of our data. At a minimum, we may want to pursue a more complex random effects model to better estimate our parameter of interest.
+
+\vspace{6pt}
+
+Ultimately, we are concerned about violations of the assumption of no informative censoring, for our GEE model. Yet we are also concerned about overdispersion, as well as the large number of zeros in our outcome, both of which may cause our poisson mixed methods model to be a poor fit. 
+
+\vspace{6pt}
+
+For these reasons, it is not surprising that the negative binomial model may be a better fit than the poisson mixed effects model.
+
+\vspace{6pt}
   
-We are not able to run comparison tests of fit for GEE compared to our mixed models, so one of the best things to do is to look at our results, including standard error.
+We are not able to run comparison tests of fit for GEE compared to our mixed models, so one of the best things to do is to look at our results and standard error.
 
 # Results
 
@@ -747,7 +780,7 @@ bingenbu <- round(out.all[9,7] + 1.96*(NB.est[10,2]), 2)
 \ \ \ \ \ \ *p-values based on robust SEs  
   
 \scriptsize
-We can see from these results that the inference is similar across models, though the magnitude of the effect of public injection is much stronger in the negative binomial mixed model. The standard error is also much larger for the GEE model, as evidenced by larger p-values. 
+We can see from these results that the inference is similar across models, especially the negative binomial mixed model and GEE. The standard error is much larger for the GEE model using robust SE, however, as evidenced by larger p-values reported here.
 
 #Plot of Results
 
