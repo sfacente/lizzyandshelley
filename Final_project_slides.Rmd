@@ -368,7 +368,7 @@ share30bp <- share30b/nrow(baseline)*100
 sharemaxb <- nrow(subset(baseline, RECSHR>30))
 sharemaxbp <- sharemaxb/nrow(baseline)*100
 share01 <- nrow(subset(FU1, RECSHR1==0))
-share01p <- share0b/nrow(FU1)*100
+share01p <- share01/nrow(FU1)*100
 share151 <- nrow(subset(FU1, RECSHR1>0 & RECSHR1<16))
 share151p <- share15b/nrow(FU1)*100
 share301 <- nrow(subset(FU1, RECSHR1>15 & RECSHR1<31))
@@ -376,7 +376,7 @@ share301p <- share30b/nrow(FU1)*100
 sharemax1 <- nrow(subset(FU1, RECSHR1>30))
 sharemax1p <- sharemaxb/nrow(FU1)*100
 share02 <- nrow(subset(FU2, RECSHR2==0))
-share02p <- share0b/nrow(FU2)*100
+share02p <- share02/nrow(FU2)*100
 share152 <- nrow(subset(FU2, RECSHR2>0 & RECSHR2<16))
 share152p <- share15b/nrow(FU2)*100
 share302 <- nrow(subset(FU2, RECSHR2>15 & RECSHR2<31))
@@ -618,14 +618,14 @@ We also want to compare models with a few different tests, to see which appears 
 1. Since the mixed models are nested, we can use a likelihood ratio test:
 ```{r lrtest, include = FALSE, echo = FALSE}
 lrtest <- lrtest(modelpoisson_categorical, modelnb_categorical); lrtest
-lrtestp <- lrtest$`Pr(>Chisq)`[2]
+lrtestp <- format(lrtest$`Pr(>Chisq)`[2], digits=2)
 ```
 \tiny
 
 | Model | Log Likelihood | P-value |
 |-------|-------|-------|
 |Poisson | `r round(lrtest$LogLik[1], 3)` | |
-|Neg Binom. | `r round(lrtest$LogLik[2], 3)` |`r format(lrtestp, digits=2)`|
+|Neg Binom. | `r round(lrtest$LogLik[2], 3)` |~`r format(lrtestp, digits=2)`|
 
 \vspace{-10pt}
 \small
@@ -792,11 +792,11 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 library(RColorBrewer)
 dfslong2 <- subset(dfslong, !is.na(dfslong$PUBINJ_3cat))
 plot1 <- ggplot(data = subset(dfslong2, VISIT=="baseline"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
-  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "Baseline") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Occas.", "Usually/Always")) + labs(y= "Times shared", x = "Baseline") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
 plot2 <- ggplot(data = subset(dfslong2, VISIT=="FU1"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
-  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "6-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Occas.", "Usually/Always")) + labs(y= "Times shared", x = "6-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
 plot3 <- ggplot(data = subset(dfslong2, VISIT=="FU2"), aes(x = PUBINJ_3cat, y = TIMESHARE, color = PUBINJ_3cat)) +
-  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Often", "Usually/Always")) + labs(y= "Times shared", x = "12-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
+  geom_boxplot(aes(fill=factor(PUBINJ_3cat))) + scale_fill_manual(values=cbPalette) + scale_x_discrete(labels=c("Never", "Sometimes/Occas.", "Usually/Always")) + labs(y= "Times shared", x = "12-month visit") + theme(legend.position = "none") + theme(axis.text.x = element_text(size=7)) + scale_color_brewer(palette = "Dark2")
 plots <- ggarrange(plot1, plot2, plot3, ncol = 3, nrow = 1)
 plots <- annotate_figure(plots, top = text_grob("Outcome over time: syringe sharing by public injection frequency", size = 20))
 suppressWarnings(print(plots))
