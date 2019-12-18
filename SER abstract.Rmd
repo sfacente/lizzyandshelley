@@ -22,12 +22,13 @@ library(lmtest)
 library(gee)
 library(ggplot2)
 library(ggpubr)
+library(tidyr)
 ```
 
 ```{r dataload, include=FALSE, cache = TRUE}
 #set working directory
-setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -244,6 +245,16 @@ dfslong$PUBINJord <- as.numeric(ifelse(dfslong$PUBINJ=="Never (0% of the time)",
 dfslong$IJWOTHord <- as.numeric(ifelse(dfslong$IJWOTH=="Never (0% of the time)", 0, ifelse(dfslong$IJWOTH=="Occasionally (less than 25% of the time)", 1, ifelse(dfslong$IJWOTH=="Sometimes (25% to 74% of the time)", 2, ifelse(dfslong$IJWOTH=="Usually (75% to 99% of the time)", 3, ifelse(dfslong$IJWOTH=="Always (100% of the time)", 4, NA))))))
 
 dfslong$YRSHOME <- dfslong$MOSHOME/12
+
+dfslong <- dfslong %>%
+  arrange(SUBJECT, VISIT) %>%
+  group_by(SUBJECT) %>%
+  mutate(obs=row_number())
+# make new variable which is drug on the first observation but
+# but NA for all others within an id
+dfslong <- dfslong %>% mutate(PUBINJ_baseline = ifelse(VISIT=="baseline", PUBINJ_3cat, NA))
+# Now, fill in the values following blanks with first value
+dfslong <- dfslong %>% fill(PUBINJ_baseline)
 ```
 
 
@@ -403,7 +414,12 @@ gee.out <- data.frame(gee.out, pvalue)
 gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE=gee.out[,4], pvalue.GEE=gee.out[,6]); gee.out
 
 #poisson
-modelpoisson_categorical <- glmer(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical1 <- glmer(TIMESHARE ~ PUBINJ_3cat*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical2 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical3 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical4 <- glmer(TIMESHARE ~ PUBINJ_3cat*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical5 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+AICs <- AIC(modelpoisson_categorical1, modelpoisson_categorical2, modelpoisson_categorical3, modelpoisson_categorical4, modelpoisson_categorical5)
 summary(modelpoisson_categorical)
 pois.pvalue <- data.frame(summary(modelpoisson_categorical)$coefficients)
 pois.est <- data.frame(exp(summary(modelpoisson_categorical)$coefficients))
