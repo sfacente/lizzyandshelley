@@ -165,12 +165,20 @@ df$JAIL <- rep(NA)
 
 #select variables
 dfs <- df %>%
-  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "AGE_cat", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "ANYSTIM", "ANYSTIM1", "ANYSTIM2", "ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")
+  dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "AGE_cat", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "SUMINJ", "SUMINJ1", "SUMINJ2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "ANYSTIM", "ANYSTIM1", "ANYSTIM2", "ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")
 
 #recategorize PUBINJ
 dfs$PUBINJ_3cat <- as.factor(ifelse(dfs$PUBINJ=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ=="Occasionally (less than 25% of the time)" | dfs$PUBINJ=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ=="Usually (75% to 99% of the time)" | dfs$PUBINJ=="Always (100% of the time)", 2, NA))))
 dfs$PUBINJ1_3cat <- as.factor(ifelse(dfs$PUBINJ1=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ1=="Occasionally (less than 25% of the time)" | dfs$PUBINJ1=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ1=="Usually (75% to 99% of the time)" | dfs$PUBINJ1=="Always (100% of the time)", 2, NA))))
 dfs$PUBINJ2_3cat <- as.factor(ifelse(dfs$PUBINJ2=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ2=="Occasionally (less than 25% of the time)" | dfs$PUBINJ2=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ2=="Usually (75% to 99% of the time)" | dfs$PUBINJ2=="Always (100% of the time)", 2, NA))))
+
+#look at change in exposure over timepoints
+dfs$expchange <- ifelse(dfs$PUBINJ_3cat==0 & dfs$PUBINJ1_3cat==0 & dfs$PUBINJ2_3cat==0 | dfs$PUBINJ_3cat==1 & dfs$PUBINJ1_3cat==1 & dfs$PUBINJ2_3cat==1 | dfs$PUBINJ_3cat==2 & dfs$PUBINJ1_3cat==2 & dfs$PUBINJ2_3cat==2, 0, 1)
+table(dfs$expchange)
+
+#look at change in outcome over timepoints
+dfs$sharechange <- ifelse(dfs$RECSHR==0 & dfs$RECSHR1==0 & dfs$RECSHR2==0, 0, 1)
+table(dfs$sharechange, useNA = "ifany")
 
 #look at missingness
 missing <- data.frame(md.pattern(dfs))
@@ -236,7 +244,7 @@ rm(gFU1a, gFU1b, gFU1c, gFU1d, gFU1e, gFU2a, gFU2b, gFU2c, gFU2d, gFU2e, pFU1a, 
 #dfc <- subset(df, FU2==1 & FU1=="Yes")
 
 #make dataset long format
-dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ_3cat", "PUBINJ1_3cat", "PUBINJ2_3cat"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2"), c("binge", "binge1", "binge2"), c("ANYSTIM", "ANYSTIM1", "ANYSTIM2"), c("ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")), timevar = "VISIT", v.names = c("HOMELESS", "MOSHOME", "TIMESHARE", "PUBINJ_3cat", "IJWOTH", "POLICE", "ARREST", "JAIL", "binge", "ANYSTIM", "ANYOPIATE"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
+dfslong <- reshape(dfs, idvar = "SUBJECT", varying = list(c("HOMELESS", "HOMELESS1", "HOMELESS2"), c("SUMINJ", "SUMINJ1", "SUMINJ2"), c("MOSHOME", "MOSHOME1", "MOSHOM2"), c("RECSHR", "RECSHR1", "RECSHR2"), c("PUBINJ_3cat", "PUBINJ1_3cat", "PUBINJ2_3cat"), c("IJWOTH", "IJWOTH1", "IJWOTH2"), c("POLICE", "POLICE1", "POLICE2"), c("ARREST", "ARREST1", "ARREST2"), c("JAIL", "JAIL1", "JAIL2"), c("binge", "binge1", "binge2"), c("ANYSTIM", "ANYSTIM1", "ANYSTIM2"), c("ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")), timevar = "VISIT", v.names = c("HOMELESS", "SUMINJ", "MOSHOME", "TIMESHARE", "PUBINJ_3cat", "IJWOTH", "POLICE", "ARREST", "JAIL", "binge", "ANYSTIM", "ANYOPIATE"), ids = "SUBJECT", times = c("baseline", "FU1", "FU2"), direction = "long")
 
 #update variable types
 dfslong$TIMESHARE <- as.numeric(paste(dfslong$TIMESHARE))
@@ -261,6 +269,16 @@ dfslong <- dfslong %>%
 dfslong <- dfslong %>% mutate(PUBINJ_baseline = ifelse(VISIT=="baseline", PUBINJ_3cat, NA))
 # Now, fill in the values following blanks with first value
 dfslong <- dfslong %>% fill(PUBINJ_baseline)
+
+dfslong <- dfslong %>%
+  arrange(SUBJECT, VISIT) %>%
+  group_by(SUBJECT) %>%
+  mutate(obs=row_number())
+# make new variable which is drug on the first observation but
+# but NA for all others within an id
+dfslong <- dfslong %>% mutate(SUMINJ_baseline = ifelse(VISIT=="baseline", SUMINJ, NA))
+# Now, fill in the values following blanks with first value
+dfslong <- dfslong %>% fill(SUMINJ_baseline)
 ```
 
 
@@ -420,11 +438,12 @@ gee.out <- data.frame(gee.out, pvalue)
 gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE=gee.out[,4], pvalue.GEE=gee.out[,6]); gee.out
 
 #poisson
-modelpoisson_categorical1 <- glmer(TIMESHARE ~ PUBINJ_3cat*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
-modelpoisson_categorical2 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
-modelpoisson_categorical3 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
-modelpoisson_categorical4 <- glmer(TIMESHARE ~ PUBINJ_3cat*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
-modelpoisson_categorical5 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT) + offset(log(SUMINJ)), family = "poisson", data = dfslong, na.action = na.omit)
+#WANT TO ADD offset(log(SUMINJ))
+modelpoisson_categorical1 <- glmer(TIMESHARE ~ PUBINJ_3cat*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+modelpoisson_categorical2 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+modelpoisson_categorical3 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+modelpoisson_categorical4 <- glmer(TIMESHARE ~ PUBINJ_3cat*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+modelpoisson_categorical5 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
 AICs <- AIC(modelpoisson_categorical1, modelpoisson_categorical2, modelpoisson_categorical3, modelpoisson_categorical4, modelpoisson_categorical5)
 summary(modelpoisson_categorical)
 pois.pvalue <- data.frame(summary(modelpoisson_categorical)$coefficients)
@@ -453,4 +472,8 @@ out.all <- out.all[-1,]; out.all
 
 ```{r AIC, include = FALSE, echo = FALSE}
 AIC <- AIC(modelpoisson_categorical, modelnb_categorical); AIC
+
+
+
+
 ```
