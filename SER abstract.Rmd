@@ -127,6 +127,12 @@ df$ANYOPIATE1 <- ifelse(df$HRINJ1=="Yes" | df$OPINJ1=="Yes", 1, ifelse(df$HRINJ1
 #any opioid injection FU2
 df$ANYOPIATE2 <- ifelse(df$HRINJ2=="Yes" | df$OPINJ2=="Yes", 1, ifelse(df$HRINJ2=="No" & df$OPINJ2=="No", 0, NA))
 
+#total injections 
+
+df$SUMINJ <- as.numeric(paste(df$SUMINJ))
+df$SUMINJ1 <- as.numeric(paste(df$SUMINJ1))
+df$SUMINJ2 <- as.numeric(paste(df$SUMINJ2))
+
 #clean up data types
 df$MOSHOME <- as.numeric(paste(df$MOSHOME))
 df$MOSHOME1 <- as.numeric(paste(df$MOSHOME1))
