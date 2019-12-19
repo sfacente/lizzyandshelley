@@ -432,7 +432,7 @@ load("regressoutput.Rdata")
 ```{r models, include = FALSE, cache = TRUE}
 #gee
 dfslong <- subset(dfslong, SUMINJ>0)
-modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee_categorical)
 #gee_unadj <- gee(TIMESHARE ~ PUBINJ_3cat, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 gee.names <- data.frame(names(modelgee_categorical$coefficients))
@@ -462,10 +462,10 @@ modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBIN
 modelnb_categorical4 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
 AICs_nb <- AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4); AICs_nb
 summary(modelnb_categorical1)
-NB.pvalue <- data.frame(summary(modelnb_categorical1)$coefficients)
-NB.est <- data.frame(exp(summary(modelnb_categorical1)$coefficients))
+NB.pvalue <- data.frame(summary(modelnb_categorical2)$coefficients)
+NB.est <- data.frame(exp(summary(modelnb_categorical2)$coefficients))
 NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
-NBrand <- as.data.frame(VarCorr(modelnb_categorical1))
+NBrand <- as.data.frame(VarCorr(modelnb_categorical2))
 
 # #NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
@@ -484,4 +484,3 @@ save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_c
 ```{r crosssectional, include = FALSE, echo = FALSE}
 modelpoisson_baseline <- glm(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, family = "poisson", data = dfs, na.action = na.omit)
 summary(modelpoisson_baseline)
-```
