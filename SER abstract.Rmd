@@ -133,6 +133,11 @@ df$SUMINJ <- as.numeric(paste(df$SUMINJ))
 df$SUMINJ1 <- as.numeric(paste(df$SUMINJ1))
 df$SUMINJ2 <- as.numeric(paste(df$SUMINJ2))
 
+#to see how many zeros we have at each time point
+table(df$SUMINJ)
+table(df$SUMINJ1)
+table(df$SUMINJ2)
+
 #clean up data types
 df$MOSHOME <- as.numeric(paste(df$MOSHOME))
 df$MOSHOME1 <- as.numeric(paste(df$MOSHOME1))
@@ -431,7 +436,6 @@ load("regressoutput.Rdata")
 
 ```{r models, include = FALSE, cache = TRUE}
 #gee
-dfslong <- subset(dfslong, SUMINJ>0)
 modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee_categorical)
 #gee_unadj <- gee(TIMESHARE ~ PUBINJ_3cat, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
@@ -457,15 +461,34 @@ gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE
 
 #negative binomial
 modelnb_categorical1 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+
+#adds homelessness as covariate to modelnb_categorical1 
 modelnb_categorical2 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
-modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + (HOMELESS|SUBJECT) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-modelnb_categorical4 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-AICs_nb <- AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4); AICs_nb
-summary(modelnb_categorical1)
+
+#changing modelnb_categorical2 so that SUMINJ is offset instead of covariate
+#I also tried this with SUMINJ*6 and got essentially the same output
+dfslong <- subset(dfslong, SUMINJ>0) #only need to subset data when using suminj as offset instead of covariate because can't take log(0)
+modelnb_categorical2_offset <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ)) + (1|SUBJECT), data = dfslong, na.action = na.omit)
+
+#modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + (HOMELESS|SUBJECT) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+
+#modelnb_categorical4 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+
+#AICs_nb <- AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4); AICs_nb
+
+AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset)
+
+#this presents output for modelnb_categorical2
 NB.pvalue <- data.frame(summary(modelnb_categorical2)$coefficients)
 NB.est <- data.frame(exp(summary(modelnb_categorical2)$coefficients))
 NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
 NBrand <- as.data.frame(VarCorr(modelnb_categorical2))
+
+#this presents output for modelnb_categorical2_offset
+NB.pvalue_offset <- data.frame(summary(modelnb_categorical2_offset)$coefficients)
+NB.est_offset <- data.frame(exp(summary(modelnb_categorical2_offset)$coefficients))
+NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], pvalue.MM.NB=NB.pvalue_offset[,4]); NB.out_offset
+
 
 # #NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
@@ -474,11 +497,11 @@ NBrand <- as.data.frame(VarCorr(modelnb_categorical2))
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-out.all <- data.frame(gee.out, NB.out)
-out.all <- out.all[-1,]; out.all
+#out.all <- data.frame(gee.out, NB.out)
+#out.all <- out.all[-1,]; out.all
 
-#save regressions
-save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4, out.all, file="regressoutput.Rdata")
+#save regression. update this code since i changed things, please!
+#save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4, out.all, file="regressoutput.Rdata")
 ```
 
 ```{r crosssectional, include = FALSE, echo = FALSE}
