@@ -425,11 +425,16 @@ binge2 <- sum(FU2$binge2, na.rm=TRUE)
 binge2p <- binge2/nrow(FU2)*100
 ```
 
+```{r load regressoutput from chunk below}
+load("regressoutput.Rdata")
+```
 
 ```{r models, include = FALSE, cache = TRUE}
 #gee
-modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
+dfslong <- subset(dfslong, SUMINJ>0)
+modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee_categorical)
+#gee_unadj <- gee(TIMESHARE ~ PUBINJ_3cat, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 gee.names <- data.frame(names(modelgee_categorical$coefficients))
 gee.out <- data.frame(coef(summary(modelgee_categorical)))
 pvalue <- data.frame(pvalue=2*(1-pnorm(abs(gee.out[,5]))))
@@ -438,26 +443,29 @@ gee.out <- data.frame(gee.out, pvalue)
 gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE=gee.out[,4], pvalue.GEE=gee.out[,6]); gee.out
 
 #poisson
-#WANT TO ADD offset(log(SUMINJ))
-modelpoisson_categorical1 <- glmer(TIMESHARE ~ PUBINJ_3cat*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
-modelpoisson_categorical2 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-modelpoisson_categorical3 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-modelpoisson_categorical4 <- glmer(TIMESHARE ~ PUBINJ_3cat*(HOMELESS|SUBJECT) + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-modelpoisson_categorical5 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*HOMELESS + PUBINJ_baseline + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
-AICs <- AIC(modelpoisson_categorical1, modelpoisson_categorical2, modelpoisson_categorical3, modelpoisson_categorical4, modelpoisson_categorical5)
-summary(modelpoisson_categorical)
-pois.pvalue <- data.frame(summary(modelpoisson_categorical)$coefficients)
-pois.est <- data.frame(exp(summary(modelpoisson_categorical)$coefficients))
-pois.out <- data.frame(Est.MM.Pois=pois.est[,1], pvalue.MM.Pois=pois.pvalue[,4]); pois.out
-poisrand <- as.data.frame(VarCorr(modelpoisson_categorical))
+# modelpoisson_categorical1 <- glmer(TIMESHARE ~ PUBINJ_3cat*HOMELESS + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit)
+# modelpoisson_categorical2 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + factor(PUBINJ_baseline) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+# modelpoisson_categorical3 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*(HOMELESS|SUBJECT) + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+# modelpoisson_categorical4 <- glmer(TIMESHARE ~ PUBINJ_3cat*(HOMELESS|SUBJECT) + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+# modelpoisson_categorical5 <- glmer(TIMESHARE ~ (PUBINJ_3cat|SUBJECT)*HOMELESS + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), family = "poisson", data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+# AICs_poisson <- AIC(modelpoisson_categorical1, modelpoisson_categorical2, modelpoisson_categorical3, modelpoisson_categorical4, modelpoisson_categorical5); AICs_poisson
+# summary(modelpoisson_categorical2)
+# pois.pvalue <- data.frame(summary(modelpoisson_categorical2)$coefficients)
+# pois.est <- data.frame(exp(summary(modelpoisson_categorical2)$coefficients))
+# pois.out <- data.frame(Est.MM.Pois=pois.est[,1], pvalue.MM.Pois=pois.pvalue[,4]); pois.out
+# poisrand <- as.data.frame(VarCorr(modelpoisson_categorical2))
 
 #negative binomial
-modelnb_categorical <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
-summary(modelnb_categorical)
-NB.pvalue <- data.frame(summary(modelnb_categorical)$coefficients)
-NB.est <- data.frame(exp(summary(modelnb_categorical)$coefficients))
+modelnb_categorical1 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+modelnb_categorical2 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + (HOMELESS|SUBJECT) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+modelnb_categorical4 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
+AICs_nb <- AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4); AICs_nb
+summary(modelnb_categorical1)
+NB.pvalue <- data.frame(summary(modelnb_categorical1)$coefficients)
+NB.est <- data.frame(exp(summary(modelnb_categorical1)$coefficients))
 NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
-NBrand <- as.data.frame(VarCorr(modelnb_categorical))
+NBrand <- as.data.frame(VarCorr(modelnb_categorical1))
 
 # #NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
@@ -466,14 +474,14 @@ NBrand <- as.data.frame(VarCorr(modelnb_categorical))
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-out.all <- data.frame(gee.out, pois.out, NB.out)
+out.all <- data.frame(gee.out, NB.out)
 out.all <- out.all[-1,]; out.all
+
+#save regressions
+save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4, out.all, file="regressoutput.Rdata")
 ```
 
-```{r AIC, include = FALSE, echo = FALSE}
-AIC <- AIC(modelpoisson_categorical, modelnb_categorical); AIC
-
-
-
-
+```{r crosssectional, include = FALSE, echo = FALSE}
+modelpoisson_baseline <- glm(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, family = "poisson", data = dfs, na.action = na.omit)
+summary(modelpoisson_baseline)
 ```
