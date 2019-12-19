@@ -490,7 +490,7 @@ NB.out <- data.frame(Est.MM.NB=NB.est[,1], CI_LB.MM.NB=NB2CIs[2:14,1], CI_UB.MM.
 NB.pvalue_offset <- data.frame(summary(modelnb_categorical2_offset)$coefficients)
 NB.est_offset <- data.frame(exp(summary(modelnb_categorical2_offset)$coefficients))
 NB2CIs_offset <- confint(modelnb_categorical2_offset, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
-NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], CI_LB.MM.NB=NB2CIs_offset[2:14,1], CI_UB.MM.NB=NB2CIs_offset[2:14,2]); NB.out_offset
+NB.out_offset <- data.frame(Est.MM.NB.off=NB.est_offset[,1], CI_LB.MM.NB.off=NB2CIs_offset[2:14,1], CI_UB.MM.NB.off=NB2CIs_offset[2:14,2]); NB.out_offset
 
 # #NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
@@ -499,7 +499,7 @@ NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], CI_LB.MM.NB=NB2CIs_offs
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-out.all <- data.frame(gee.out, NB.out)
+out.all <- data.frame(gee.out, NB.out, NB.out_offset)
 out.all <- out.all[-1,]; out.all
 
 #save regression. update this code since i changed things, please!
