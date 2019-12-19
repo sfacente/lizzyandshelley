@@ -284,6 +284,8 @@ dfslong <- dfslong %>%
 dfslong <- dfslong %>% mutate(SUMINJ_baseline = ifelse(VISIT=="baseline", SUMINJ, NA))
 # Now, fill in the values following blanks with first value
 dfslong <- dfslong %>% fill(SUMINJ_baseline)
+
+dfslong2 <- subset(dfslong, SUMINJ>0) #subsetting data for using suminj as offset instead of covariate because can't take log(0)
 ```
 
 
@@ -461,14 +463,14 @@ gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE
 
 #negative binomial
 modelnb_categorical1 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+NB1CIs <- confint(modelnb_categorical1, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
 
 #adds homelessness as covariate to modelnb_categorical1 
 modelnb_categorical2 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
 
 #changing modelnb_categorical2 so that SUMINJ is offset instead of covariate
 #I also tried this with SUMINJ*6 and got essentially the same output
-dfslong <- subset(dfslong, SUMINJ>0) #only need to subset data when using suminj as offset instead of covariate because can't take log(0)
-modelnb_categorical2_offset <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ)) + (1|SUBJECT), data = dfslong, na.action = na.omit)
+modelnb_categorical2_offset <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ)) + (1|SUBJECT), data = dfslong2, na.action = na.omit)
 
 #modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + (HOMELESS|SUBJECT) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
 
@@ -481,14 +483,14 @@ AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset)
 #this presents output for modelnb_categorical2
 NB.pvalue <- data.frame(summary(modelnb_categorical2)$coefficients)
 NB.est <- data.frame(exp(summary(modelnb_categorical2)$coefficients))
-NB.out <- data.frame(Est.MM.NB=NB.est[,1], pvalue.MM.NB=NB.pvalue[,4]); NB.out
-NBrand <- as.data.frame(VarCorr(modelnb_categorical2))
+NB2CIs <- confint(modelnb_categorical2, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
+NB.out <- data.frame(Est.MM.NB=NB.est[,1], CI_LB.MM.NB=NB2CIs[2:14,1], CI_UB.MM.NB=NB2CIs[2:14,2]); NB.out
 
 #this presents output for modelnb_categorical2_offset
 NB.pvalue_offset <- data.frame(summary(modelnb_categorical2_offset)$coefficients)
 NB.est_offset <- data.frame(exp(summary(modelnb_categorical2_offset)$coefficients))
-NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], pvalue.MM.NB=NB.pvalue_offset[,4]); NB.out_offset
-
+NB2CIs_offset <- confint(modelnb_categorical2_offset, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
+NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], CI_LB.MM.NB=NB2CIs_offset[2:14,1], CI_UB.MM.NB=NB2CIs_offset[2:14,2]); NB.out_offset
 
 # #NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
@@ -497,11 +499,11 @@ NB.out_offset <- data.frame(Est.MM.NB=NB.est_offset[,1], pvalue.MM.NB=NB.pvalue_
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-#out.all <- data.frame(gee.out, NB.out)
-#out.all <- out.all[-1,]; out.all
+out.all <- data.frame(gee.out, NB.out)
+out.all <- out.all[-1,]; out.all
 
 #save regression. update this code since i changed things, please!
-#save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4, out.all, file="regressoutput.Rdata")
+save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset, NB1CIs, NB2CIs, NB2CIs_offset, out.all, file="regressoutput.Rdata")
 ```
 
 ```{r crosssectional, include = FALSE, echo = FALSE}
