@@ -27,8 +27,8 @@ library(tidyr)
 
 ```{r dataload, include=FALSE, cache = TRUE}
 #set working directory
-#setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
-setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
+setwd("~/Desktop/lizzyandshelley/Dataset") #LIZZY
+#setwd("~/GitHub/lizzyandshelley/Dataset")  #SHELLEY
 
 #load the data
 df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
@@ -172,7 +172,7 @@ df$JAIL <- rep(NA)
 dfs <- df %>%
   dplyr::select("SUBJECT", "FU1", "FU2", "GENDER", "AGE", "AGE_cat", "RACELG", "HOMELESS", "HOMELESS1", "HOMELESS2", "SUMINJ", "SUMINJ1", "SUMINJ2", "MOSHOME", "MOSHOME1", "MOSHOM2", "RECSHR", "RECSHR1", "RECSHR2", "PUBINJ", "PUBINJ1", "PUBINJ2", "IJWOTH", "IJWOTH1", "IJWOTH2", "POLICE", "POLICE1", "POLICE2", "ARREST", "ARREST1", "ARREST2", "JAIL", "JAIL1", "JAIL2", "Rshare", "Rshare1", "Rshare2", "binge", "binge1", "binge2", "ANYSTIM", "ANYSTIM1", "ANYSTIM2", "ANYOPIATE", "ANYOPIATE1", "ANYOPIATE2")
 
-#recategorize PUBINJ
+#recategorize PUBINJ into 3 categories: 0 = never, 1 = occasionally/sometimes, 2 = usually always
 dfs$PUBINJ_3cat <- as.factor(ifelse(dfs$PUBINJ=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ=="Occasionally (less than 25% of the time)" | dfs$PUBINJ=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ=="Usually (75% to 99% of the time)" | dfs$PUBINJ=="Always (100% of the time)", 2, NA))))
 dfs$PUBINJ1_3cat <- as.factor(ifelse(dfs$PUBINJ1=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ1=="Occasionally (less than 25% of the time)" | dfs$PUBINJ1=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ1=="Usually (75% to 99% of the time)" | dfs$PUBINJ1=="Always (100% of the time)", 2, NA))))
 dfs$PUBINJ2_3cat <- as.factor(ifelse(dfs$PUBINJ2=="Never (0% of the time)", 0, ifelse(dfs$PUBINJ2=="Occasionally (less than 25% of the time)" | dfs$PUBINJ2=="Sometimes (25% to 74% of the time)", 1, ifelse(dfs$PUBINJ2=="Usually (75% to 99% of the time)" | dfs$PUBINJ2=="Always (100% of the time)", 2, NA))))
@@ -269,7 +269,8 @@ dfslong <- dfslong %>%
   arrange(SUBJECT, VISIT) %>%
   group_by(SUBJECT) %>%
   mutate(obs=row_number())
-# make new variable which is drug on the first observation but
+
+# make new variable which is public injection on the first observation but
 # but NA for all others within an id
 dfslong <- dfslong %>% mutate(PUBINJ_baseline = ifelse(VISIT=="baseline", PUBINJ_3cat, NA))
 # Now, fill in the values following blanks with first value
@@ -279,165 +280,31 @@ dfslong <- dfslong %>%
   arrange(SUBJECT, VISIT) %>%
   group_by(SUBJECT) %>%
   mutate(obs=row_number())
-# make new variable which is drug on the first observation but
+
+###### NOTE TO SELF: RECODE PUBINJ_BASELINE TO BE 0,1,2
+head(dfslong  %>% dplyr::select(VISIT, PUBINJ_3cat, PUBINJ_baseline))
+#####
+dfslong$PUBINJ_baseline_new <- ifelse(dfslong$PUBINJ_baseline==1, 0, ifelse(dfslong$PUBINJ_baseline==2, 1, 2))
+
+
+# make new variable which is total injections on the first observation but
 # but NA for all others within an id
 dfslong <- dfslong %>% mutate(SUMINJ_baseline = ifelse(VISIT=="baseline", SUMINJ, NA))
 # Now, fill in the values following blanks with first value
 dfslong <- dfslong %>% fill(SUMINJ_baseline)
 
+head(dfslong  %>% dplyr::select(VISIT, SUMINJ, SUMINJ_baseline))
+
 dfslong2 <- subset(dfslong, SUMINJ>0) #subsetting data for using suminj as offset instead of covariate because can't take log(0)
 ```
 
-
-```{r table, include = FALSE}
-baseline <- dfs
-FU1 <- subset(dfs, FU1=="Yes")
-FU2 <- subset(dfs, FU2=="1")
-FU1nper <- nrow(FU1)/nrow(baseline)*100
-FU2nper <- nrow(FU2)/nrow(baseline)*100
-minageb <- min(dfs$AGE)
-maxageb <- max(dfs$AGE)
-medageb <- median(dfs$AGE)
-minage1 <- min(FU1$AGE)
-maxage1 <- max(FU1$AGE)
-medage1 <- median(FU1$AGE)
-minage2 <- min(FU2$AGE)
-maxage2 <- max(FU2$AGE)
-medage2 <- median(FU2$AGE)
-maleb <- nrow(subset(baseline, GENDER=="Male"))
-malebp <- maleb/nrow(baseline)*100
-femaleb <- nrow(subset(baseline, GENDER=="Female"))
-femalebp <- femaleb/nrow(baseline)*100
-transb <- nrow(subset(baseline, GENDER=="Transgender" | GENDER=="Other"))
-transbp <- transb/nrow(baseline)*100
-male1 <- nrow(subset(FU1, GENDER=="Male"))
-male1p <- male1/nrow(FU1)*100
-female1 <- nrow(subset(FU1, GENDER=="Female"))
-female1p <- female1/nrow(FU1)*100
-trans1 <- nrow(subset(FU1, GENDER=="Transgender" | GENDER=="Other"))
-trans1p <- trans1/nrow(FU1)*100
-male2 <- nrow(subset(FU2, GENDER=="Male"))
-male2p <- male2/nrow(FU2)*100
-female2 <- nrow(subset(FU2, GENDER=="Female"))
-female2p <- female2/nrow(FU2)*100
-trans2 <- nrow(subset(FU2, GENDER=="Transgender" | GENDER=="Other"))
-trans2p <- trans2/nrow(FU2)*100
-blackb <- nrow(subset(baseline, RACELG=="Black"))
-blackbp <- blackb/nrow(baseline)*100
-latinxb <- nrow(subset(baseline, RACELG=="Latinx"))
-latinxbp <- latinxb/nrow(baseline)*100
-whiteb <- nrow(subset(baseline, RACELG=="White"))
-whitebp <- whiteb/nrow(baseline)*100
-otherb <- nrow(subset(baseline, RACELG!="Black" & RACELG!="Latinx" & RACELG!="White"))
-otherbp <- otherb/nrow(baseline)*100
-black1 <- nrow(subset(FU1, RACELG=="Black"))
-black1p <- black1/nrow(FU1)*100
-latinx1 <- nrow(subset(FU1, RACELG=="Latinx"))
-latinx1p <- latinx1/nrow(FU1)*100
-white1 <- nrow(subset(FU1, RACELG=="White"))
-white1p <- white1/nrow(FU1)*100
-other1 <- nrow(subset(FU1, RACELG!="Black" & RACELG!="Latinx" & RACELG!="White"))
-other1p <- other1/nrow(FU1)*100
-black2 <- nrow(subset(FU2, RACELG=="Black"))
-black2p <- black2/nrow(FU2)*100
-latinx2 <- nrow(subset(FU2, RACELG=="Latinx"))
-latinx2p <- latinx2/nrow(FU2)*100
-white2 <- nrow(subset(FU2, RACELG=="White"))
-white2p <- white2/nrow(FU2)*100
-other2 <- nrow(subset(FU2, RACELG!="Black" & RACELG!="Latinx" & RACELG!="White"))
-other2p <- other2/nrow(FU2)*100
-injalb <- nrow(subset(baseline, PUBINJ_3cat==2))
-injalbp <- injalb/nrow(baseline)*100
-injsomeb <- nrow(subset(baseline, PUBINJ_3cat==1))
-injsomebp <- injsomeb/nrow(baseline)*100
-injnevb <- nrow(subset(baseline, PUBINJ_3cat==0))
-injnevbp <- injnevb/nrow(baseline)*100
-injal1 <- nrow(subset(FU1, PUBINJ1_3cat==2))
-injal1p <- injal1/nrow(FU1)*100
-injsome1 <- nrow(subset(FU1, PUBINJ1_3cat==1))
-injsome1p <- injsome1/nrow(FU1)*100
-injnev1 <- nrow(subset(FU1, PUBINJ1_3cat==0))
-injnev1p <- injnev1/nrow(FU1)*100
-injal2 <- nrow(subset(FU2, PUBINJ2_3cat==2))
-injal2p <- injal2/nrow(FU2)*100
-injsome2 <- nrow(subset(FU2, PUBINJ2_3cat==1))
-injsome2p <- injsome2/nrow(FU2)*100
-injnev2 <- nrow(subset(FU2, PUBINJ2_3cat==0))
-injnev2p <- injnev2/nrow(FU2)*100
-share0b <- nrow(subset(baseline, RECSHR==0))
-share0bp <- share0b/nrow(baseline)*100
-share15b <- nrow(subset(baseline, RECSHR>0 & RECSHR<16))
-share15bp <- share15b/nrow(baseline)*100
-share30b <- nrow(subset(baseline, RECSHR>15 & RECSHR<31))
-share30bp <- share30b/nrow(baseline)*100
-sharemaxb <- nrow(subset(baseline, RECSHR>30))
-sharemaxbp <- sharemaxb/nrow(baseline)*100
-share01 <- nrow(subset(FU1, RECSHR1==0))
-share01p <- share01/nrow(FU1)*100
-share151 <- nrow(subset(FU1, RECSHR1>0 & RECSHR1<16))
-share151p <- share15b/nrow(FU1)*100
-share301 <- nrow(subset(FU1, RECSHR1>15 & RECSHR1<31))
-share301p <- share30b/nrow(FU1)*100
-sharemax1 <- nrow(subset(FU1, RECSHR1>30))
-sharemax1p <- sharemaxb/nrow(FU1)*100
-share02 <- nrow(subset(FU2, RECSHR2==0))
-share02p <- share02/nrow(FU2)*100
-share152 <- nrow(subset(FU2, RECSHR2>0 & RECSHR2<16))
-share152p <- share15b/nrow(FU2)*100
-share302 <- nrow(subset(FU2, RECSHR2>15 & RECSHR2<31))
-share302p <- share30b/nrow(FU2)*100
-sharemax2 <- nrow(subset(FU2, RECSHR2>30))
-sharemax2p <- sharemaxb/nrow(FU2)*100
-home0b <- nrow(subset(baseline, MOSHOME==0))
-home0bp <- home0b/nrow(baseline)*100
-home6b <- nrow(subset(baseline, MOSHOME>0 & MOSHOME<7))
-home6bp <- home6b/nrow(baseline)*100
-home12b <- nrow(subset(baseline, MOSHOME>6 & MOSHOME<13))
-home12bp <- home12b/nrow(baseline)*100
-homeyb <- nrow(subset(baseline, MOSHOME>12))
-homeybp <- homeyb/nrow(baseline)*100
-home01 <- nrow(subset(FU1, MOSHOME1==0))
-home01p <- home01/nrow(FU1)*100
-home61 <- nrow(subset(FU1, MOSHOME1>0 & MOSHOME1<7))
-home61p <- home61/nrow(FU1)*100
-home121 <- nrow(subset(FU1, MOSHOME1>6 & MOSHOME1<13))
-home121p <- home121/nrow(FU1)*100
-homey1 <- nrow(subset(FU1, MOSHOME1>12))
-homey1p <- homey1/nrow(FU1)*100
-home02 <- nrow(subset(FU2, MOSHOM2==0))
-home02p <- home02/nrow(FU2)*100
-home62 <- nrow(subset(FU2, MOSHOM2>0 & MOSHOM2<7))
-home62p <- home62/nrow(FU2)*100
-home122 <- nrow(subset(FU2, MOSHOM2>6 & MOSHOM2<13))
-home122p <- home122/nrow(FU2)*100
-homey2 <- nrow(subset(FU2, MOSHOM2>12))
-homey2p <- homey2/nrow(FU2)*100
-stimb <- sum(baseline$ANYSTIM)
-stimbp <- stimb/nrow(baseline)*100
-stim1 <- sum(FU1$ANYSTIM1)
-stim1p <- stim1/nrow(FU1)*100
-stim2 <- sum(FU2$ANYSTIM2)
-stim2p <- stim2/nrow(FU2)*100
-opiateb <- sum(baseline$ANYOPIATE)
-opiatebp <- opiateb/nrow(baseline)*100
-opiate1 <- sum(FU1$ANYOPIATE1)
-opiate1p <- opiate1/nrow(FU1)*100
-opiate2 <- sum(FU2$ANYOPIATE2)
-opiate2p <- opiate2/nrow(FU2)*100
-bingeb <- sum(baseline$binge, na.rm=TRUE)
-bingebp <- bingeb/nrow(baseline)*100
-binge1 <- sum(FU1$binge1, na.rm=TRUE)
-binge1p <- binge1/nrow(FU1)*100
-binge2 <- sum(FU2$binge2, na.rm=TRUE)
-binge2p <- binge2/nrow(FU2)*100
-```
 
 ```{r load regressoutput from chunk below}
 load("regressoutput.Rdata")
 ```
 
 ```{r models, include = FALSE, cache = TRUE}
-#gee
+########GEE############
 modelgee_categorical <- gee(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
 summary(modelgee_categorical)
 #gee_unadj <- gee(TIMESHARE ~ PUBINJ_3cat, SUBJECT, data = dfslong, family = poisson, corstr = "exchangeable", na.action = na.omit)
@@ -461,16 +328,72 @@ gee.out <- data.frame(Predictor=gee.names[,1], Est.GEE=gee.out[,1], RobustSE.GEE
 # pois.out <- data.frame(Est.MM.Pois=pois.est[,1], pvalue.MM.Pois=pois.pvalue[,4]); pois.out
 # poisrand <- as.data.frame(VarCorr(modelpoisson_categorical2))
 
-#negative binomial
+
+
+
+#######modelnb_categorical1#######
+#negative binomial (with suminj as covariate and without homelessness covariate)
 modelnb_categorical1 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
-NB1CIs <- confint(modelnb_categorical1, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
 
-#adds homelessness as covariate to modelnb_categorical1 
+#############BOOTSTRAPPED CIS FOR modelnb_categorical1########################
+NB1CIs <- confint(modelnb_categorical1, level = 0.95, method = "boot", seed = 242, nsim = 10, boot.type = "basic", .progress = "txt")
+
+expNB1CIs <- exp(NB1CIs); expNB1CIs
+
+
+
+#######modelnb_categorical2#######
+#adds homelessness as covariate to modelnb_categorical1 and keeps suminj as covariate
 modelnb_categorical2 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + (1|SUBJECT), data = dfslong, na.action = na.omit)
+summary(modelnb_categorical2)
 
-#changing modelnb_categorical2 so that SUMINJ is offset instead of covariate
+#############BOOTSTRAPPED CIS FOR modelnb_categorical2########################
+#this presents output for modelnb_categorical2
+NB.pvalue <- data.frame(summary(modelnb_categorical2)$coefficients)
+NB.est <- data.frame(exp(summary(modelnb_categorical2)$coefficients))
+NB2CIs <- confint(modelnb_categorical2, level = 0.95, method = "boot", seed = 242, nsim = 10, boot.type = "basic", .progress = "txt")
+
+NB2CIs
+expNB2CIs <- exp(NB2CIs); expNB2CIs
+
+#I think this code below presents the exponentiated point estimate but un-exponentiated CI%s because the numbers look weird. Confirm with Shelley.
+NB.out <- data.frame(Est.MM.NB=NB.est[,1], CI_LB.MM.NB=NB2CIs[2:14,1], CI_UB.MM.NB=NB2CIs[2:14,2]); NB.out
+
+
+#######modelnb_categorical2_offset#######
+#only changing modelnb_categorical2 so that SUMINJ is offset instead of covariate
+#also using dataset dfslong2, which subsets dfslong to SUMINJ>0, because when using offset instead of covariate you can't take log(0)
 #I also tried this with SUMINJ*6 and got essentially the same output
 modelnb_categorical2_offset <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + factor(PUBINJ_baseline) + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ)) + (1|SUBJECT), data = dfslong2, na.action = na.omit)
+
+summary(modelnb_categorical2_offset)
+
+#############BOOTSTRAPPED CIS FOR modelnb_categorical2_offset########################
+#this presents output for modelnb_categorical2_offset
+NB.pvalue_offset <- data.frame(summary(modelnb_categorical2_offset)$coefficients)
+NB.est_offset <- data.frame(exp(summary(modelnb_categorical2_offset)$coefficients))
+NB2CIs_offset <- confint(modelnb_categorical2_offset, level = 0.95, method = "boot", seed = 242, nsim = 10, boot.type = "basic", .progress = "txt")
+
+
+NB2CIs_offset
+expNB2CIs_offset <- exp(NB2CIs_offset); expNB2CIs_offset
+
+#I think this code below presents the exponentiated point estimate but un-exponentiated CI%s because the numbers look weird. Confirm with Shelley..
+NB.out_offset <- data.frame(Est.MM.NB.off=NB.est_offset[,1], CI_LB.MM.NB.off=NB2CIs_offset[2:14,1], CI_UB.MM.NB.off=NB2CIs_offset[2:14,2]); NB.out_offset
+
+
+#######Running model 2_offset without controlling for baseline public injection; only keeping public injection as a time-varying predictor
+modelnb_zoomcall <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ)) + (1|SUBJECT), data = dfslong2, na.action = na.omit)
+
+summary(modelnb_zoomcall)
+
+################
+
+dfslong_jimi <- subset(dfslong, SUMINJ_baseline>0)
+
+modelnb_jimi <- glmer.nb(TIMESHARE ~ PUBINJ_baseline + HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + binge + offset(log(SUMINJ_baseline)) + (1|SUBJECT), data = dfslong_jimi, na.action = na.omit)
+
+summary(modelnb_jimi)
 
 #modelnb_categorical3 <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + SUMINJ + factor(PUBINJ_baseline) + (HOMELESS|SUBJECT) + GENDER + AGE + (ANYSTIM|SUBJECT) + (ANYOPIATE|SUBJECT) + (binge|SUBJECT) + (1|SUBJECT), data = dfslong, na.action = na.omit, control=glmerControl(check.nobs.vs.nRE="warning"))
 
@@ -478,32 +401,22 @@ modelnb_categorical2_offset <- glmer.nb(TIMESHARE ~ PUBINJ_3cat + factor(PUBINJ_
 
 #AICs_nb <- AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical3, modelnb_categorical4); AICs_nb
 
+#comparing 3 models to determine which has lower AIC
 AIC(modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset)
 
-#this presents output for modelnb_categorical2
-NB.pvalue <- data.frame(summary(modelnb_categorical2)$coefficients)
-NB.est <- data.frame(exp(summary(modelnb_categorical2)$coefficients))
-NB2CIs <- confint(modelnb_categorical2, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
-NB.out <- data.frame(Est.MM.NB=NB.est[,1], CI_LB.MM.NB=NB2CIs[2:14,1], CI_UB.MM.NB=NB2CIs[2:14,2]); NB.out
 
-#this presents output for modelnb_categorical2_offset
-NB.pvalue_offset <- data.frame(summary(modelnb_categorical2_offset)$coefficients)
-NB.est_offset <- data.frame(exp(summary(modelnb_categorical2_offset)$coefficients))
-NB2CIs_offset <- confint(modelnb_categorical2_offset, level = 0.95, method = "boot", seed = 242, nsim = 500, boot.type = "basic", .progress = "txt")
-NB.out_offset <- data.frame(Est.MM.NB.off=NB.est_offset[,1], CI_LB.MM.NB.off=NB2CIs_offset[2:14,1], CI_UB.MM.NB.off=NB2CIs_offset[2:14,2]); NB.out_offset
-
-# #NB sandwich estimator
+#NB sandwich estimator
 #robVar_nb <- vcovCL(modelnb_categorical, cluster = dfslong$SUBJECT, sandwich = T)
 #SE_nb <- sqrt(diag(robVar_nb))
 #out.NB <- data.frame(Est.NB = coef(modelnb_categorical), SE.NB = SE_nb)
 #out.NB <- data.frame(out.NB, pvalue.NB = 2*(1-pnorm(abs(out.NB[,2]))))
 
 #all the model output
-out.all <- data.frame(gee.out, NB.out, NB.out_offset)
-out.all <- out.all[-1,]; out.all
+#out.all <- data.frame(gee.out, NB.out, NB.out_offset)
+#out.all <- out.all[-1,]; out.all
 
 #save regression. update this code since i changed things, please!
-save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset, NB1CIs, NB2CIs, NB2CIs_offset, out.all, file="regressoutput.Rdata")
+save(modelgee_categorical, modelnb_categorical1, modelnb_categorical2, modelnb_categorical2_offset, expNB2CIs, expNB2CIs, expNB2CIs_offset, file="regressoutput.Rdata")
 ```
 
 ```{r crosssectional, include = FALSE, echo = FALSE}
