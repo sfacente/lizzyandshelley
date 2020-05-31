@@ -23,6 +23,7 @@ library(mice)
 library(biostat3)
 library(lmtest)
 library(gee)
+library(ciTools)
 ```
 
 Open working directory and load/label the data.
@@ -167,20 +168,21 @@ model.nb.offset <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM
 summary(model.nb.offset)
 ```
 
-
-Compare poisson and negative binomial models.
+FINAL MODEL: Negative binomial model offset included, removing the anystim and anyopiate variables.
 ```{r}
-#comparing poisson and negative binomial without offsets
-lrtest(modelpoisson, model.nb)
-AIC(modelpoisson, model.nb)
+model.nb.offset.reduced <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + offset(log(df$SUMINJ)), data = df, na.action = na.omit)
+summary(model.nb.offset.reduced)
 
-#comparing poisson and negative binomial with offsets
-lrtest(modelpoisson_offset, model.nb.offset)
-AIC(modelpoisson_offset, model.nb.offset)
+#confidence intervals for  coefficients
+(est <- cbind(Estimate = coef(model.nb.offset.reduced), confint(model.nb.offset.reduced)))
+exp(est)
+```
 
-#comparing negative binomials with and without offset
-lrtest(model.nb, model.nb.offset)
-AIC(model.nb, model.nb.offset)
+Compare models.
+```{r}
+#comparing negative binomials with offset, with and without the anystim and anyopiate variables
+lrtest(model.nb.offset, model.nb.offset.reduced)
+AIC(model.nb.offset, model.nb.offset.reduced)
 ```
 
 Interpretation:
