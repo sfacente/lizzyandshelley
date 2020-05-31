@@ -1,0 +1,156 @@
+---
+title: "Naloxone12moCTC"
+author: "Elizabeth Kinnard"
+date: "5/25/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, eval=F, warning = FALSE, message = FALSE, global.par=TRUE)
+knitr::opts_knit$set(root.dir="~/Documents/GitHub/lizzyandshelley/Dataset")
+```
+
+Open packages.
+```{r}
+library(here)
+library(foreign)
+library(labelled)
+library(dplyr)
+library(reshape2)
+```
+
+Open working directory and load/label the data.
+```{r}
+#set working directory
+setwd("~/Documents/GitHub/lizzyandshelley/Dataset") #LIZZY
+
+#load the data
+df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
+
+#get variable labels
+attr(df, "variable.labels")
+df.labels <- as.data.frame(attr(df, "variable.labels"))
+QDSlabels <- data.frame(rownames(df.labels))
+df.labels <- cbind(QDSlabels, df.labels)
+names(df.labels) <- c("VAR_ID", "description")
+rm(QDSlabels)
+
+#USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
+#df.labels$description[df.labels$VAR_ID=="GENDER"]
+```
+
+Subset the data to those who showed up to FU2 (N=536).
+```{r}
+table(df$FU2, useNA = "ifany")
+df <- subset(df, FU2==1) #sample from 984 to 536 who were present at FU2
+```
+
+
+
+```{r}
+#ODP6M: Overdosed in the last 6 months
+#In the last 6 months, have you overdosed?
+table(df$ODP6M2, useNA = "ifany")  
+
+#ODTIMES: Times overdosed in the last 6 months
+#How many times did you overdose in the last 6 months?
+table(df$ODTIMES2, useNA = "ifany")  
+
+#FENTOD: Number of fentanyl related overdoses
+#In the last 6 months, when you overdosed, how many times had you been using Fentanyl or drugs with Fentanyl in it?
+table(df$FENTOD2, useNA = "ifany")                                                                                                   
+#ODDRUG: Drugs used when overdosed the last time
+#The last time you overdosed, what drug or drugs had you been using?  Check all that apply
+table(df$ODDRUG2, useNA = "ifany")    
+
+#WOD6M: Witnessed an overdose in the last 6 months
+#In the last 6 months, have you witnessed a heroin or opiate overdose?
+table(df$WOD6M2, useNA = "ifany")   
+
+#WODX6M: Number of witnessed overdoses in the last 6 months
+#In the last 6 months, how many heroin or opiate overdoses have you witnessed?
+table(df$WODX6M2, useNA = "ifany")   
+
+#NARCAN2: More than one dose of narcan to revive person
+#Of the overdoses you witnessed where naloxone was used, did any of them require more than one dose to revive the person to the best of your knowledge?
+table(df$NARCAN2, useNA = "ifany")   
+
+#RIGID: Rigidty or seizures during the overdose
+#During the overdose(s) that you witnessed, did any one of the victims have immediate body rigidity or seizures?
+table(df$RIGID2, useNA = "ifany") 
+
+#IMMED: Any immediate overdoses
+#Of the overdoses you witnessed, did any of the victims overdose immediately or shortly after taking their shot?
+table(df$IMMED2, useNA = "ifany") 
+
+#USEDNAL: Times naloxone used by bystander to prevent overdose in the last 30 days
+#USEDNAL, USEDNAL1, AND USEDNAL2 all have different variable descriptions, not sure how to reconcile
+#In the last 6 months, how many of these witnessed overdoses did you or someone else who was not an EMT or police officer use naloxone or narcan?
+table(df$USEDNAL2, useNA = "ifany") 
+
+#OD911: Number of witnessed od where 911 was called in the last 30 days
+#In the last 6 months, how many of these witnessed overdoses did you or someone else call 911?
+table(df$OD9112, useNA = "ifany") 
+
+#ODTRAIN: Have you ever participated in overdose prevention training?
+table(df$ODTRAIN2, useNA = "ifany") #-> Is this just ODTRAIN or ODTRAIN1?
+
+#ODTBY: From whom did you receive overdose prevention training? 
+table(df$ODTBY2, useNA = "ifany") #-> Is this just ODTBY or ODTBY1?
+
+#ODTOTH: What is the other organization or entity that provided you with overdose training?
+table(df$ODTOTH, useNA = "ifany") #-> Is this just ODTOTH or ODTOTH1?
+
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector of naloxone) to use on yourself or other people?
+#NALEVER: Ever received naloxone (ISSUE WITH THIS VARIABLE: < table of extent 0 >)
+table(df$NALEVER2, useNA = "ifany") #-> is this just NALEVER or NALEVER1?
+
+#Have you received naloxone in the last 6 months?
+#NAL6MOS: Received naloxone in the last 6 months (ISSUE WITH THIS VARIABLE: < table of extent 0 >)
+table(df$NAL6MOS2, useNA = "ifany")  #-> Is this just NAL6MOS or NAL6MOS1?
+
+#From whom did you receive naloxone, narcan, intranasal narcan, and/or autoinjector/evzio in the last 6 months?  
+#NAL6ORG: Naloxone from whom in the last 6 months  (ISSUE WITH THIS VARIABLE: < table of extent 0 >)
+table(df$NAL6ORG2, useNA = "ifany") #-> Is this just NAL6ORG or NAL6ORG1?
+
+#What is the other organization or entity that provided you with naloxone in the last 6 months?
+#WHAT VARIABLE IS THIS?
+
+
+#Have you used your Naloxone in the last 6 months?
+#USEDNAL, USEDNAL1, AND USEDNAL2 all have different variable descriptions, not sure how to reconcile. THIS MAY BE A DIFFERENT VARIABLE.
+
+
+#Have you lost your Naloxone in the last 6 months?
+#WHAT VARIABLE IS THIS?
+
+
+#After using or losing your naloxone, did you get a replacement or refill?	
+#WHAT VARIABLE IS THIS?
+
+
+#How long after using or losing your Naloxone, did you get a replacement or refill?
+#WHAT VARIABLE IS THIS?
+
+
+#From whom did you receive your naloxone replacement or refill? 
+#WHAT VARIABLE IS THIS?
+
+
+#What is the other organization or entity that provided you with naloxone dose replacement or refill?
+#WHAT VARIABLE IS THIS?
+
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess or own your own naloxone dose)
+#NALOWN: Own a dose of naloxone (ISSUE WITH THIS VARIABLE: < table of extent 0 >)
+#table(df$NALOWN2, useNA = "ifany") -> Is this just NALOWN or NALOWN1?
+
+
+#In the last 6 months, when you injected drugs, how often did you or someone else around you have naloxone in the event of an overdose?
+#WHAT VARIABLE IS THIS?
+
+
+#NALAVAIL: Naloxone available (ISSUE WITH THIS VARIABLE: < table of extent 0 >)
+table(df$NALAVAIL2, useNA = "ifany") #-> IS THIS JUST NALAVAIL or NALAVAIL1?
+
+```
+
