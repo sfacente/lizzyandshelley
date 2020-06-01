@@ -1,7 +1,7 @@
 ---
 title: "SER_oral_baseline"
 author: "Elizabeth Kinnard"
-date: "4/16/2020"
+date: "6/1/2020"
 output: pdf_document
 ---
 
@@ -32,7 +32,7 @@ Open working directory and load/label the data.
 setwd("~/Documents/GitHub/lizzyandshelley/Dataset") #LIZZY
 
 #load the data
-df <- read.spss("Ricky.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
+df <- read.spss("CTCAllWaves.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
 
 #get variable labels
 attr(df, "variable.labels")
@@ -70,7 +70,6 @@ df <- subset(df, SUMINJ>0) #sample from 984 to 979
 df <- subset(df, IJWOTH_3cat>0) #sample from 979 to 879
 ```
 
-
 Create public injection variable (exposure).
 ```{r}
 #public injection
@@ -88,7 +87,6 @@ Create syringe sharing variable (outcome).
 table(df$RECSHR, useNA = "ifany") #Times used dirty needles last 6 months
 df$RECSHR <- as.numeric(as.character(df$RECSHR))
 ```
-
 
 Create covariates and substance use indicators.
 ```{r}
@@ -144,28 +142,32 @@ df$ANYOPIATE <- ifelse(df$HRINJ=="Yes" | df$OPINJ=="Yes", 1, ifelse(df$HRINJ=="N
 table(df$ANYOPIATE, useNA = "ifany")
 ```
 
-Poisson model with no offset.
+Poisson model with no offset (and all covariates).
 ```{r}
 modelpoisson <- glm(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE, family = "poisson", data = df, na.action = na.omit)
 summary(modelpoisson)
 ```
 
-Poisson model with offset included.
+Poisson model with offset included (and all covariates).
 ```{r}
 modelpoisson_offset <- glm(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE, family = "poisson", offset = log(df$SUMINJ), data = df, na.action = na.omit)
 summary(modelpoisson_offset)
 ```
 
-Negative binomial model with no offset.
+Negative binomial model with no offset (and all covariates).
 ```{r}
 model.nb <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE, data = df, na.action = na.omit)
 summary(model.nb)
 ```
 
-Negative binomial model offset included.
+Negative binomial model offset included (and all covariates).
 ```{r}
 model.nb.offset <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + ANYSTIM + ANYOPIATE + offset(log(df$SUMINJ)), data = df, na.action = na.omit)
 summary(model.nb.offset)
+
+#confidence intervals for  coefficients
+(CI_model.nb.offset <- cbind(Estimate = coef(model.nb.offset), confint(model.nb.offset)))
+exp(CI_model.nb.offset)
 ```
 
 FINAL MODEL: Negative binomial model offset included, removing the anystim and anyopiate variables.
@@ -174,8 +176,8 @@ model.nb.offset.reduced <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE +
 summary(model.nb.offset.reduced)
 
 #confidence intervals for  coefficients
-(est <- cbind(Estimate = coef(model.nb.offset.reduced), confint(model.nb.offset.reduced)))
-exp(est)
+(CI_model.nb.offset.reduced <- cbind(Estimate = coef(model.nb.offset.reduced), confint(model.nb.offset.reduced)))
+exp(CI_model.nb.offset.reduced)
 ```
 
 Compare models.
