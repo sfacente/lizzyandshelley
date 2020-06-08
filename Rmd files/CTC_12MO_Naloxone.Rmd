@@ -49,6 +49,11 @@ rm(QDSlabels)
 Subset the data to delete all rows that are entirely NA (since they didn't show up to 12 month visit).
 ```{r}
 df <- df[rowSums(is.na(df)) < 600,] #rows reduced from N=984 to N=536 people
+
+
+#EXAMPLES OF SUBSETTING
+#df <- subset(df, SUMINJ>0)
+#df <- subset(df, IJWOTH_3cat>0) 
 ```
 
 Descriptives of overdose and naloxone variables.
