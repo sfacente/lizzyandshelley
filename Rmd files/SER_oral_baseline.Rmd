@@ -24,6 +24,8 @@ library(biostat3)
 library(lmtest)
 library(gee)
 library(ciTools)
+library(forcats)
+library(tableone)
 ```
 
 Open working directory and load/label the data.
@@ -94,8 +96,9 @@ Create covariates and substance use indicators.
 df$AGE <- as.numeric(as.character(df$AGE))
 table(df$AGE, useNA = "ifany")
 
-#gender
+#gender (combine other and transgender into other so 3 cat variable)
 table(df$GENDER, useNA = "ifany")
+df$GENDER <- df$GENDER %>% fct_collapse("Other" = c("Transgender","Other"))
 
 #homelessness
 table(df$HOMELESS) #do you consider yourself homeless 
@@ -170,15 +173,28 @@ summary(model.nb.offset)
 exp(CI_model.nb.offset)
 ```
 
-FINAL MODEL: Negative binomial model offset included, removing the anystim and anyopiate variables.
+FINAL MODEL 1: Negative binomial model offset included (homeless, gender, age included).
 ```{r}
-model.nb.offset.reduced <- glm.nb(RECSHR ~ PUBINJ_3cat*HOMELESS + GENDER + AGE + offset(log(df$SUMINJ)), data = df, na.action = na.omit)
-summary(model.nb.offset.reduced)
+finalmodel.nb1 <- glm.nb(RECSHR ~ PUBINJ_3cat + HOMELESS + GENDER + AGE + offset(log(df$SUMINJ)), data = df, na.action = na.omit)
+summary(finalmodel.nb1)
 
 #confidence intervals for  coefficients
-(CI_model.nb.offset.reduced <- cbind(Estimate = coef(model.nb.offset.reduced), confint(model.nb.offset.reduced)))
-exp(CI_model.nb.offset.reduced)
+(CI.finalmodel.nb1 <- cbind(Estimate = coef(finalmodel.nb1), confint(finalmodel.nb1)))
+
+exp(CI.finalmodel.nb1)
 ```
+
+FINAL MODEL 2: Negative binomial model offset included (only homelessness included as covariate).
+```{r}
+finalmodel.nb2 <- glm.nb(RECSHR ~ PUBINJ_3cat + HOMELESS + offset(log(df$SUMINJ)), data = df, na.action = na.omit)
+summary(finalmodel.nb2)
+
+#confidence intervals for  coefficients
+(CI.finalmodel.nb2 <- cbind(Estimate = coef(finalmodel.nb2), confint(finalmodel.nb2)))
+
+exp(CI.finalmodel.nb2)
+```
+
 
 Compare models.
 ```{r}
@@ -191,3 +207,26 @@ Interpretation:
 - more like risk ratio because denominator is underlying number of events
 - relative number of needle sharing incidents per injection 
 - if exp(beta) = 2, twice the number of needle sharing events per injection 
+
+
+
+```{r}
+# Identify the variables of interest
+myVars <- c("PUBINJ_3cat", "AGE", "GENDER", "HOMELESS", "RECSHR") 
+
+# Specify which of the variables are categorical
+catVars <- c("PUBINJ_3cat","GENDER","HOMELESS") 
+
+# Create an overall table 1
+table1.overall <- CreateTableOne(vars= myVars, 
+                                 data= df, 
+                                 factorVars = catVars)
+
+# Create a table 1 stratified by smoking
+table1 <- CreateTableOne(vars=myVars, 
+                                   data=df, 
+                                   factorVars = catVars)
+
+print(table1, showAllLevels = TRUE)
+```
+
