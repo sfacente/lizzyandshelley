@@ -26,6 +26,7 @@ library(gee)
 library(ciTools)
 library(forcats)
 library(tableone)
+library(car)
 ```
 
 Open working directory and load/label the data.
@@ -88,6 +89,16 @@ Create syringe sharing variable (outcome).
 ```{r}
 table(df$RECSHR, useNA = "ifany") #Times used dirty needles last 6 months
 df$RECSHR <- as.numeric(as.character(df$RECSHR))
+
+table.recshr <- table(df$RECSHR, useNA = "ifany")  
+prop.table(table.recshr)
+
+#recode syringe sharing into categorical variable 
+df$RECSHR_cat<- recode(df$RECSHR, "0=0; 1:5=1; 6:50=2; 51:600=3")
+table(df$RECSHR_cat, useNA = "ifany")
+
+table.recshr_cat <- table(df$RECSHR_cat, useNA = "ifany")  
+prop.table(table.recshr_cat)
 ```
 
 Create covariates and substance use indicators.
@@ -212,10 +223,10 @@ Interpretation:
 
 ```{r}
 # Identify the variables of interest
-myVars <- c("PUBINJ_3cat", "AGE", "GENDER", "HOMELESS", "RECSHR") 
+myVars <- c("PUBINJ_3cat", "AGE", "GENDER", "HOMELESS", "RECSHR_cat") 
 
 # Specify which of the variables are categorical
-catVars <- c("PUBINJ_3cat","GENDER","HOMELESS") 
+catVars <- c("PUBINJ_3cat","GENDER","HOMELESS", "RECSHR_cat") 
 
 # Create an overall table 1
 table1.overall <- CreateTableOne(vars= myVars, 
@@ -227,6 +238,6 @@ table1 <- CreateTableOne(vars=myVars,
                                    data=df, 
                                    factorVars = catVars)
 
-print(table1, showAllLevels = TRUE)
+print(table1, showAllLevels = TRUE, missing = TRUE)
 ```
 
