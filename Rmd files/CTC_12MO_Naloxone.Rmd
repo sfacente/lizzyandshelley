@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "6/23/2020"
+date: "7/6/2020"
 output: pdf_document
 ---
 
@@ -253,6 +253,7 @@ tbl.NALAVAIL
 prop.table(tbl.NALAVAIL)
 ```
 
+
 Bar charts using counts for the cascade, whole sample (N=536).
 ```{r}
 #ODTRAIN: Have you ever participated in overdose prevention training?
@@ -277,10 +278,15 @@ tbl.NALOWN
 #Have you used your Naloxone in the last 6 months?
 tbl.NALUSED 
 
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+tbl.NALOSE 
+
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
 tbl.NALFILL
 ```
+
 
 Bar charts using counts for San Francisco (N=312).
 ```{r}
@@ -308,10 +314,15 @@ table(df_SF$NALOWN, useNA = "ifany")
 #Have you used your Naloxone in the last 6 months?
 table(df_SF$NALUSED, useNA = "ifany") 
 
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+table(df_SF$NALOSE, useNA = "ifany") 
+
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
 table(df_SF$NALFILL, useNA = "ifany") 
 ```
+
 
 Bar charts using counts for Los Angeles (N=224).
 ```{r}
@@ -338,6 +349,10 @@ table(df_LA$NALOWN, useNA = "ifany")
 #NALUSED:Used naloxone in the last 6 months
 #Have you used your Naloxone in the last 6 months?
 table(df_LA$NALUSED, useNA = "ifany") 
+
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+table(df_LA$NALOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
@@ -371,6 +386,10 @@ table(df_women$NALOWN, useNA = "ifany")
 #Have you used your Naloxone in the last 6 months?
 table(df_women$NALUSED, useNA = "ifany") 
 
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+table(df_women$NALOSE, useNA = "ifany") 
+
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
 table(df_women$NALFILL, useNA = "ifany")
@@ -403,7 +422,48 @@ table(df_men$NALOWN, useNA = "ifany")
 #Have you used your Naloxone in the last 6 months?
 table(df_men$NALUSED, useNA = "ifany") 
 
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+table(df_men$NALOSE, useNA = "ifany") 
+
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
 table(df_men$NALFILL, useNA = "ifany")
 ```
+
+
+Bar charts using counts for homeless (N=361).
+```{r}
+df_homeless <- subset(df, HOMELESS == "Yes")
+
+#ODTRAIN: Have you ever participated in overdose prevention training?
+#Have you ever participated in overdose prevention training?
+table(df_homeless$ODTRAIN, useNA = "ifany") 
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_homeless$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_homeless$NAL6MOS, useNA = "ifany") 
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_homeless$NALOWN, useNA = "ifany") 
+
+#NALUSED:Used naloxone in the last 6 months
+#Have you used your Naloxone in the last 6 months?
+table(df_homeless$NALUSED, useNA = "ifany") 
+
+#NALOSE: Lost naloxone in the last 6 months
+#Have you lost your Naloxone in the last 6 months?
+table(df_homeless$NALOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_homeless$NALFILL, useNA = "ifany")
+```
+
