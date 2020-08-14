@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "7/6/2020"
+date: "8/14/2020"
 output: pdf_document
 ---
 
@@ -209,6 +209,15 @@ tbl.NALOSE <- table(df$NALOSE, useNA = "ifany")
 tbl.NALOSE 
 prop.table(tbl.NALOSE)
 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+table(df$NALUSED, df$NALOSE, useNA = "ifany")
+
+df$NALUSEandorLOSE <- ifelse((df$NALUSED=="Yes" | df$NALOSE=="Yes"), 1, 0)
+
+tbl.NALUSEandorLOSE <- table(df$NALUSEandorLOSE, useNA = "ifany") 
+tbl.NALUSEandorLOSE  
+prop.table(tbl.NALUSEandorLOSE)
+
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
 tbl.NALFILL <- table(df$NALFILL, useNA = "ifany") 
@@ -256,31 +265,18 @@ prop.table(tbl.NALAVAIL)
 
 Bar charts using counts for the cascade, whole sample (N=536).
 ```{r}
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-tbl.ODTRAIN
-
 #NALEVER: Ever received naloxone 
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 tbl.NALEVER 
-
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-tbl.NAL6MOS
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
 tbl.NALOWN
 
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-tbl.NALUSED 
-
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-tbl.NALOSE 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+tbl.NALUSEandorLOSE
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
@@ -292,31 +288,19 @@ Bar charts using counts for San Francisco (N=312).
 ```{r}
 df_SF <- subset(df, LOCALID == "San Francisco")
 
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-table(df_SF$ODTRAIN, useNA = "ifany") 
-
 #NALEVER: Ever received naloxone 
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_SF$NALEVER, useNA = "ifany") 
-
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-table(df_SF$NAL6MOS, useNA = "ifany") 
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
 table(df_SF$NALOWN, useNA = "ifany") 
 
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-table(df_SF$NALUSED, useNA = "ifany") 
-
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-table(df_SF$NALOSE, useNA = "ifany") 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_SF$NALUSEandorLOSE <- ifelse((df_SF$NALUSED=="Yes" | df_SF$NALOSE=="Yes"), 1, 0)
+table(df_SF$NALUSEandorLOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
@@ -328,31 +312,19 @@ Bar charts using counts for Los Angeles (N=224).
 ```{r}
 df_LA <- subset(df, LOCALID == "Los Angeles")
 
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-table(df_LA$ODTRAIN, useNA = "ifany") 
-
 #NALEVER: Ever received naloxone 
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_LA$NALEVER, useNA = "ifany") 
-
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-table(df_LA$NAL6MOS, useNA = "ifany") 
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
 table(df_LA$NALOWN, useNA = "ifany") 
 
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-table(df_LA$NALUSED, useNA = "ifany") 
-
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-table(df_LA$NALOSE, useNA = "ifany") 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_LA$NALUSEandorLOSE <- ifelse((df_LA$NALUSED=="Yes" | df_LA$NALOSE=="Yes"), 1, 0)
+table(df_LA$NALUSEandorLOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
@@ -360,71 +332,24 @@ table(df_LA$NALFILL, useNA = "ifany")
 ```
 
 
-Bar charts using counts for women (N=140).
-```{r}
-df_women <- subset(df, GENDER == "Female")
-
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-table(df_women$ODTRAIN, useNA = "ifany") 
-
-#NALEVER: Ever received naloxone 
-#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
-#of naloxone to use on yourself or other people?
-table(df_women$NALEVER, useNA = "ifany") 
-
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-table(df_women$NAL6MOS, useNA = "ifany") 
-
-#NALOWN: Own a dose of naloxone
-#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
-#or own your own naloxone dose)
-table(df_women$NALOWN, useNA = "ifany") 
-
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-table(df_women$NALUSED, useNA = "ifany") 
-
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-table(df_women$NALOSE, useNA = "ifany") 
-
-#NALFILL: Got a refill of naloxone in the last 6 months
-#After using or losing your naloxone, did you get a replacement or refill?
-table(df_women$NALFILL, useNA = "ifany")
-```
-
-
 Bar charts using counts for men (N=390).
 ```{r}
 df_men <- subset(df, GENDER == "Male")
-
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-table(df_men$ODTRAIN, useNA = "ifany") 
 
 #NALEVER: Ever received naloxone 
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_men$NALEVER, useNA = "ifany") 
 
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-table(df_men$NAL6MOS, useNA = "ifany") 
-
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
 table(df_men$NALOWN, useNA = "ifany") 
 
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-table(df_men$NALUSED, useNA = "ifany") 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_men$NALUSEandorLOSE <- ifelse((df_men$NALUSED=="Yes" | df_men$NALOSE=="Yes"), 1, 0)
 
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-table(df_men$NALOSE, useNA = "ifany") 
+table(df_men$NALUSEandorLOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
@@ -432,38 +357,74 @@ table(df_men$NALFILL, useNA = "ifany")
 ```
 
 
-Bar charts using counts for homeless (N=361).
+Bar charts using counts for women (N=140).
 ```{r}
-df_homeless <- subset(df, HOMELESS == "Yes")
-
-#ODTRAIN: Have you ever participated in overdose prevention training?
-#Have you ever participated in overdose prevention training?
-table(df_homeless$ODTRAIN, useNA = "ifany") 
+df_women <- subset(df, GENDER == "Female")
 
 #NALEVER: Ever received naloxone 
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
-table(df_homeless$NALEVER, useNA = "ifany") 
-
-#NAL6MOS: Received naloxone in the last 6 months 
-#Have you received naloxone in the last 6 months?
-table(df_homeless$NAL6MOS, useNA = "ifany") 
+table(df_women$NALEVER, useNA = "ifany") 
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
-table(df_homeless$NALOWN, useNA = "ifany") 
+table(df_women$NALOWN, useNA = "ifany") 
 
-#NALUSED:Used naloxone in the last 6 months
-#Have you used your Naloxone in the last 6 months?
-table(df_homeless$NALUSED, useNA = "ifany") 
-
-#NALOSE: Lost naloxone in the last 6 months
-#Have you lost your Naloxone in the last 6 months?
-table(df_homeless$NALOSE, useNA = "ifany") 
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_women$NALUSEandorLOSE <- ifelse((df_women$NALUSED=="Yes" | df_women$NALOSE=="Yes"), 1, 0)
+table(df_women$NALUSEandorLOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
 #After using or losing your naloxone, did you get a replacement or refill?
-table(df_homeless$NALFILL, useNA = "ifany")
+table(df_women$NALFILL, useNA = "ifany")
 ```
 
+
+Bar charts using counts for unhoused (N=361).
+```{r}
+df_unhoused <- subset(df, HOMELESS == "Yes")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_unhoused$NALEVER, useNA = "ifany") 
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_unhoused$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_unhoused$NALUSEandorLOSE <- ifelse((df_unhoused$NALUSED=="Yes" | df_unhoused$NALOSE=="Yes"), 1, 0)
+
+table(df_unhoused$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_unhoused$NALFILL, useNA = "ifany")
+```
+
+Bar charts using counts for housed (N=175).
+```{r}
+df_housed <- subset(df, HOMELESS == "No")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_housed$NALEVER, useNA = "ifany") 
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_housed$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_housed$NALUSEandorLOSE <- ifelse((df_housed$NALUSED=="Yes" | df_housed$NALOSE=="Yes"), 1, 0)
+
+table(df_housed$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_housed$NALFILL, useNA = "ifany")
+```
