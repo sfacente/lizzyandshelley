@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "8/25/2020"
+date: "8/29/2020"
 output: pdf_document
 ---
 
@@ -493,62 +493,78 @@ table1.overall <- CreateTableOne(vars= myVars,
                                  data= df, 
                                  factorVars = catVars)
 
+print(table1.overall, showAllLevels = TRUE, missing = FALSE)
+
 # Create a table 1 stratified by ever receiving naloxone (1 = ever received, 0 = never received) 
 table1byNALEVER <- CreateTableOne(vars=myVars, 
                                    data=df, 
                                    factorVars = catVars,
                                    strata="NALEVER")
 
-print(table1byNALEVER, showAllLevels = TRUE, missing = FALSE)
+print(table1byNALEVER, showAllLevels = TRUE, test=TRUE, missing = FALSE)
 ```
 
 
 Bivariate and multivariate models for ever receiving naloxone.
 ```{r}
+#check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
+#prop.table(table(df$X, df$NALEVER, useNA = "ifany"),2)
+
 #CITY 
 localIDbynalever <- glm(NALEVER ~ factor(LOCALID), data=df, family=binomial)
 summary(localIDbynalever)
+exp(cbind(OR = coef(localIDbynalever), confint(localIDbynalever)))
 
 #GENDER
 genderbynalever <- glm(NALEVER ~ factor(GENDER), data=df, family=binomial)
 summary(genderbynalever)
+exp(cbind(OR = coef(genderbynalever), confint(genderbynalever)))
 
 #agecat
 agebynalever <- glm(NALEVER ~ factor(agecat), data=df, family=binomial)
 summary(agebynalever)
+exp(cbind(OR = coef(agebynalever), confint(agebynalever)))
 
 #ED
 edbynalever <- glm(NALEVER ~ factor(ED), data=df, family=binomial)
 summary(edbynalever)
+exp(cbind(OR = coef(edbynalever), confint(edbynalever)))
 
 #HOMELESS
 homelessbynalever <- glm(NALEVER ~ factor(HOMELESS), data=df, family=binomial)
 summary(homelessbynalever)
+exp(cbind(OR = coef(homelessbynalever), confint(homelessbynalever)))
 
 #JAIL
 jailbynalever <- glm(NALEVER ~ factor(JAIL), data=df, family=binomial)
 summary(jailbynalever)
+exp(cbind(OR = coef(jailbynalever), confint(jailbynalever)))
 
 #ANYSTIMINJ
 anystimbynalever <- glm(NALEVER ~ factor(ANYSTIMINJ), data=df, family=binomial)
 summary(anystimbynalever)
+exp(cbind(OR = coef(anystimbynalever), confint(anystimbynalever)))
 
 #ANYOPIATEINJ
 anyopiatebynalever <- glm(NALEVER ~ factor(ANYOPIATEINJ), data=df, family=binomial)
 summary(anyopiatebynalever)
+exp(cbind(OR = coef(anyopiatebynalever), confint(anyopiatebynalever)))
 
 #WOD6M
 ODwitness6mobynalever <- glm(NALEVER ~ factor(WOD6M), data=df, family=binomial)
 summary(ODwitness6mobynalever)
+exp(cbind(OR = coef(ODwitness6mobynalever), confint(ODwitness6mobynalever)))
 
 #ODP6M
 ODself6mobynalever <- glm(NALEVER ~ factor(ODP6M), data=df, family=binomial)
 summary(ODself6mobynalever)
+exp(cbind(OR = coef(ODself6mobynalever), confint(ODself6mobynalever)))
 
 #multivariate model
 fit.nalever <- glm(NALEVER ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMINJ) + factor(ANYOPIATEINJ) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial)
 
 summary(fit.nalever)
+exp(cbind(OR = coef(fit.nalever), confint(fit.nalever)))
 ```
 
 
