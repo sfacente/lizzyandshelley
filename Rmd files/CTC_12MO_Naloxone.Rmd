@@ -278,6 +278,10 @@ Bar charts using counts for the cascade, whole sample (N=536).
 #of naloxone to use on yourself or other people?
 tbl.NALEVER 
 
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+tbl.NAL6MOS
+
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
@@ -300,6 +304,10 @@ df_SF <- subset(df, LOCALID == "San Francisco")
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_SF$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_SF$NAL6MOS, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -325,6 +333,10 @@ df_LA <- subset(df, LOCALID == "Los Angeles")
 #of naloxone to use on yourself or other people?
 table(df_LA$NALEVER, useNA = "ifany") 
 
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_LA$NAL6MOS, useNA = "ifany")
+
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
@@ -348,6 +360,10 @@ df_men <- subset(df, GENDER == "Male")
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_men$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_men$NAL6MOS, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -374,6 +390,10 @@ df_women <- subset(df, GENDER == "Female")
 #of naloxone to use on yourself or other people?
 table(df_women$NALEVER, useNA = "ifany") 
 
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_women$NAL6MOS, useNA = "ifany")
+
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
@@ -398,6 +418,10 @@ df_unhoused <- subset(df, HOMELESS == "Yes")
 #of naloxone to use on yourself or other people?
 table(df_unhoused$NALEVER, useNA = "ifany") 
 
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_unhoused$NAL6MOS, useNA = "ifany")
+
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
 #or own your own naloxone dose)
@@ -421,6 +445,10 @@ df_housed <- subset(df, HOMELESS == "No")
 #Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
 #of naloxone to use on yourself or other people?
 table(df_housed$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+table(df_housed$NAL6MOS, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -686,5 +714,19 @@ DEAL WITH THIS ONCE WE ADDRESS THE SKIP PATTERN ISSUE.
                                    #strata="NALOWN")
 
 #print(table1byNALOWN, showAllLevels = TRUE, missing = FALSE)
+```
+
+
+
+```{r}
+#can't get ifelse to work
+df$NAL6MOS.new <- ifelse((df$NALEVER=="Yes" & df$NAL6MOS=="Yes"), 1, ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="No"), 0, ifelse(df$NALEVER=="No"), 0)
+
+#can't get ifelse to work
+df$NAL6MOS.new <- mutate(df, NAL6MOS.new = ifelse(NALEVER=="Yes" & NAL6MOS=="Yes", 1,
+                                     ifelse(NALEVER=="Yes" & NAL6MOS=="No", 0,
+                                            ifelse(NALEVER=="No" & NAL6MOS=="NA", 0, NA))))
+
+
 ```
 
