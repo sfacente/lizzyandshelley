@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "8/29/2020"
+date: "8/31/2020"
 output: pdf_document
 ---
 
@@ -23,6 +23,12 @@ library(dplyr)
 library(reshape2)
 library(tableone)
 library(forcats)
+library(geepack)
+library(doBy)
+library(blm)
+library(lmtest)
+library(foreign)
+library(MASS)
 ```
 
 Open working directory and load/label the data.
@@ -489,6 +495,7 @@ myVars <- c("LOCALID", "GENDER","agecat","ED","HOMELESS", "JAIL", "ANYSTIMINJ", 
 catVars <- c("LOCALID", "GENDER", "agecat", "ED","HOMELESS", "JAIL", "ANYSTIMINJ", "ANYOPIATEINJ", "WOD6M", "ODP6M") 
 
 # Create an overall table 1
+#REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
 table1.overall <- CreateTableOne(vars= myVars, 
                                  data= df, 
                                  factorVars = catVars)
@@ -496,6 +503,7 @@ table1.overall <- CreateTableOne(vars= myVars,
 print(table1.overall, showAllLevels = TRUE, missing = FALSE)
 
 # Create a table 1 stratified by ever receiving naloxone (1 = ever received, 0 = never received) 
+##REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
 table1byNALEVER <- CreateTableOne(vars=myVars, 
                                    data=df, 
                                    factorVars = catVars,
@@ -505,7 +513,7 @@ print(table1byNALEVER, showAllLevels = TRUE, test=TRUE, missing = FALSE)
 ```
 
 
-Bivariate and multivariate models for ever receiving naloxone.
+Bivariate and multivariate models for ever receiving naloxone using logistic regression (because log-binomial models wouldn't converge for all variables).
 ```{r}
 #check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
 #prop.table(table(df$X, df$NALEVER, useNA = "ifany"),2)
@@ -561,41 +569,122 @@ summary(ODself6mobynalever)
 exp(cbind(OR = coef(ODself6mobynalever), confint(ODself6mobynalever)))
 
 #multivariate model
-fit.nalever <- glm(NALEVER ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMINJ) + factor(ANYOPIATEINJ) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial)
+fit.nalever.logistic <- glm(NALEVER ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMINJ) + factor(ANYOPIATEINJ) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial)
 
-summary(fit.nalever)
-exp(cbind(OR = coef(fit.nalever), confint(fit.nalever)))
+summary(fit.nalever.logistic)
+
+#get ORs and 95% CIs
+fitnalever.OR.coefci.adj <- cbind(fit.nalever.logistic$coefficients, confint.default(fit.nalever.logistic))
+fitnalever.OR.expci.adj <- exp(fitnalever.OR.coefci.adj)
+fitnalever.OR.expci.adj
 ```
 
 
+Bivariate and multivariate models for ever receiving naloxone using modified Poisson regression with robust standard errors. (CITE ZOU'S MODIFIED POISSON 2004 paper)
+```{r}
+require(geepack)
 
+#subset the data with complete observations
+df.modpoiss <- subset(df, select=c(SUBJECT, NALEVER, LOCALID, GENDER, agecat, ED, HOMELESS, JAIL, ANYSTIMINJ, ANYOPIATEINJ, WOD6M, ODP6M))
+df.modpoiss <- na.omit(df.modpoiss)
 
+#turn the y variable (nalever into a 0/1 instead of no/yes due to modified poisson error)
+df.modpoiss$NALEVER_binary <- as.numeric(df.modpoiss$NALEVER== "Yes")
 
+#CITY 
+localIDbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(LOCALID), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(localIDbynalever.modpoiss)
+exp(coef(localIDbynalever.modpoiss))
 
+#GENDER
+genderbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(GENDER), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(genderbynalever.modpoiss)
+exp(coef(genderbynalever.modpoiss))
 
+#agecat
+agecatbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(agecat), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(agecatbynalever.modpoiss)
+exp(coef(agecatbynalever.modpoiss))
 
+#ED
+edbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(ED), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(edbynalever.modpoiss)
+exp(coef(edbynalever.modpoiss))
 
+#HOMELESS
+homelessbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(HOMELESS), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(homelessbynalever.modpoiss)
+exp(coef(homelessbynalever.modpoiss))
 
+#JAIL
+jailbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(JAIL), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(jailbynalever.modpoiss)
+exp(coef(jailbynalever.modpoiss))
 
+#ANYSTIMINJ
+anystiminjbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(ANYSTIMINJ), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(anystiminjbynalever.modpoiss)
+exp(coef(anystiminjbynalever.modpoiss))
 
+#ANYOPIATEINJ
+anyopiateinjbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(ANYOPIATEINJ), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(anyopiateinjbynalever.modpoiss)
+exp(coef(anyopiateinjbynalever.modpoiss))
+
+#WOD6M
+WOD6Mbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(WOD6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(WOD6Mbynalever.modpoiss)
+exp(coef(WOD6Mbynalever.modpoiss))
+
+#ODP6M
+ODP6Mbynalever.modpoiss <- geeglm(formula=NALEVER_binary ~ factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(ODP6Mbynalever.modpoiss)
+exp(coef(ODP6Mbynalever.modpoiss))
+
+#multivariate modified poisson model
+fitnalever.modpoiss  <- geeglm(formula=NALEVER_binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMINJ) + factor(ANYOPIATEINJ) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+
+summary(fitnalever.modpoiss)
+
+#extract the coefficients and confidence intervals, exponentiate to get RR and 95% CI (using confint.default)
+fitnalever.RR.coefci.adj <- cbind(fitnalever.modpoiss$coefficients, confint.default(fitnalever.modpoiss))
+fitnalever.RR.expci.adj <- exp(fitnalever.RR.coefci.adj)
+fitnalever.RR.expci.adj
+```
+
+If I end up needing to calculate the 95% CI for RRs by hand instead.
+```{r}
+#getting coefficients and standard errors using regular glm and the sandwich estimator
+#fitnalever.modpoiss <- glm(NALEVER_binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMINJ) + factor(ANYOPIATEINJ) + factor(WOD6M) + factor(ODP6M), family = poisson(link = "log"), data = df.modpoiss)
+
+#library(sandwich) # to get robust estimators
+#library(lmtest) # to test coefficients
+#coeftest(fitnalever.modpoiss, vcov = sandwich)
+#exp(coef(fitnalever.modpoiss)) #to get RR
+
+## CIs 
+#localID
+#exp(-0.05752 + qnorm(0.05 / 2) * 0.05984) # lower 95% CI
+#exp(-0.05752  + qnorm(1 - 0.05 / 2) * 0.05984) #upper 95% CI
+```
 
 
 Table 1 for correlates of currently owning naloxone [NALOWN].
 DEAL WITH THIS ONCE WE ADDRESS THE SKIP PATTERN ISSUE.
 ```{r}
 #subset the data to those who have ever received naloxone
-df_EVERRECEIVEDNAL <- subset(df, NALEVER == "Yes") #N=387 who ever received naloxone
+#df_EVERRECEIVEDNAL <- subset(df, NALEVER == "Yes") #N=387 who ever received naloxone
 
-table(df_EVERRECEIVEDNAL$NALOWN, useNA = "ifany")
+#table(df_EVERRECEIVEDNAL$NALOWN, useNA = "ifany")
 #####Figure out who the 123 missing are who said they ever received naloxone but are missing on currently owning naloxone. Skip pattern at receiving naloxone in the last 6 months (F16) says if the answer is no, to skip over question about currently owning naloxone (F25) and go straight to F26, which is where the people are getting lost. At least some of the people who are NA on "df_EVERRECEIVEDNAL$NALOWN" are getting lost here.
 
 
 # Create a table 1 stratified by currently owning naloxone  (1 = ever received, currently own / 0 = ever received, don't currently own)
-table1byNALOWN <- CreateTableOne(vars=myVars, 
-                                   data=df_EVERRECEIVEDNAL, 
-                                   factorVars = catVars,
-                                   strata="NALOWN")
+#table1byNALOWN <- CreateTableOne(vars=myVars, 
+                                   #data=df_EVERRECEIVEDNAL, 
+                                   #factorVars = catVars,
+                                   #strata="NALOWN")
 
-print(table1byNALOWN, showAllLevels = TRUE, missing = FALSE)
+#print(table1byNALOWN, showAllLevels = TRUE, missing = FALSE)
 ```
 
