@@ -720,12 +720,15 @@ DEAL WITH THIS ONCE WE ADDRESS THE SKIP PATTERN ISSUE.
 
 ```{r}
 #can't get ifelse to work
-df$NAL6MOS.new <- ifelse((df$NALEVER=="Yes" & df$NAL6MOS=="Yes"), 1, ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="No"), 0, ifelse(df$NALEVER=="No"), 0)
+#df$NAL6MOS.new <- ifelse((df$NALEVER=="Yes" & df$NAL6MOS=="Yes"), 1, ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="No"), 0, ifelse(df$NALEVER=="No"), 0)
+
+#corrected ifelse
+df$NAL6MOS.new <- ifelse(df$NALEVER==1 & df$NAL6MOS==1, 1, ifelse(df$NALEVER==1 & df$NAL6MOS==0, 0, ifelse(df$NALEVER==0, 0, NA)))
 
 #can't get ifelse to work
-df$NAL6MOS.new <- mutate(df, NAL6MOS.new = ifelse(NALEVER=="Yes" & NAL6MOS=="Yes", 1,
-                                     ifelse(NALEVER=="Yes" & NAL6MOS=="No", 0,
-                                            ifelse(NALEVER=="No" & NAL6MOS=="NA", 0, NA))))
+#df$NAL6MOS.new <- mutate(df, NAL6MOS.new = ifelse(NALEVER=="Yes" & NAL6MOS=="Yes", 1,
+      #                               ifelse(NALEVER=="Yes" & NAL6MOS=="No", 0,
+       #                              ifelse(NALEVER=="No" & NAL6MOS=="NA", 0, NA))))
 
 
 ```
