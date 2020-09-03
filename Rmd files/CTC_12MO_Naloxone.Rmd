@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "8/31/2020"
+date: "9/3/2020"
 output: pdf_document
 ---
 
@@ -187,6 +187,16 @@ tbl.NAL6MOS <- table(df$NAL6MOS, useNA = "ifany")
 tbl.NAL6MOS
 prop.table(tbl.NAL6MOS)
 
+#NAL6MOSNEW: Creating new variable combining NALEVER AND NAL6MOS so that those who answered "No" to NALEVER are also "No" on NAL6MOS
+#crosstab of NALEVER and NAL6MOS
+table(df$NALEVER, df$NAL6MOS, useNA = "ifany")
+
+df$NAL6MOS.new <- ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="Yes", 1, ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="No", 0, ifelse(df$NALEVER=="No", 0, NA)))
+
+tbl.NAL6MOS.new <- table(df$NAL6MOS.new, useNA = "ifany")
+tbl.NAL6MOS.new
+prop.table(tbl.NAL6MOS.new)
+
 #NAL6ORG: Naloxone from whom in the last 6 months
 #From whom did you receive naloxone, narcan, intranasal narcan, and/or autoinjector/evzio in the last 6 months?  
 table(df$NAL6ORG, useNA = "ifany") 
@@ -280,7 +290,11 @@ tbl.NALEVER
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-tbl.NAL6MOS
+#tbl.NAL6MOS
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+tbl.NAL6MOS.new
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -307,7 +321,13 @@ table(df_SF$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_SF$NAL6MOS, useNA = "ifany")
+#table(df_SF$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_SF$NAL6MOS.new <- ifelse(df_SF$NALEVER=="Yes" & df_SF$NAL6MOS=="Yes", 1, ifelse(df_SF$NALEVER=="Yes" & df_SF$NAL6MOS=="No", 0, ifelse(df_SF$NALEVER=="No", 0, NA)))
+
+table(df_SF$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -335,7 +355,13 @@ table(df_LA$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_LA$NAL6MOS, useNA = "ifany")
+#table(df_LA$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_LA$NAL6MOS.new <- ifelse(df_LA$NALEVER=="Yes" & df_LA$NAL6MOS=="Yes", 1, ifelse(df_LA$NALEVER=="Yes" & df_LA$NAL6MOS=="No", 0, ifelse(df_LA$NALEVER=="No", 0, NA)))
+
+table(df_LA$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -363,7 +389,13 @@ table(df_men$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_men$NAL6MOS, useNA = "ifany")
+#table(df_men$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_men$NAL6MOS.new <- ifelse(df_men$NALEVER=="Yes" & df_men$NAL6MOS=="Yes", 1, ifelse(df_men$NALEVER=="Yes" & df_men$NAL6MOS=="No", 0, ifelse(df_men$NALEVER=="No", 0, NA)))
+
+table(df_men$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -392,7 +424,13 @@ table(df_women$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_women$NAL6MOS, useNA = "ifany")
+#table(df_women$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_women$NAL6MOS.new <- ifelse(df_women$NALEVER=="Yes" & df_women$NAL6MOS=="Yes", 1, ifelse(df_women$NALEVER=="Yes" & df_women$NAL6MOS=="No", 0, ifelse(df_women$NALEVER=="No", 0, NA)))
+
+table(df_women$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -420,7 +458,13 @@ table(df_unhoused$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_unhoused$NAL6MOS, useNA = "ifany")
+#table(df_unhoused$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_unhoused$NAL6MOS.new <- ifelse(df_unhoused$NALEVER=="Yes" & df_unhoused$NAL6MOS=="Yes", 1, ifelse(df_unhoused$NALEVER=="Yes" & df_unhoused$NAL6MOS=="No", 0, ifelse(df_unhoused$NALEVER=="No", 0, NA)))
+
+table(df_unhoused$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -448,7 +492,13 @@ table(df_housed$NALEVER, useNA = "ifany")
 
 #NAL6MOS: Received naloxone in the last 6 months 
 #Have you received naloxone in the last 6 months?
-table(df_housed$NAL6MOS, useNA = "ifany")
+#table(df_housed$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_housed$NAL6MOS.new <- ifelse(df_housed$NALEVER=="Yes" & df_housed$NAL6MOS=="Yes", 1, ifelse(df_housed$NALEVER=="Yes" & df_housed$NAL6MOS=="No", 0, ifelse(df_housed$NALEVER=="No", 0, NA)))
+
+table(df_housed$NAL6MOS.new, useNA = "ifany")
 
 #NALOWN: Own a dose of naloxone
 #Do you currently have at least one dose of naloxone? (By this, we mean you possess 
@@ -715,21 +765,3 @@ DEAL WITH THIS ONCE WE ADDRESS THE SKIP PATTERN ISSUE.
 
 #print(table1byNALOWN, showAllLevels = TRUE, missing = FALSE)
 ```
-
-
-
-```{r}
-#can't get ifelse to work
-#df$NAL6MOS.new <- ifelse((df$NALEVER=="Yes" & df$NAL6MOS=="Yes"), 1, ifelse(df$NALEVER=="Yes" & df$NAL6MOS=="No"), 0, ifelse(df$NALEVER=="No"), 0)
-
-#corrected ifelse
-df$NAL6MOS.new <- ifelse(df$NALEVER==1 & df$NAL6MOS==1, 1, ifelse(df$NALEVER==1 & df$NAL6MOS==0, 0, ifelse(df$NALEVER==0, 0, NA)))
-
-#can't get ifelse to work
-#df$NAL6MOS.new <- mutate(df, NAL6MOS.new = ifelse(NALEVER=="Yes" & NAL6MOS=="Yes", 1,
-      #                               ifelse(NALEVER=="Yes" & NAL6MOS=="No", 0,
-       #                              ifelse(NALEVER=="No" & NAL6MOS=="NA", 0, NA))))
-
-
-```
-
