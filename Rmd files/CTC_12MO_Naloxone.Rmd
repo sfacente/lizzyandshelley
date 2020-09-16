@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "9/13/2020"
+date: "9/14/2020"
 output: pdf_document
 ---
 
@@ -774,6 +774,15 @@ df_nal6mos <- subset(df, NAL6MOS.new == 1) #N = 265 who have received naloxone i
 
 #checking frequencies are correct
 table(df_nal6mos$NALOWN, useNA = "ifany")
+
+#Create a table 1 not stratified by any outcome variable, just for this subset of N = 265 PWID who received naloxone in the last 6mos
+
+table1.subset.receivednal6mos <- CreateTableOne(vars= myVars, 
+                                 data= df_nal6mos, 
+                                 factorVars = catVars)
+
+print(table1.subset.receivednal6mos, showAllLevels = TRUE, missing = FALSE)
+
 
 # Create a table 1 stratified by currently owning naloxone
 table1byNALOWN <- CreateTableOne(vars=myVars, 
