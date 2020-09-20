@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "9/14/2020"
+date: "9/20/2020"
 output: pdf_document
 ---
 
@@ -562,15 +562,6 @@ table(df$WOD6M, useNA = "ifany")
 
 #personal overdose history (Overdosed in the last 6 months)
 table(df$ODP6M, useNA = "ifany")
-
-#years since first injection
-table(df$yrsinj, useNA = "ifany") #integer
-table(df$injyrcat, useNA = "ifany") #categorical
-
-#syringe service access
-table(df$NDLSRCF, useNA = "ifany") #Most Frequent Needle Source Last 6 Mos.
-
-table(df$NMNDLES, useNA = "ifany") #Number of new needles obtained for your own use in last 30 days
 ```
 
 Overall Table 1 not stratified by any outcome.
@@ -583,6 +574,7 @@ catVars <- c("LOCALID", "GENDER", "agecat", "ED","HOMELESS", "JAIL", "ANYSTIMINJ
 
 # Create an overall table 1
 #REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
+
 table1.overall <- CreateTableOne(vars= myVars, 
                                  data= df, 
                                  factorVars = catVars)
@@ -595,6 +587,11 @@ Table 1 for correlates of receiving naloxone in the last 6 months (NAL6MOS.new)
 ```{r}
 # Create a table 1 stratified by receiving naloxone in the last 6 mos (1 = ever received in last 6 mos, 0 = never received in last 6 mos) 
 ##REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
+
+#check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
+#table(df$X, df$NAL6MOS.new, useNA = "ifany")
+#round(prop.table(table(df$X, df$NAL6MOS.new, useNA = "ifany"),2),3)
+
 table1byNAL6MOS.new <- CreateTableOne(vars=myVars, 
                                    data=df, 
                                    factorVars = catVars,
@@ -623,9 +620,7 @@ NOTE: NAL6MOS.new: All bivariate models converge using log-binomial model, but m
 
 NAL6MOS.new: Bivariate and multivariate models for receiving naloxone in the last 6 months using modified Poisson regression with robust standard errors. (CITE ZOU'S MODIFIED POISSON 2004 paper)
 ```{r}
-#check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
-#prop.table(table(df$X, df$NAL6MOS.new, useNA = "ifany"),2)
-
+#use geepack because modified poisson is picky
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N=527)
@@ -641,7 +636,6 @@ exp(coef(localIDbynal6mos.modpoiss))
   localIDbynal6mos.modpoiss.RR.coefci.adj <- cbind(localIDbynal6mos.modpoiss$coefficients, confint.default(localIDbynal6mos.modpoiss))
   localIDbynal6mos.modpoiss.RR.expci.adj <- exp(localIDbynal6mos.modpoiss.RR.coefci.adj)
   localIDbynal6mos.modpoiss.RR.expci.adj
-
 
 #GENDER
 genderbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(GENDER), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -673,7 +667,6 @@ exp(coef(edbynal6mos.modpoiss))
   edbynal6mos.modpoiss.RR.expci.adj <- exp(edbynal6mos.modpoiss.RR.coefci.adj)
   edbynal6mos.modpoiss.RR.expci.adj
 
-
 #HOMELESS
 homelessbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(HOMELESS), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(homelessbynal6mos.modpoiss)
@@ -683,7 +676,6 @@ exp(coef(homelessbynal6mos.modpoiss))
   homelessbynal6mos.modpoiss.RR.coefci.adj <- cbind(homelessbynal6mos.modpoiss$coefficients, confint.default(homelessbynal6mos.modpoiss))
   homelessbynal6mos.modpoiss.RR.expci.adj <- exp(homelessbynal6mos.modpoiss.RR.coefci.adj)
   homelessbynal6mos.modpoiss.RR.expci.adj
-
 
 #JAIL
 jailbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(JAIL), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -695,13 +687,10 @@ exp(coef(jailbynal6mos.modpoiss))
   jailbynal6mos.modpoiss.RR.expci.adj <- exp(jailbynal6mos.modpoiss.RR.coefci.adj)
   jailbynal6mos.modpoiss.RR.expci.adj
 
-
-
 #ANYSTIMINJ
 anystiminjbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ANYSTIMINJ), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(anystiminjbynal6mos.modpoiss)
 exp(coef(anystiminjbynal6mos.modpoiss))
-
 
 #95% CI for anystiminj
   anystiminjbynal6mos.modpoiss.RR.coefci.adj <- cbind(anystiminjbynal6mos.modpoiss$coefficients, confint.default(anystiminjbynal6mos.modpoiss))
@@ -776,7 +765,6 @@ df_nal6mos <- subset(df, NAL6MOS.new == 1) #N = 265 who have received naloxone i
 table(df_nal6mos$NALOWN, useNA = "ifany")
 
 #Create a table 1 not stratified by any outcome variable, just for this subset of N = 265 PWID who received naloxone in the last 6mos
-
 table1.subset.receivednal6mos <- CreateTableOne(vars= myVars, 
                                  data= df_nal6mos, 
                                  factorVars = catVars)
@@ -791,13 +779,21 @@ table1byNALOWN <- CreateTableOne(vars=myVars,
                                    strata="NALOWN")
 
 print(table1byNALOWN, showAllLevels = TRUE, missing = FALSE)
+
+
+#FOR UNIVARIATES: check column percentages of univariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
+#table(df_nal6mos$X, useNA = "ifany")
+#round(prop.table(table(df_nal6mos$X, useNA = "ifany")),3)
+
+
+#FOR BIVARIATES: check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
+#table(df_nal6mos$X, df_nal6mos$NALOWN, useNA = "ifany")
+#round(prop.table(table(df_nal6mos$X, df_nal6mos$NALOWN, useNA = "ifany"),2),3)
 ```
 
 NALOWN: Bivariate and multivariate models for currently owning naloxone among those who report receiving naloxone in the last 6 months using modified Poisson regression with robust standard errors. (CITE ZOU'S MODIFIED POISSON 2004 paper)
 ```{r}
-#check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
-#prop.table(table(df_nal6mos$X, df_nal6mosf$NALOWN, useNA = "ifany"),2)
-
+#require geepack because modified poisson is picky
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N= 259)
