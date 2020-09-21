@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "9/20/2020"
+date: "9/21/2020"
 output: pdf_document
 ---
 
@@ -514,6 +514,144 @@ table(df_housed$NALUSEandorLOSE, useNA = "ifany")
 #After using or losing your naloxone, did you get a replacement or refill?
 table(df_housed$NALFILL, useNA = "ifany")
 ```
+
+Bar charts using counts for witnessed OD in last 6 mos (N=265).
+```{r}
+df_witnessedOD <- subset(df, WOD6M == "Yes")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_witnessedOD$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+#table(df_witnessedOD$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_witnessedOD$NAL6MOS.new <- ifelse(df_witnessedOD$NALEVER=="Yes" & df_witnessedOD$NAL6MOS=="Yes", 1, ifelse(df_witnessedOD$NALEVER=="Yes" & df_witnessedOD$NAL6MOS=="No", 0, ifelse(df_witnessedOD$NALEVER=="No", 0, NA)))
+
+table(df_witnessedOD$NAL6MOS.new, useNA = "ifany")
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_witnessedOD$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_witnessedOD$NALUSEandorLOSE <- ifelse((df_witnessedOD$NALUSED=="Yes" | df_witnessedOD$NALOSE=="Yes"), 1, 0)
+
+table(df_witnessedOD$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_witnessedOD$NALFILL, useNA = "ifany")
+```
+
+
+Bar charts using counts for haven't witnessed OD in last 6 mos (N=270).
+```{r}
+df_notwitnessedOD <- subset(df, WOD6M == "No")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_notwitnessedOD$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+#table(df_notwitnessedOD$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_notwitnessedOD$NAL6MOS.new <- ifelse(df_notwitnessedOD$NALEVER=="Yes" & df_notwitnessedOD$NAL6MOS=="Yes", 1, ifelse(df_notwitnessedOD$NALEVER=="Yes" & df_notwitnessedOD$NAL6MOS=="No", 0, ifelse(df_notwitnessedOD$NALEVER=="No", 0, NA)))
+
+table(df_notwitnessedOD$NAL6MOS.new, useNA = "ifany")
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_notwitnessedOD$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_notwitnessedOD$NALUSEandorLOSE <- ifelse((df_notwitnessedOD$NALUSED=="Yes" | df_notwitnessedOD$NALOSE=="Yes"), 1, 0)
+
+table(df_notwitnessedOD$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_notwitnessedOD$NALFILL, useNA = "ifany")
+```
+
+Bar charts using counts for experienced OD in last 6 mos (N=85).
+```{r}
+df_experiencedOD <- subset(df, ODP6M == "Yes")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_experiencedOD$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+#table(df_experiencedOD$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_experiencedOD$NAL6MOS.new <- ifelse(df_experiencedOD$NALEVER=="Yes" & df_experiencedOD$NAL6MOS=="Yes", 1, ifelse(df_experiencedOD$NALEVER=="Yes" & df_experiencedOD$NAL6MOS=="No", 0, ifelse(df_experiencedOD$NALEVER=="No", 0, NA)))
+
+table(df_experiencedOD$NAL6MOS.new, useNA = "ifany")
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_experiencedOD$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_experiencedOD$NALUSEandorLOSE <- ifelse((df_experiencedOD$NALUSED=="Yes" | df_experiencedOD$NALOSE=="Yes"), 1, 0)
+
+table(df_experiencedOD$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_experiencedOD$NALFILL, useNA = "ifany")
+```
+
+Bar charts using counts for haven't experienced OD in last 6 mos (N=449).
+```{r}
+df_notexperiencedOD <- subset(df, ODP6M == "No")
+
+#NALEVER: Ever received naloxone 
+#Have you ever received naloxone (including narcan, intranasal narcan, and/or autoinjector 
+#of naloxone to use on yourself or other people?
+table(df_notexperiencedOD$NALEVER, useNA = "ifany") 
+
+#NAL6MOS: Received naloxone in the last 6 months 
+#Have you received naloxone in the last 6 months?
+#table(df_notexperiencedOD$NAL6MOS, useNA = "ifany")
+
+#NAL6MOS.new: Received naloxone in the last 6 months (combined NALEVER and NAL6MOS to make NAL6MOS.new)
+#Have you received naloxone in the last 6 months?
+df_notexperiencedOD$NAL6MOS.new <- ifelse(df_notexperiencedOD$NALEVER=="Yes" & df_notexperiencedOD$NAL6MOS=="Yes", 1, ifelse(df_notexperiencedOD$NALEVER=="Yes" & df_notexperiencedOD$NAL6MOS=="No", 0, ifelse(df_notexperiencedOD$NALEVER=="No", 0, NA)))
+
+table(df_notexperiencedOD$NAL6MOS.new, useNA = "ifany")
+
+#NALOWN: Own a dose of naloxone
+#Do you currently have at least one dose of naloxone? (By this, we mean you possess 
+#or own your own naloxone dose)
+table(df_notexperiencedOD$NALOWN, useNA = "ifany") 
+
+#NALUSEandorLOSE: Have you used and/or used your naloxone in the last 6 months?
+df_notexperiencedOD$NALUSEandorLOSE <- ifelse((df_notexperiencedOD$NALUSED=="Yes" | df_notexperiencedOD$NALOSE=="Yes"), 1, 0)
+
+table(df_notexperiencedOD$NALUSEandorLOSE, useNA = "ifany") 
+
+#NALFILL: Got a refill of naloxone in the last 6 months
+#After using or losing your naloxone, did you get a replacement or refill?
+table(df_notexperiencedOD$NALFILL, useNA = "ifany")
+```
+
 
 Descriptive variables for bivariate and multivariate analyses:
 ```{r}
