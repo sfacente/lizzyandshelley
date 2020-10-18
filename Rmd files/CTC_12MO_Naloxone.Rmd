@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "10/13/2020"
+date: "10/18/2020"
 output: pdf_document
 ---
 
@@ -477,7 +477,7 @@ df_unhoused$NALUSEandorLOSE <- ifelse((df_unhoused$NALUSED=="Yes" | df_unhoused$
 table(df_unhoused$NALUSEandorLOSE, useNA = "ifany") 
 
 #NALFILL: Got a refill of naloxone in the last 6 months
-#After using or losing your naloxone, did you get a replacement or refill?
+#After using or losing your naloxone, did you get a replacement or refill
 table(df_unhoused$NALFILL, useNA = "ifany")
 ```
 
@@ -792,7 +792,10 @@ exp(coef(localIDbynal6mos.modpoiss))
   localIDbynal6mos.modpoiss.RR.expci.adj <- exp(localIDbynal6mos.modpoiss.RR.coefci.adj)
   localIDbynal6mos.modpoiss.RR.expci.adj
 
-#GENDER
+  #rounded to two decimal places
+  round(localIDbynal6mos.modpoiss.RR.expci.adj, 2)
+
+  #GENDER
 genderbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(GENDER), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(genderbynal6mos.modpoiss)
 exp(coef(genderbynal6mos.modpoiss))
@@ -802,7 +805,10 @@ exp(coef(genderbynal6mos.modpoiss))
   genderbynal6mos.modpoiss.RR.expci.adj <- exp(genderbynal6mos.modpoiss.RR.coefci.adj)
   genderbynal6mos.modpoiss.RR.expci.adj
 
-#agecat
+    #rounded to two decimal places
+  round(genderbynal6mos.modpoiss.RR.expci.adj, 2)
+
+  #agecat
 agecatbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(agecat), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(agecatbynal6mos.modpoiss)
 exp(coef(agecatbynal6mos.modpoiss))
@@ -811,7 +817,10 @@ exp(coef(agecatbynal6mos.modpoiss))
   agecatbynal6mos.modpoiss.RR.coefci.adj <- cbind(agecatbynal6mos.modpoiss$coefficients, confint.default(agecatbynal6mos.modpoiss))
   agecatbynal6mos.modpoiss.RR.expci.adj <- exp(agecatbynal6mos.modpoiss.RR.coefci.adj)
   agecatbynal6mos.modpoiss.RR.expci.adj
-
+  
+      #rounded to two decimal places
+  round(agecatbynal6mos.modpoiss.RR.expci.adj, 2)
+  
 #race_cat
 racecatbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(RACE_cat), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(racecatbynal6mos.modpoiss)
@@ -821,7 +830,10 @@ exp(coef(racecatbynal6mos.modpoiss))
   racecatbynal6mos.modpoiss.RR.coefci.adj <- cbind(racecatbynal6mos.modpoiss$coefficients, confint.default(racecatbynal6mos.modpoiss))
   racecatbynal6mos.modpoiss.RR.expci.adj <- exp(racecatbynal6mos.modpoiss.RR.coefci.adj)
   racecatbynal6mos.modpoiss.RR.expci.adj
-  
+
+        #rounded to two decimal places
+  round(racecatbynal6mos.modpoiss.RR.expci.adj, 2)
+   
 #ED
 edbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ED), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(edbynal6mos.modpoiss)
@@ -832,6 +844,9 @@ exp(coef(edbynal6mos.modpoiss))
   edbynal6mos.modpoiss.RR.expci.adj <- exp(edbynal6mos.modpoiss.RR.coefci.adj)
   edbynal6mos.modpoiss.RR.expci.adj
 
+        #rounded to two decimal places
+  round(edbynal6mos.modpoiss.RR.expci.adj, 2)
+  
 #HOMELESS
 homelessbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(HOMELESS), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(homelessbynal6mos.modpoiss)
@@ -842,6 +857,9 @@ exp(coef(homelessbynal6mos.modpoiss))
   homelessbynal6mos.modpoiss.RR.expci.adj <- exp(homelessbynal6mos.modpoiss.RR.coefci.adj)
   homelessbynal6mos.modpoiss.RR.expci.adj
 
+        #rounded to two decimal places
+  round(homelessbynal6mos.modpoiss.RR.expci.adj, 2)
+  
 #JAIL
 jailbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(JAIL), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(jailbynal6mos.modpoiss)
@@ -852,6 +870,9 @@ exp(coef(jailbynal6mos.modpoiss))
   jailbynal6mos.modpoiss.RR.expci.adj <- exp(jailbynal6mos.modpoiss.RR.coefci.adj)
   jailbynal6mos.modpoiss.RR.expci.adj
 
+        #rounded to two decimal places
+  round(jailbynal6mos.modpoiss.RR.expci.adj, 2)
+  
 #ANYSTIMUSE
 ANYSTIMUSEbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ANYSTIMUSE), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ANYSTIMUSEbynal6mos.modpoiss)
@@ -862,6 +883,9 @@ exp(coef(ANYSTIMUSEbynal6mos.modpoiss))
   ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj <- exp(ANYSTIMUSEbynal6mos.modpoiss.RR.coefci.adj)
   ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj
 
+        #rounded to two decimal places
+  round(ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj, 2)  
+
 #ANYOPIATEUSE
 ANYOPIATEUSEbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ANYOPIATEUSE), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ANYOPIATEUSEbynal6mos.modpoiss)
@@ -871,8 +895,11 @@ exp(coef(ANYOPIATEUSEbynal6mos.modpoiss))
   ANYOPIATEUSEbynal6mos.modpoiss.RR.coefci.adj <- cbind(ANYOPIATEUSEbynal6mos.modpoiss$coefficients, confint.default(ANYOPIATEUSEbynal6mos.modpoiss))
   ANYOPIATEUSEbynal6mos.modpoiss.RR.expci.adj <- exp(ANYOPIATEUSEbynal6mos.modpoiss.RR.coefci.adj)
   ANYOPIATEUSEbynal6mos.modpoiss.RR.expci.adj
+       
+   #rounded to two decimal places
+  round(ANYOPIATEUSEbynal6mos.modpoiss.RR.expci.adj, 2)  
 
-#WOD6M
+  #WOD6M
 WOD6Mbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(WOD6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(WOD6Mbynal6mos.modpoiss)
 exp(coef(WOD6Mbynal6mos.modpoiss))
@@ -882,6 +909,9 @@ exp(coef(WOD6Mbynal6mos.modpoiss))
   WOD6Mbynal6mos.modpoiss.RR.expci.adj <- exp(WOD6Mbynal6mos.modpoiss.RR.coefci.adj)
   WOD6Mbynal6mos.modpoiss.RR.expci.adj
 
+     #rounded to two decimal places
+  round(WOD6Mbynal6mos.modpoiss.RR.expci.adj, 2)  
+  
 #ODP6M
 ODP6Mbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ODP6Mbynal6mos.modpoiss)
@@ -892,7 +922,12 @@ exp(coef(ODP6Mbynal6mos.modpoiss))
   ODP6Mbynal6mos.modpoiss.RR.expci.adj <- exp(ODP6Mbynal6mos.modpoiss.RR.coefci.adj)
   ODP6Mbynal6mos.modpoiss.RR.expci.adj
 
-#multivariate modified poisson model (assuming we are using a full model with everything)
+       #rounded to two decimal places
+  round(ODP6Mbynal6mos.modpoiss.RR.expci.adj, 2) 
+  
+####DIFFERENT APPROACHES FOR MULTIVARIATE MODELS
+
+####FULL MULTIVARIATE MODIFIED POISSON MODEL WITH EVERY COVARIATE INCLUDED
 fitnal6mos.modpoiss  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIATEUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 
 summary(fitnal6mos.modpoiss)
@@ -901,6 +936,11 @@ summary(fitnal6mos.modpoiss)
 fitnal6mos.RR.coefci.adj <- cbind(fitnal6mos.modpoiss$coefficients, confint.default(fitnal6mos.modpoiss))
 fitnal6mos.RR.expci.adj <- exp(fitnal6mos.RR.coefci.adj)
 fitnal6mos.RR.expci.adj
+
+###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.05 or 0.2 (SO ONLY TAKE OUT GENDER). THE FINDINGS ARE EXACTLY THE SAME
+fitnal6mos.modpoiss.approach1  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIATEUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+
+summary(fitnal6mos.modpoiss.approach1)
 ```
 
 NAL6MOS.new: If I end up needing to calculate the 95% CI for RRs by hand instead.
@@ -978,19 +1018,21 @@ localIDbynalown.modpoiss.RR.coefci.adj <- cbind(localIDbynalown.modpoiss$coeffic
 localIDbynalown.modpoiss.RR.expci.adj <- exp(localIDbynalown.modpoiss.RR.coefci.adj)
 localIDbynalown.modpoiss.RR.expci.adj
 
-
+       #rounded to two decimal places
+  round(localIDbynalown.modpoiss.RR.expci.adj, 2) 
+  
 #GENDER
 genderbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(GENDER), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(genderbynalown.modpoiss)
 exp(coef(genderbynalown.modpoiss))
-
 
 #95% CI for gender
 genderbynalown.modpoiss.RR.coefci.adj <- cbind(genderbynalown.modpoiss$coefficients, confint.default(genderbynalown.modpoiss))
 genderbynalown.modpoiss.RR.expci.adj <- exp(genderbynalown.modpoiss.RR.coefci.adj)
 genderbynalown.modpoiss.RR.expci.adj
 
-
+       #rounded to two decimal places
+  round(genderbynalown.modpoiss.RR.expci.adj, 2) 
 
 #agecat
 agecatbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(agecat), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -1001,8 +1043,11 @@ exp(coef(agecatbynalown.modpoiss))
 agecatbynalown.modpoiss.RR.coefci.adj <- cbind(agecatbynalown.modpoiss$coefficients, confint.default(agecatbynalown.modpoiss))
 agecatbynalown.modpoiss.RR.expci.adj <- exp(agecatbynalown.modpoiss.RR.coefci.adj)
 agecatbynalown.modpoiss.RR.expci.adj
+   
+#rounded to two decimal places
+  round(agecatbynalown.modpoiss.RR.expci.adj, 2) 
 
-#racecat
+  #racecat
 racecatbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(RACE_cat), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(racecatbynalown.modpoiss)
 exp(coef(racecatbynalown.modpoiss))
@@ -1012,7 +1057,9 @@ racecatbynalown.modpoiss.RR.coefci.adj <- cbind(racecatbynalown.modpoiss$coeffic
 racecatbynalown.modpoiss.RR.expci.adj <- exp(racecatbynalown.modpoiss.RR.coefci.adj)
 racecatbynalown.modpoiss.RR.expci.adj
 
-
+#rounded to two decimal places
+  round(racecatbynalown.modpoiss.RR.expci.adj, 2) 
+  
 #ED
 edbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ED), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(edbynalown.modpoiss)
@@ -1023,6 +1070,9 @@ edbynalown.modpoiss.RR.coefci.adj <- cbind(edbynalown.modpoiss$coefficients, con
 edbynalown.modpoiss.RR.expci.adj <- exp(edbynalown.modpoiss.RR.coefci.adj)
 edbynalown.modpoiss.RR.expci.adj
 
+#rounded to two decimal places
+  round(edbynalown.modpoiss.RR.expci.adj, 2) 
+  
 #HOMELESS
 homelessbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(HOMELESS), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(homelessbynalown.modpoiss)
@@ -1032,6 +1082,9 @@ exp(coef(homelessbynalown.modpoiss))
 homelessbynalown.modpoiss.RR.coefci.adj <- cbind(homelessbynalown.modpoiss$coefficients, confint.default(homelessbynalown.modpoiss))
 homelessbynalown.modpoiss.RR.expci.adj <- exp(homelessbynalown.modpoiss.RR.coefci.adj)
 homelessbynalown.modpoiss.RR.expci.adj
+
+#rounded to two decimal places
+  round(homelessbynalown.modpoiss.RR.expci.adj, 2) 
 
 #JAIL
 jailbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(JAIL), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -1043,6 +1096,9 @@ jailbynalown.modpoiss.RR.coefci.adj <- cbind(jailbynalown.modpoiss$coefficients,
 jailbynalown.modpoiss.RR.expci.adj <- exp(jailbynalown.modpoiss.RR.coefci.adj)
 jailbynalown.modpoiss.RR.expci.adj
 
+#rounded to two decimal places
+  round(jailbynalown.modpoiss.RR.expci.adj, 2) 
+
 #ANYSTIMUSE
 ANYSTIMUSEbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ANYSTIMUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ANYSTIMUSEbynalown.modpoiss)
@@ -1053,16 +1109,21 @@ ANYSTIMUSEbynalown.modpoiss.RR.coefci.adj <- cbind(ANYSTIMUSEbynalown.modpoiss$c
 ANYSTIMUSEbynalown.modpoiss.RR.expci.adj <- exp(ANYSTIMUSEbynalown.modpoiss.RR.coefci.adj)
 ANYSTIMUSEbynalown.modpoiss.RR.expci.adj
 
+#rounded to two decimal places
+  round(ANYSTIMUSEbynalown.modpoiss.RR.expci.adj, 2) 
+  
 #ANYOPIATEUSE
 ANYOPIATEUSEbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ANYOPIATEUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ANYOPIATEUSEbynalown.modpoiss)
 exp(coef(ANYOPIATEUSEbynalown.modpoiss))
 
-
 #95% CI for ANYOPIATEUSE
 ANYOPIATEUSEbynalown.modpoiss.RR.coefci.adj <- cbind(ANYOPIATEUSEbynalown.modpoiss$coefficients, confint.default(ANYOPIATEUSEbynalown.modpoiss))
 ANYOPIATEUSEbynalown.modpoiss.RR.expci.adj <- exp(ANYOPIATEUSEbynalown.modpoiss.RR.coefci.adj)
 ANYOPIATEUSEbynalown.modpoiss.RR.expci.adj
+
+#rounded to two decimal places
+  round(ANYOPIATEUSEbynalown.modpoiss.RR.expci.adj, 2) 
 
 #WOD6M
 WOD6Mbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(WOD6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -1074,7 +1135,9 @@ WOD6Mbynalown.modpoiss.RR.coefci.adj <- cbind(WOD6Mbynalown.modpoiss$coefficient
 WOD6Mbynalown.modpoiss.RR.expci.adj <- exp(WOD6Mbynalown.modpoiss.RR.coefci.adj)
 WOD6Mbynalown.modpoiss.RR.expci.adj
 
-
+#rounded to two decimal places
+  round(WOD6Mbynalown.modpoiss.RR.expci.adj, 2) 
+  
 #ODP6M
 ODP6Mbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(ODP6Mbynalown.modpoiss)
@@ -1085,8 +1148,11 @@ ODP6Mbynalown.modpoiss.RR.coefci.adj <- cbind(ODP6Mbynalown.modpoiss$coefficient
 ODP6Mbynalown.modpoiss.RR.expci.adj <- exp(ODP6Mbynalown.modpoiss.RR.coefci.adj)
 ODP6Mbynalown.modpoiss.RR.expci.adj
 
+#rounded to two decimal places
+  round(ODP6Mbynalown.modpoiss.RR.expci.adj, 2) 
 
-#multivariate model (assuming we include everything to make it a full model)
+#MULTIVARIATE MODELS USING DIFFERENT APPROACHES
+#full multivariate model using every covariate regardless of significance
 fitnalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIATEUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(fitnalown.modpoiss)
 exp(coef(fitnalown.modpoiss))
@@ -1095,5 +1161,11 @@ exp(coef(fitnalown.modpoiss))
 fitnalown.RR.coefci.adj <- cbind(fitnalown.modpoiss$coefficients, confint.default(fitnalown.modpoiss))
 fitnalown.RR.expci.adj <- exp(fitnalown.RR.coefci.adj)
 fitnalown.RR.expci.adj
+
+###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.2 (not using p < .05 because then the model is only housing and jail)
+fitnalown.modpoiss.approach1 <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL)  + factor(ANYOPIATEUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+
+summary(fitnalown.modpoiss.approach1)
+
 ```
 
