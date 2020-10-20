@@ -74,10 +74,13 @@ table(df$SBIX, useNA = "ifany")  #injection speedball (# of times)
     df$SBX <- as.integer(df$SBX) #change to numeric instead of factor
     df$SBIX <- as.integer(df$SBIX) #change to numeric instead of factor
     
-    df$SB_dailymore <- ifelse(df$SBX>=30 | df$SBIX>=30, 1, 0)
-    table(df$SB_dailymore, useNA = "ifany")
+    df$SB.freq <-   ifelse(df$SBX>=30 | df$SBIX>=30, 2, ifelse((df$SBX>0 & df$SBX<30) & (df$SBIX>0 & df$SBIX<30), 1, 
+                                                                   ifelse(df$SBX==0 & df$SBIX==0, 0, NA)))
+    df$SB.freq[is.na(df$SB.freq)] <- 0
+    table(df$SB.freq, useNA = "ifany")
 
 
+    
 ###GOOFBALL###
 table(df$GB30, useNA = "ifany")   #used goofball yes/no (heroin + meth)
 table(df$GBNINJ, useNA = "ifany")   #any non-injection goofball 
@@ -89,8 +92,10 @@ table(df$GBIX, useNA = "ifany")   #injection goofball (# times)
     df$GBX <- as.integer(df$GBX) #change to numeric instead of factor
     df$GBIX <- as.integer(df$GBIX) #change to numeric instead of factor
     
-    df$GB_dailymore <- ifelse(df$GBX>=30 | df$GBIX>=30, 1, 0)
-    table(df$GB_dailymore, useNA = "ifany")
+    df$GB.freq <-   ifelse(df$GBX>=30 | df$GBIX>=30, 2, ifelse((df$GBX>0 & df$GBX<30) & (df$GBIX>0 & df$GBIX<30), 1, 
+                                                                   ifelse(df$GBX==0 & df$GBIX==0, 0, NA)))
+    df$GB.freq[is.na(df$GB.freq)] <- 0
+    table(df$GB.freq, useNA = "ifany")
 
     
 ###CRACK###
@@ -104,8 +109,11 @@ table(df$CRCKIX, useNA = "ifany") #injection crack (# times)
     df$CRCKX <- as.integer(df$CRCKX) #change to numeric instead of factor
     df$CRCKIX <- as.integer(df$CRCKIX) #change to numeric instead of factor
     
-    df$CRCK_dailymore <- ifelse(df$CRCKX>=30 | df$CRCKIX>=30, 1, 0)
-    table(df$CRCK_dailymore, useNA = "ifany")
+    df$CRCK.freq <-   ifelse(df$CRCKX>=30 | df$CRCKIX>=30, 2, ifelse((df$CRCKX>0 & df$CRCKX<30) & (df$CRCKIX>0 & df$CRCKIX<30), 1, 
+                                                                   ifelse(df$CRCKX==0 & df$CRCKIX==0, 0, NA)))
+    df$CRCK.freq[is.na(df$CRCK.freq)] <- 0
+    table(df$CRCK.freq, useNA = "ifany")
+
 
  
 ###COCAINE###
@@ -119,9 +127,10 @@ table(df$PCOKEIX, useNA = "ifany") #injection powder cocaine (# times)
     df$PCOKEX <- as.integer(df$PCOKEX) #change to numeric instead of factor
     df$PCOKEIX <- as.integer(df$PCOKEIX) #change to numeric instead of factor
     
-    df$PCOKE_dailymore <- ifelse(df$PCOKEX>=30 | df$PCOKEIX>=30, 1, 0)
-    table(df$PCOKE_dailymore, useNA = "ifany")
-
+    df$PCOKE.freq <-   ifelse(df$PCOKEX>=30 | df$PCOKEIX>=30, 2, ifelse((df$PCOKEX>0 & df$PCOKEX<30) & (df$PCOKEIX>0 & df$PCOKEIX<30), 1, 
+                                                                   ifelse(df$PCOKEX==0 & df$PCOKEIX==0, 0, NA)))
+    df$PCOKE.freq[is.na(df$PCOKE.freq)] <- 0
+    table(df$PCOKE.freq, useNA = "ifany")
     
 ###METHAMPHETAMINE###
 table(df$METH30, useNA = "ifany") #used meth yes/no
@@ -134,8 +143,10 @@ table(df$METHIX, useNA = "ifany") #injection meth (# times)
     df$METHX <- as.integer(df$METHX) #change to numeric instead of factor
     df$METHIX <- as.integer(df$METHIX) #change to numeric instead of factor
     
-    df$METH_dailymore <- ifelse(df$METHX>=30 | df$METHIX>=30, 1, 0)
-    table(df$METH_dailymore, useNA = "ifany")
+    df$METH.freq <-   ifelse(df$METHX>=30 | df$METHIX>=30, 2, ifelse((df$METHX>0 & df$METHX<30) & (df$METHIX>0 & df$METHIX<30), 1, 
+                                                                   ifelse(df$METHX==0 & df$METHIX==0, 0, NA)))
+    df$METH.freq[is.na(df$METH.freq)] <- 0
+    table(df$METH.freq, useNA = "ifany")
 
 
 ###NONMEDICAL PRESCRIPTION STIMULANT###
@@ -149,8 +160,11 @@ table(df$STIX, useNA = "ifany") #injection NMPS (# times)
     df$STX <- as.integer(df$STX) #change to numeric instead of factor
     df$STIX <- as.integer(df$STIX) #change to numeric instead of factor
     
-    df$ST_dailymore <- ifelse(df$STX>=30 | df$STIX>=30, 1, 0)
-    table(df$ST_dailymore, useNA = "ifany")
+    df$ST.freq <-   ifelse(df$STX>=30 | df$STIX>=30, 2, ifelse((df$STX>0 & df$STX<30) & (df$STIX>0 & df$STIX<30), 1, 
+                                                                   ifelse(df$STX==0 & df$STIX==0, 0, NA)))
+    df$ST.freq[is.na(df$ST.freq)] <- 0
+    table(df$ST.freq, useNA = "ifany")
+
 
 
 ###HEROIN###
@@ -164,9 +178,11 @@ table(df$HERIX, useNA = "ifany") #injection heroin (# times)
     df$HERX <- as.integer(df$HERX) #change to numeric instead of factor
     df$HERIX <- as.integer(df$HERIX) #change to numeric instead of factor
     
-    df$HER_dailymore <- ifelse(df$HERX>=30 | df$HERIX>=30, 1, 0)
-    table(df$HER_dailymore, useNA = "ifany")
-
+    df$HER.freq <-   ifelse(df$HERX>=30 | df$HERIX>=30, 2, ifelse((df$HERX>0 & df$HERX<30) & (df$HERIX>0 & df$HERIX<30), 1, 
+                                                                  ifelse(df$HERX==0 & df$HERIX==0, 0, NA)))
+    df$HER.freq[is.na(df$HER.freq)] <- 0
+    table(df$HER.freq, useNA = "ifany")
+    
 
 ###NONMEDICAL PRESCRIPTION OPIOIDS###
 table(df$OP30, useNA = "ifany") #used NMPO yes/no
@@ -179,9 +195,10 @@ table(df$OPIX, useNA = "ifany") #injection NMPO (# times)
     df$OPX <- as.integer(df$OPX) #change to numeric instead of factor
     df$OPIX <- as.integer(df$OPIX) #change to numeric instead of factor
     
-    df$OP_dailymore <- ifelse(df$OPX>=30 | df$OPIX>=30, 1, 0)
-    table(df$OP_dailymore, useNA = "ifany")
-
+    df$OP.freq <-   ifelse(df$OPX>=30 | df$OPIX>=30, 2, ifelse((df$OPX>0 & df$OPX<30) & (df$OPIX>0 & df$OPIX<30), 1, 
+                                                                   ifelse(df$OPX==0 & df$OPIX==0, 0, NA)))
+    df$OP.freq[is.na(df$OP.freq)] <- 0
+    table(df$OP.freq, useNA = "ifany")
 
 ###METHADONE###
 table(df$MD30, useNA = "ifany") #used methadone yes/no
@@ -194,8 +211,10 @@ table(df$MDIX, useNA = "ifany") #injection methadone (# times)
     df$MDX <- as.integer(df$MDX) #change to numeric instead of factor
     df$MDIX <- as.integer(df$MDIX) #change to numeric instead of factor
     
-    df$MD_dailymore <- ifelse(df$MDX>=30 | df$MDIX>=30, 1, 0)
-    table(df$MD_dailymore, useNA = "ifany")
+    df$MD.freq <-   ifelse(df$MDX>=30 | df$MDIX>=30, 2, ifelse((df$MDX>0 & df$MDX<30) & (df$MDIX>0 & df$MDIX<30), 1, 
+                                                                   ifelse(df$MDX==0 & df$MDIX==0, 0, NA)))
+    df$MD.freq[is.na(df$MD.freq)] <- 0
+    table(df$MD.freq, useNA = "ifany")
 
     
 ###BUPRENORPHINE###
@@ -209,12 +228,31 @@ table(df$BUPIX, useNA = "ifany") #injection bup (# times)
     df$BUPX <- as.integer(df$BUPX) #change to numeric instead of factor
     df$BUPIX <- as.integer(df$BUPIX) #change to numeric instead of factor
     
-    df$BUP_dailymore <- ifelse(df$BUPX>=30 | df$BUPIX>=30, 1, 0)
-    table(df$BUP_dailymore, useNA = "ifany")
+    df$BUP.freq <-   ifelse(df$BUPX>=30 | df$BUPIX>=30, 2, ifelse((df$BUPX>0 & df$BUPX<30) & (df$BUPIX>0 & df$BUPIX<30), 1, 
+                                                                   ifelse(df$BUPX==0 & df$BUPIX==0, 0, NA)))
+    df$BUP.freq[is.na(df$BUP.freq)] <- 0
+    table(df$BUP.freq, useNA = "ifany")
 ```
 
 
-Create variable for any stimulant use in past 30 days.
+Create variable for frequency of stimulant use in past 30 days (2 = daily 30+, 1 = more than 0 but less than 30, 0 = none).
+```{r}
+#FREQUENCY OF STIMULANT USE
+df$STIM.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$CRCK.freq==2 | df$PCOKE.freq==2 | df$METH.freq==2 | df$ST.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$CRCK.freq==0 & df$PCOKE.freq==0 & df$METH.freq==0 & df$ST.freq==0, 0, 1))
+
+table(df$STIM.freq, useNA = "ifany")
+```
+
+Create variable for frequency of opioid use in past 30 days (2 = daily 30+, 1 = more than 0 but less than 30, 0 = none).
+```{r}
+#ANY DAILY OR MORE OPIOID USE (>=30 times in past 30 days)
+df$OPIOID.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$HER.freq==2 | df$OP.freq==2 | df$MD.freq==2 | df$BUP.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$HER.freq==0 & df$OP.freq==0 & df$MD.freq==0 & df$BUP.freq==0, 0, 1))
+
+table(df$OPIOID.freq, useNA = "ifany")
+```
+
+
+Create variable for ANY stimulant use in past 30 days.
 ```{r}
 ####ANY STIMULANT USE IN PAST 30 DAYS (injection and/or non-injection composite)###
 #includes crack cocaine, powder cocaine, meth, nonmedical rx stimulants, speedball, and goofball
@@ -224,7 +262,7 @@ df$ANYSTIMUSE <- as.factor(df$ANYSTIMUSE)
 table(df$ANYSTIMUSE, useNA = "ifany")
 ```
 
-Create variable for any opioid use in past 30 days.
+Create variable for ANY opioid use in past 30 days.
 ```{r}
 ###ANY OPIOID USE IN PAST 30 DAYS (injection and/or non-injection composite)###
 #includes speedball, goofball, heroin, nonmedical rx opioids, methadone, bup
@@ -232,21 +270,5 @@ df$ANYOPIOIDUSE <- ifelse(df$SBINJ=="Yes" | df$GBINJ=="Yes" | df$MDINJ=="Yes" | 
 
 df$ANYOPIOIDUSE <- as.factor(df$ANYOPIOIDUSE)
 table(df$ANYOPIOIDUSE, useNA = "ifany")
-```
-
-Create variable for any daily or more stimulant use in past 30 days.
-```{r}
-#ANY DAILY OR MORE STIMULANT USE (>=30 times in past 30 days)
-df$STIM_dailymore <- ifelse(df$SB_dailymore==1 | df$GB_dailymore==1 | df$CRCK_dailymore==1 | df$PCOKE_dailymore==1 | df$METH_dailymore==1 | df$ST_dailymore==1, 1, 0)
-
-table(df$STIM_dailymore, useNA = "ifany")
-```
-
-Create variable for any daily or more opioid use in past 30 days.
-```{r}
-#ANY DAILY OR MORE OPIOID USE (>=30 times in past 30 days)
-df$OPIOID_dailymore <- ifelse(df$SB_dailymore==1 | df$GB_dailymore==1 | df$HER_dailymore==1 | df$OP_dailymore==1 | df$MD_dailymore==1 | df$BUP_dailymore==1, 1, 0)
-
-table(df$OPIOID_dailymore, useNA = "ifany")
 ```
 
