@@ -9,6 +9,26 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Open packages.
+```{r}
+library(base)
+library(knitr)
+library(dplyr)
+library(here)
+library(foreign)
+library(labelled)
+library(dplyr)
+library(reshape2)
+library(tableone)
+library(forcats)
+library(geepack)
+library(doBy)
+library(blm)
+library(lmtest)
+library(foreign)
+library(MASS)
+```
+
 Open working directory and load/label the data.
 ```{r}
 #set working directory
