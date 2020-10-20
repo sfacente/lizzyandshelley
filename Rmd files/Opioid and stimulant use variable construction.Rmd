@@ -70,7 +70,7 @@ table(df$SBX, useNA = "ifany")  #non-injection speedball (# of times)
 table(df$SBINJ, useNA = "ifany")  #any injection speedball 
 table(df$SBIX, useNA = "ifany")  #injection speedball (# of times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$SBX <- as.integer(df$SBX) #change to numeric instead of factor
     df$SBIX <- as.integer(df$SBIX) #change to numeric instead of factor
     
@@ -80,7 +80,6 @@ table(df$SBIX, useNA = "ifany")  #injection speedball (# of times)
     table(df$SB.freq, useNA = "ifany")
 
 
-    
 ###GOOFBALL###
 table(df$GB30, useNA = "ifany")   #used goofball yes/no (heroin + meth)
 table(df$GBNINJ, useNA = "ifany")   #any non-injection goofball 
@@ -88,7 +87,7 @@ table(df$GBX, useNA = "ifany")   #non-injection goofball (# times)
 table(df$GBINJ, useNA = "ifany")   #any injection goofball
 table(df$GBIX, useNA = "ifany")   #injection goofball (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$GBX <- as.integer(df$GBX) #change to numeric instead of factor
     df$GBIX <- as.integer(df$GBIX) #change to numeric instead of factor
     
@@ -105,7 +104,7 @@ table(df$CRCKX, useNA = "ifany")   #non-injection crack (# times)
 table(df$CRKINJ, useNA = "ifany") #any injection crack 
 table(df$CRCKIX, useNA = "ifany") #injection crack (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$CRCKX <- as.integer(df$CRCKX) #change to numeric instead of factor
     df$CRCKIX <- as.integer(df$CRCKIX) #change to numeric instead of factor
     
@@ -123,7 +122,7 @@ table(df$PCOKEX, useNA = "ifany") #non-injection powder cocaine (times)
 table(df$CCINJ, useNA = "ifany")  #any injection powder cocaine
 table(df$PCOKEIX, useNA = "ifany") #injection powder cocaine (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$PCOKEX <- as.integer(df$PCOKEX) #change to numeric instead of factor
     df$PCOKEIX <- as.integer(df$PCOKEIX) #change to numeric instead of factor
     
@@ -139,7 +138,7 @@ table(df$METHX, useNA = "ifany") #non-injection meth (# times)
 table(df$MTINJ, useNA = "ifany") #any injection meth
 table(df$METHIX, useNA = "ifany") #injection meth (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$METHX <- as.integer(df$METHX) #change to numeric instead of factor
     df$METHIX <- as.integer(df$METHIX) #change to numeric instead of factor
     
@@ -156,7 +155,7 @@ table(df$STX, useNA = "ifany") #non-injection NMPS (# times)
 table(df$STINJ, useNA = "ifany") #any injection NMPS
 table(df$STIX, useNA = "ifany") #injection NMPS (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$STX <- as.integer(df$STX) #change to numeric instead of factor
     df$STIX <- as.integer(df$STIX) #change to numeric instead of factor
     
@@ -174,7 +173,7 @@ table(df$HERX, useNA = "ifany") #non-injection heroin (# times)
 table(df$HRINJ, useNA = "ifany") #any injection heroin 
 table(df$HERIX, useNA = "ifany") #injection heroin (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$HERX <- as.integer(df$HERX) #change to numeric instead of factor
     df$HERIX <- as.integer(df$HERIX) #change to numeric instead of factor
     
@@ -191,7 +190,7 @@ table(df$OPX, useNA = "ifany") #non-injection NMPO (# times)
 table(df$OPINJ, useNA = "ifany") #any injection NMPO
 table(df$OPIX, useNA = "ifany") #injection NMPO (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$OPX <- as.integer(df$OPX) #change to numeric instead of factor
     df$OPIX <- as.integer(df$OPIX) #change to numeric instead of factor
     
@@ -207,7 +206,7 @@ table(df$MDX, useNA = "ifany") #non-injection methadone (# times)
 table(df$MDINJ, useNA = "ifany") #any injection methadone 
 table(df$MDIX, useNA = "ifany") #injection methadone (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$MDX <- as.integer(df$MDX) #change to numeric instead of factor
     df$MDIX <- as.integer(df$MDIX) #change to numeric instead of factor
     
@@ -224,7 +223,7 @@ table(df$BUPX, useNA = "ifany") #non-injection bup (# times)
 table(df$BUPINJ, useNA = "ifany") #any injection bup 
 table(df$BUPIX, useNA = "ifany") #injection bup (# times)
 
-    #if we want to create a variable for at least daily speedball use (>=30 times past 30 days)
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
     df$BUPX <- as.integer(df$BUPX) #change to numeric instead of factor
     df$BUPIX <- as.integer(df$BUPIX) #change to numeric instead of factor
     
@@ -245,7 +244,7 @@ table(df$STIM.freq, useNA = "ifany")
 
 Create variable for frequency of opioid use in past 30 days (2 = daily 30+, 1 = more than 0 but less than 30, 0 = none).
 ```{r}
-#ANY DAILY OR MORE OPIOID USE (>=30 times in past 30 days)
+#FREQUENCY OF OPIOID USE
 df$OPIOID.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$HER.freq==2 | df$OP.freq==2 | df$MD.freq==2 | df$BUP.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$HER.freq==0 & df$OP.freq==0 & df$MD.freq==0 & df$BUP.freq==0, 0, 1))
 
 table(df$OPIOID.freq, useNA = "ifany")
