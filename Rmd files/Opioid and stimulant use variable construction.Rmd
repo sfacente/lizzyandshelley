@@ -181,8 +181,8 @@ table(df$HERIX, useNA = "ifany") #injection heroin (# times)
                                                                   ifelse(df$HERX==0 & df$HERIX==0, 0, NA)))
     df$HER.freq[is.na(df$HER.freq)] <- 0
     table(df$HER.freq, useNA = "ifany")
-    
 
+    
 ###NONMEDICAL PRESCRIPTION OPIOIDS###
 table(df$OP30, useNA = "ifany") #used NMPO yes/no
 table(df$OPNINJ, useNA = "ifany") #any non-injection NMPO 
