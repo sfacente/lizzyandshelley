@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "10/18/2020"
+date: "10/20/2020"
 output: pdf_document
 ---
 
@@ -682,7 +682,6 @@ table(df$HOMELESS, useNA = "ifany")
 #incarceration (Any jail in the last 6 months)
 table(df$JAIL, useNA = "ifany")
 
-
 ###SPEEDBALL###
 table(df$SB30, useNA = "ifany") #used speedball yes/no (heroin + cocaine or crack)
 table(df$SBNINJ, useNA = "ifany")  #any non-injection speedball
@@ -698,7 +697,6 @@ table(df$SBIX, useNA = "ifany")  #injection speedball (# of times)
                                                                    ifelse(df$SBX==0 & df$SBIX==0, 0, NA)))
     df$SB.freq[is.na(df$SB.freq)] <- 0
     table(df$SB.freq, useNA = "ifany")
-    
     
 ###GOOFBALL###
 table(df$GB30, useNA = "ifany")   #used goofball yes/no (heroin + meth)
@@ -716,7 +714,6 @@ table(df$GBIX, useNA = "ifany")   #injection goofball (# times)
     df$GB.freq[is.na(df$GB.freq)] <- 0
     table(df$GB.freq, useNA = "ifany")
 
-    
 ###CRACK###
 table(df$CRCK30, useNA = "ifany")  #used crack yes/no
 table(df$CRKNINJ, useNA = "ifany") #any non-injection crack
@@ -733,8 +730,6 @@ table(df$CRCKIX, useNA = "ifany") #injection crack (# times)
     df$CRCK.freq[is.na(df$CRCK.freq)] <- 0
     table(df$CRCK.freq, useNA = "ifany")
 
-
- 
 ###COCAINE###
 table(df$PCOKE30, useNA = "ifany") #used powder cocaine yes/no
 table(df$CCNINJ, useNA = "ifany") #any non-injection powder cocaine 
@@ -767,7 +762,6 @@ table(df$METHIX, useNA = "ifany") #injection meth (# times)
     df$METH.freq[is.na(df$METH.freq)] <- 0
     table(df$METH.freq, useNA = "ifany")
 
-
 ###NONMEDICAL PRESCRIPTION STIMULANT###
 table(df$ST30, useNA = "ifany") #used NMPS yes/no
 table(df$STNINJ, useNA = "ifany") #any non-injection NMPS
@@ -783,7 +777,6 @@ table(df$STIX, useNA = "ifany") #injection NMPS (# times)
                                                                    ifelse(df$STX==0 & df$STIX==0, 0, NA)))
     df$ST.freq[is.na(df$ST.freq)] <- 0
     table(df$ST.freq, useNA = "ifany")
-
 
 ###HEROIN###
 table(df$HER30, useNA = "ifany") #used heroin yes/no
@@ -801,7 +794,6 @@ table(df$HERIX, useNA = "ifany") #injection heroin (# times)
     df$HER.freq[is.na(df$HER.freq)] <- 0
     table(df$HER.freq, useNA = "ifany")
 
-    
 ###NONMEDICAL PRESCRIPTION OPIOIDS###
 table(df$OP30, useNA = "ifany") #used NMPO yes/no
 table(df$OPNINJ, useNA = "ifany") #any non-injection NMPO 
@@ -833,7 +825,6 @@ table(df$MDIX, useNA = "ifany") #injection methadone (# times)
                                                                    ifelse(df$MDX==0 & df$MDIX==0, 0, NA)))
     df$MD.freq[is.na(df$MD.freq)] <- 0
     table(df$MD.freq, useNA = "ifany")
-
     
 ###BUPRENORPHINE###
 table(df$BUP30, useNA = "ifany") #used bup yes/no
@@ -855,12 +846,15 @@ table(df$BUPIX, useNA = "ifany") #injection bup (# times)
 #includes crack cocaine, powder cocaine, meth, nonmedical rx stimulants, speedball, and goofball
 df$STIM.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$CRCK.freq==2 | df$PCOKE.freq==2 | df$METH.freq==2 | df$ST.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$CRCK.freq==0 & df$PCOKE.freq==0 & df$METH.freq==0 & df$ST.freq==0, 0, 1))
 
+df$STIM.freq <- as.factor(df$STIM.freq)
 table(df$STIM.freq, useNA = "ifany")
+
 
 #FREQUENCY OF OPIOID USE
 #includes speedball, goofball, heroin, nonmedical rx opioids, methadone, bup
 df$OPIOID.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$HER.freq==2 | df$OP.freq==2 | df$MD.freq==2 | df$BUP.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$HER.freq==0 & df$OP.freq==0 & df$MD.freq==0 & df$BUP.freq==0, 0, 1))
 
+df$OPIOID.freq <- as.factor(df$OPIOID.freq)
 table(df$OPIOID.freq, useNA = "ifany")
 
 ####ANY STIMULANT USE IN PAST 30 DAYS (injection and/or non-injection composite)###
@@ -887,10 +881,10 @@ table(df$ODP6M, useNA = "ifany")
 Overall Table 1 not stratified by any outcome.
 ```{r}
 # Identify the variables of interest
-myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "JAIL", "ANYSTIMUSE", "ANYOPIOIDUSE", "WOD6M", "ODP6M") 
+myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "JAIL", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
 
 # Specify which of the variables are categorical
-catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "JAIL", "ANYSTIMUSE", "ANYOPIOIDUSE", "WOD6M", "ODP6M") 
+catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "JAIL", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
 
 # Create an overall table 1
 #REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
@@ -901,7 +895,6 @@ table1.overall <- CreateTableOne(vars= myVars,
 
 print(table1.overall, showAllLevels = TRUE, missing = FALSE)
 ```
-
 
 Table 1 for correlates of receiving naloxone in the last 6 months (NAL6MOS.new)
 ```{r}
@@ -930,12 +923,12 @@ NOTE: NAL6MOS.new: All bivariate models converge using log-binomial model, but m
 #glm(NAL6MOS.new ~ factor(ED), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(HOMELESS), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(JAIL), data=df, family=binomial(log))
-#glm(NAL6MOS.new ~ factor(ANYSTIMUSE), data=df, family=binomial(log))
-#glm(NAL6MOS.new ~ factor(ANYOPIOIDUSE), data=df, family=binomial(log))
+#glm(NAL6MOS.new ~ factor(STIM.freq), data=df, family=binomial(log))
+#glm(NAL6MOS.new ~ factor(OPIOID.freq), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(WOD6M), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(ODP6M), data=df, family=binomial(log))
 
-#glm(NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIOIDUSE) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial(log))
+#glm(NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial(log))
 ```
 
 
@@ -945,7 +938,7 @@ NAL6MOS.new: Bivariate and multivariate models for receiving naloxone in the las
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N=527)
-df.modpoiss <- subset(df, select=c(SUBJECT, NAL6MOS.new, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, ANYSTIMUSE, ANYOPIOIDUSE, WOD6M, ODP6M))
+df.modpoiss <- subset(df, select=c(SUBJECT, NAL6MOS.new, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M))
 df.modpoiss <- na.omit(df.modpoiss)
 
 #CITY 
@@ -1039,31 +1032,31 @@ exp(coef(jailbynal6mos.modpoiss))
         #rounded to two decimal places
   round(jailbynal6mos.modpoiss.RR.expci.adj, 2)
   
-#ANYSTIMUSE
-ANYSTIMUSEbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ANYSTIMUSE), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
-summary(ANYSTIMUSEbynal6mos.modpoiss)
-exp(coef(ANYSTIMUSEbynal6mos.modpoiss))
+#STIMULANT FREQUENCY
+STIM.freqbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(STIM.freq), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(STIM.freqbynal6mos.modpoiss)
+exp(coef(STIM.freqbynal6mos.modpoiss))
 
-#95% CI for ANYSTIMUSE
-  ANYSTIMUSEbynal6mos.modpoiss.RR.coefci.adj <- cbind(ANYSTIMUSEbynal6mos.modpoiss$coefficients, confint.default(ANYSTIMUSEbynal6mos.modpoiss))
-  ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj <- exp(ANYSTIMUSEbynal6mos.modpoiss.RR.coefci.adj)
-  ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj
+#95% CI for STIM.freq
+  STIM.freqbynal6mos.modpoiss.RR.coefci.adj <- cbind(STIM.freqbynal6mos.modpoiss$coefficients, confint.default(STIM.freqbynal6mos.modpoiss))
+  STIM.freqbynal6mos.modpoiss.RR.expci.adj <- exp(STIM.freqbynal6mos.modpoiss.RR.coefci.adj)
+  STIM.freqbynal6mos.modpoiss.RR.expci.adj
 
         #rounded to two decimal places
-  round(ANYSTIMUSEbynal6mos.modpoiss.RR.expci.adj, 2)  
+  round(STIM.freqbynal6mos.modpoiss.RR.expci.adj, 2)  
 
-#ANYOPIOIDUSE
-ANYOPIOIDUSEbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(ANYOPIOIDUSE), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
-summary(ANYOPIOIDUSEbynal6mos.modpoiss)
-exp(coef(ANYOPIOIDUSEbynal6mos.modpoiss))
+#OPIOID FREQUENCY
+OPIOID.freqbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(OPIOID.freq), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(OPIOID.freqbynal6mos.modpoiss)
+exp(coef(OPIOID.freqbynal6mos.modpoiss))
 
-#95% CI for ANYOPIOIDUSE
-  ANYOPIOIDUSEbynal6mos.modpoiss.RR.coefci.adj <- cbind(ANYOPIOIDUSEbynal6mos.modpoiss$coefficients, confint.default(ANYOPIOIDUSEbynal6mos.modpoiss))
-  ANYOPIOIDUSEbynal6mos.modpoiss.RR.expci.adj <- exp(ANYOPIOIDUSEbynal6mos.modpoiss.RR.coefci.adj)
-  ANYOPIOIDUSEbynal6mos.modpoiss.RR.expci.adj
+#95% CI for OPIOID.freq
+  OPIOID.freqbynal6mos.modpoiss.RR.coefci.adj <- cbind(OPIOID.freqbynal6mos.modpoiss$coefficients, confint.default(OPIOID.freqbynal6mos.modpoiss))
+  OPIOID.freqbynal6mos.modpoiss.RR.expci.adj <- exp(OPIOID.freqbynal6mos.modpoiss.RR.coefci.adj)
+  OPIOID.freqbynal6mos.modpoiss.RR.expci.adj
        
    #rounded to two decimal places
-  round(ANYOPIOIDUSEbynal6mos.modpoiss.RR.expci.adj, 2)  
+  round(OPIOID.freqbynal6mos.modpoiss.RR.expci.adj, 2)  
 
   #WOD6M
 WOD6Mbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(WOD6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -1094,7 +1087,7 @@ exp(coef(ODP6Mbynal6mos.modpoiss))
 ####DIFFERENT APPROACHES FOR MULTIVARIATE MODELS
 
 ####FULL MULTIVARIATE MODIFIED POISSON MODEL WITH EVERY COVARIATE INCLUDED
-fitnal6mos.modpoiss  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIOIDUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+fitnal6mos.modpoiss  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 
 summary(fitnal6mos.modpoiss)
 
@@ -1102,29 +1095,16 @@ summary(fitnal6mos.modpoiss)
 fitnal6mos.RR.coefci.adj <- cbind(fitnal6mos.modpoiss$coefficients, confint.default(fitnal6mos.modpoiss))
 fitnal6mos.RR.expci.adj <- exp(fitnal6mos.RR.coefci.adj)
 fitnal6mos.RR.expci.adj
+round(fitnal6mos.RR.expci.adj, 2) 
 
-###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.05 or 0.2 (SO ONLY TAKE OUT GENDER). THE FINDINGS ARE EXACTLY THE SAME
-fitnal6mos.modpoiss.approach1  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIOIDUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.05 or 0.2 (SO ONLY TAKE OUT GENDER - CHECK ON THIS 10/21/20)
+fitnal6mos.modpoiss.approach1  <- geeglm(formula=NAL6MOS.new ~ factor(LOCALID) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 
 summary(fitnal6mos.modpoiss.approach1)
 ```
 
-NAL6MOS.new: If I end up needing to calculate the 95% CI for RRs by hand instead.
-```{r}
-#getting coefficients and standard errors using regular glm and the sandwich estimator
-#fitNAL6MOS.new <- glm(NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIOIDUSE) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial(log))
 
-#library(sandwich) # to get robust estimators
-#library(lmtest) # to test coefficients
-#coeftest(fitNAL6MOS.new, vcov = sandwich)
-#exp(coef(fitNAL6MOS.new)) #to get RR
-
-## CIs 
-#localID
-#exp(beta + qnorm(0.05 / 2) * SE) # lower 95% CI
-#exp(beta  + qnorm(1 - 0.05 / 2) * SE) #upper 95% CI
-```
-
+MOVING ON TO CURRENTLY OWNING NALOXONE....
 
 NALOWN: Table 1 for correlates of currently owning naloxone [NALOWN].
 Of the 265 people who have received naloxone in the past 6 mos, 188 currently own it and 76 don't currently own it.
@@ -1168,7 +1148,7 @@ NALOWN: Bivariate and multivariate models for currently owning naloxone among th
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N= 259)
-df.modpoiss.nalown <- subset(df_nal6mos, select=c(SUBJECT, NALOWN, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, ANYSTIMUSE, ANYOPIOIDUSE, WOD6M, ODP6M))
+df.modpoiss.nalown <- subset(df_nal6mos, select=c(SUBJECT, NALOWN, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M))
 df.modpoiss.nalown <- na.omit(df.modpoiss.nalown)
 
 #recode NALOWN as binary numeric since factor isn't working
@@ -1265,31 +1245,31 @@ jailbynalown.modpoiss.RR.expci.adj
 #rounded to two decimal places
   round(jailbynalown.modpoiss.RR.expci.adj, 2) 
 
-#ANYSTIMUSE
-ANYSTIMUSEbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ANYSTIMUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
-summary(ANYSTIMUSEbynalown.modpoiss)
-exp(coef(ANYSTIMUSEbynalown.modpoiss))
+#STIM.freq
+STIM.freqbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(STIM.freq), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(STIM.freqbynalown.modpoiss)
+exp(coef(STIM.freqbynalown.modpoiss))
 
-#95% CI for ANYSTIMUSE
-ANYSTIMUSEbynalown.modpoiss.RR.coefci.adj <- cbind(ANYSTIMUSEbynalown.modpoiss$coefficients, confint.default(ANYSTIMUSEbynalown.modpoiss))
-ANYSTIMUSEbynalown.modpoiss.RR.expci.adj <- exp(ANYSTIMUSEbynalown.modpoiss.RR.coefci.adj)
-ANYSTIMUSEbynalown.modpoiss.RR.expci.adj
+#95% CI for STIM.freq
+STIM.freqbynalown.modpoiss.RR.coefci.adj <- cbind(STIM.freqbynalown.modpoiss$coefficients, confint.default(STIM.freqbynalown.modpoiss))
+STIM.freqbynalown.modpoiss.RR.expci.adj <- exp(STIM.freqbynalown.modpoiss.RR.coefci.adj)
+STIM.freqbynalown.modpoiss.RR.expci.adj
 
 #rounded to two decimal places
-  round(ANYSTIMUSEbynalown.modpoiss.RR.expci.adj, 2) 
+  round(STIM.freqbynalown.modpoiss.RR.expci.adj, 2) 
   
-#ANYOPIOIDUSE
-ANYOPIOIDUSEbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(ANYOPIOIDUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
-summary(ANYOPIOIDUSEbynalown.modpoiss)
-exp(coef(ANYOPIOIDUSEbynalown.modpoiss))
+#OPIOID.freq
+OPIOID.freqbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(OPIOID.freq), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(OPIOID.freqbynalown.modpoiss)
+exp(coef(OPIOID.freqbynalown.modpoiss))
 
-#95% CI for ANYOPIOIDUSE
-ANYOPIOIDUSEbynalown.modpoiss.RR.coefci.adj <- cbind(ANYOPIOIDUSEbynalown.modpoiss$coefficients, confint.default(ANYOPIOIDUSEbynalown.modpoiss))
-ANYOPIOIDUSEbynalown.modpoiss.RR.expci.adj <- exp(ANYOPIOIDUSEbynalown.modpoiss.RR.coefci.adj)
-ANYOPIOIDUSEbynalown.modpoiss.RR.expci.adj
+#95% CI for OPIOID.freq
+OPIOID.freqbynalown.modpoiss.RR.coefci.adj <- cbind(OPIOID.freqbynalown.modpoiss$coefficients, confint.default(OPIOID.freqbynalown.modpoiss))
+OPIOID.freqbynalown.modpoiss.RR.expci.adj <- exp(OPIOID.freqbynalown.modpoiss.RR.coefci.adj)
+OPIOID.freqbynalown.modpoiss.RR.expci.adj
 
 #rounded to two decimal places
-  round(ANYOPIOIDUSEbynalown.modpoiss.RR.expci.adj, 2) 
+  round(OPIOID.freqbynalown.modpoiss.RR.expci.adj, 2) 
 
 #WOD6M
 WOD6Mbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(WOD6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
@@ -1319,7 +1299,7 @@ ODP6Mbynalown.modpoiss.RR.expci.adj
 
 #MULTIVARIATE MODELS USING DIFFERENT APPROACHES
 #full multivariate model using every covariate regardless of significance
-fitnalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(ANYSTIMUSE) + factor(ANYOPIOIDUSE) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+fitnalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(fitnalown.modpoiss)
 exp(coef(fitnalown.modpoiss))
 
@@ -1327,9 +1307,10 @@ exp(coef(fitnalown.modpoiss))
 fitnalown.RR.coefci.adj <- cbind(fitnalown.modpoiss$coefficients, confint.default(fitnalown.modpoiss))
 fitnalown.RR.expci.adj <- exp(fitnalown.RR.coefci.adj)
 fitnalown.RR.expci.adj
+round(fitnalown.RR.expci.adj, 2) 
 
-###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.2 (not using p < .05 because then the model is only housing and jail)
-fitnalown.modpoiss.approach1 <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL)  + factor(ANYOPIOIDUSE), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+###ADJUSTED MULTIVARIATE MODIFIED POISSON INCLUDING ONLY THOSE SIGNIFICANT AT LESS THAN 0.2 or 0.05...
+fitnalown.modpoiss.approach1 <- PLACEHOLDER
 
 summary(fitnalown.modpoiss.approach1)
 
