@@ -78,8 +78,8 @@ table(df$SBIX, useNA = "ifany")  #injection speedball (# of times)
                                                                    ifelse(df$SBX==0 & df$SBIX==0, 0, NA)))
     df$SB.freq[is.na(df$SB.freq)] <- 0
     table(df$SB.freq, useNA = "ifany")
-
-
+    
+    
 ###GOOFBALL###
 table(df$GB30, useNA = "ifany")   #used goofball yes/no (heroin + meth)
 table(df$GBNINJ, useNA = "ifany")   #any non-injection goofball 
@@ -165,7 +165,6 @@ table(df$STIX, useNA = "ifany") #injection NMPS (# times)
     table(df$ST.freq, useNA = "ifany")
 
 
-
 ###HEROIN###
 table(df$HER30, useNA = "ifany") #used heroin yes/no
 table(df$HRNINJ, useNA = "ifany") #any non-injection heroin 
@@ -234,7 +233,7 @@ table(df$BUPIX, useNA = "ifany") #injection bup (# times)
 ```
 
 
-Create variable for frequency of stimulant use in past 30 days (2 = daily 30+, 1 = more than 0 but less than 30, 0 = none).
+Create variable for frequency of stimulant use in past 30 days (2 = daily i.e. 30+, 1 = more than 0 but less than 30, 0 = none).
 ```{r}
 #FREQUENCY OF STIMULANT USE
 df$STIM.freq <- ifelse(df$SB.freq==2 | df$GB.freq==2 | df$CRCK.freq==2 | df$PCOKE.freq==2 | df$METH.freq==2 | df$ST.freq==2, 2, ifelse(df$SB.freq==0 & df$GB.freq==0 & df$CRCK.freq==0 & df$PCOKE.freq==0 & df$METH.freq==0 & df$ST.freq==0, 0, 1))
