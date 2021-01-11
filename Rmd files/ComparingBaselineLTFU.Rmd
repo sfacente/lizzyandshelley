@@ -1,0 +1,323 @@
+---
+title: "ComparingBaselineLTFU"
+author: "Elizabeth Kinnard"
+date: "1/11/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, eval=T, warning = FALSE, message = FALSE, global.par=TRUE)
+knitr::opts_knit$set(root.dir="~/Documents/GitHub/lizzyandshelley/Dataset")
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=85),tidy=TRUE)
+```
+
+Open packages.
+```{r}
+library(base)
+library(knitr)
+library(dplyr)
+library(here)
+library(foreign)
+library(labelled)
+library(dplyr)
+library(reshape2)
+library(tableone)
+library(forcats)
+library(geepack)
+library(doBy)
+library(blm)
+library(lmtest)
+library(foreign)
+library(MASS)
+```
+
+Open working directory and load the dataset with all waves of CTC. 
+```{r}
+#set working directory
+setwd("~/Documents/GitHub/lizzyandshelley/Dataset") #LIZZY
+
+#load the data
+df_allwaves <- read.spss("CTCAllWaves.SAV", use.value.labels = TRUE, to.data.frame=TRUE)
+```
+
+Get variable labels.
+```{r, echo=F, eval=F}
+#get variable labels
+attr(df_allwaves, "variable.labels")
+df_allwaves.labels <- as.data.frame(attr(df_allwaves, "variable.labels"))
+QDSlabels <- data.frame(rownames(df_allwaves.labels))
+df_allwaves.labels <- cbind(QDSlabels, df_allwaves.labels)
+names(df_allwaves.labels) <- c("VAR_ID", "description")
+rm(QDSlabels)
+
+#USE THIS CODE TO LOOK UP A VARIABLE DESCRIPTION
+#df_allwaves.labels$description[df_allwaves.labels$VAR_ID=="GENDER"]
+```
+
+See who showed up to FU1 and FU2.
+```{r}
+table(df_allwaves$FU1, useNA = "ifany")
+table(df_allwaves$FU2, useNA = "ifany")
+```
+
+Create variables to compare those who would eventually show up to 12-month visit (FU2) to those who would not.
+```{r}
+#city
+table(df_allwaves$LOCALID, useNA = "ifany")
+
+#gender (combine other and transgender into other so 3 cat variable)
+df_allwaves$GENDER <- df_allwaves$GENDER %>% fct_collapse("Other" = c("Transgender","Other"))
+table(df_allwaves$GENDER, useNA = "ifany")
+
+#age
+table(df_allwaves$AGE, useNA = "ifany")
+table(df_allwaves$agecat, useNA = "ifany") #(<30, 30 to 39, 40-49, 50 or more) 
+
+#race (recoded into fewer categories)
+table(df_allwaves$RACELG, useNA = "ifany")
+df_allwaves$RACE_cat <- df_allwaves$RACELG %>% fct_collapse("Other" = c("Native American","Asian/Pacific Islander", "Mixed Race/Other"))
+
+df_allwaves$RACE_cat <- droplevels(df_allwaves$RACE_cat, exclude=c("Don't know", "Refused"))
+table(df_allwaves$RACE_cat, useNA = "ifany")
+
+#education (High school education or more)
+table(df_allwaves$ED, useNA = "ifany")
+
+#homelessness (Consider Self Homeless)
+table(df_allwaves$HOMELESS, useNA = "ifany")
+
+#incarceration (Any jail in the last 6 months)
+#not possible to use because they didn't ask about jail at baseline
+
+
+###SPEEDBALL###
+table(df_allwaves$SB30, useNA = "ifany") #used speedball yes/no (heroin + cocaine or crack)
+table(df_allwaves$SBNINJ, useNA = "ifany")  #any non-injection speedball
+table(df_allwaves$SBX, useNA = "ifany")  #non-injection speedball (# of times)
+table(df_allwaves$SBINJ, useNA = "ifany")  #any injection speedball 
+table(df_allwaves$SBIX, useNA = "ifany")  #injection speedball (# of times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$SBX <- as.integer(df_allwaves$SBX) #change to numeric instead of factor
+    df_allwaves$SBIX <- as.integer(df_allwaves$SBIX) #change to numeric instead of factor
+    
+    df_allwaves$SB.freq <-   ifelse(df_allwaves$SBX>=30 | df_allwaves$SBIX>=30, 2, ifelse((df_allwaves$SBX>0 & df_allwaves$SBX<30) & (df_allwaves$SBIX>0 & df_allwaves$SBIX<30), 1, 
+                                                                   ifelse(df_allwaves$SBX==0 & df_allwaves$SBIX==0, 0, NA)))
+    df_allwaves$SB.freq[is.na(df_allwaves$SB.freq)] <- 0
+    table(df_allwaves$SB.freq, useNA = "ifany")
+    
+###GOOFBALL###
+table(df_allwaves$GB30, useNA = "ifany")   #used goofball yes/no (heroin + meth)
+table(df_allwaves$GBNINJ, useNA = "ifany")   #any non-injection goofball 
+table(df_allwaves$GBX, useNA = "ifany")   #non-injection goofball (# times)
+table(df_allwaves$GBINJ, useNA = "ifany")   #any injection goofball
+table(df_allwaves$GBIX, useNA = "ifany")   #injection goofball (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$GBX <- as.integer(df_allwaves$GBX) #change to numeric instead of factor
+    df_allwaves$GBIX <- as.integer(df_allwaves$GBIX) #change to numeric instead of factor
+    
+    df_allwaves$GB.freq <-   ifelse(df_allwaves$GBX>=30 | df_allwaves$GBIX>=30, 2, ifelse((df_allwaves$GBX>0 & df_allwaves$GBX<30) & (df_allwaves$GBIX>0 & df_allwaves$GBIX<30), 1, 
+                                                                   ifelse(df_allwaves$GBX==0 & df_allwaves$GBIX==0, 0, NA)))
+    df_allwaves$GB.freq[is.na(df_allwaves$GB.freq)] <- 0
+    table(df_allwaves$GB.freq, useNA = "ifany")
+
+###CRACK###
+table(df_allwaves$CRCK30, useNA = "ifany")  #used crack yes/no
+table(df_allwaves$CRKNINJ, useNA = "ifany") #any non-injection crack
+table(df_allwaves$CRCKX, useNA = "ifany")   #non-injection crack (# times)
+table(df_allwaves$CRKINJ, useNA = "ifany") #any injection crack 
+table(df_allwaves$CRCKIX, useNA = "ifany") #injection crack (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$CRCKX <- as.integer(df_allwaves$CRCKX) #change to numeric instead of factor
+    df_allwaves$CRCKIX <- as.integer(df_allwaves$CRCKIX) #change to numeric instead of factor
+    
+    df_allwaves$CRCK.freq <-   ifelse(df_allwaves$CRCKX>=30 | df_allwaves$CRCKIX>=30, 2, ifelse((df_allwaves$CRCKX>0 & df_allwaves$CRCKX<30) & (df_allwaves$CRCKIX>0 & df_allwaves$CRCKIX<30), 1, 
+                                                                   ifelse(df_allwaves$CRCKX==0 & df_allwaves$CRCKIX==0, 0, NA)))
+    df_allwaves$CRCK.freq[is.na(df_allwaves$CRCK.freq)] <- 0
+    table(df_allwaves$CRCK.freq, useNA = "ifany")
+
+###COCAINE###
+table(df_allwaves$PCOKE30, useNA = "ifany") #used powder cocaine yes/no
+table(df_allwaves$CCNINJ, useNA = "ifany") #any non-injection powder cocaine 
+table(df_allwaves$PCOKEX, useNA = "ifany") #non-injection powder cocaine (times)
+table(df_allwaves$CCINJ, useNA = "ifany")  #any injection powder cocaine
+table(df_allwaves$PCOKEIX, useNA = "ifany") #injection powder cocaine (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$PCOKEX <- as.integer(df_allwaves$PCOKEX) #change to numeric instead of factor
+    df_allwaves$PCOKEIX <- as.integer(df_allwaves$PCOKEIX) #change to numeric instead of factor
+    
+    df_allwaves$PCOKE.freq <-   ifelse(df_allwaves$PCOKEX>=30 | df_allwaves$PCOKEIX>=30, 2, ifelse((df_allwaves$PCOKEX>0 & df_allwaves$PCOKEX<30) & (df_allwaves$PCOKEIX>0 & df_allwaves$PCOKEIX<30), 1, 
+                                                                   ifelse(df_allwaves$PCOKEX==0 & df_allwaves$PCOKEIX==0, 0, NA)))
+    df_allwaves$PCOKE.freq[is.na(df_allwaves$PCOKE.freq)] <- 0
+    table(df_allwaves$PCOKE.freq, useNA = "ifany")
+    
+###METHAMPHETAMINE###
+table(df_allwaves$METH30, useNA = "ifany") #used meth yes/no
+table(df_allwaves$MTNINJ, useNA = "ifany") #any non-injection meth 
+table(df_allwaves$METHX, useNA = "ifany") #non-injection meth (# times)
+table(df_allwaves$MTINJ, useNA = "ifany") #any injection meth
+table(df_allwaves$METHIX, useNA = "ifany") #injection meth (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$METHX <- as.integer(df_allwaves$METHX) #change to numeric instead of factor
+    df_allwaves$METHIX <- as.integer(df_allwaves$METHIX) #change to numeric instead of factor
+    
+    df_allwaves$METH.freq <-   ifelse(df_allwaves$METHX>=30 | df_allwaves$METHIX>=30, 2, ifelse((df_allwaves$METHX>0 & df_allwaves$METHX<30) & (df_allwaves$METHIX>0 & df_allwaves$METHIX<30), 1, 
+                                                                   ifelse(df_allwaves$METHX==0 & df_allwaves$METHIX==0, 0, NA)))
+    df_allwaves$METH.freq[is.na(df_allwaves$METH.freq)] <- 0
+    table(df_allwaves$METH.freq, useNA = "ifany")
+
+###NONMEDICAL PRESCRIPTION STIMULANT###
+table(df_allwaves$ST30, useNA = "ifany") #used NMPS yes/no
+table(df_allwaves$STNINJ, useNA = "ifany") #any non-injection NMPS
+table(df_allwaves$STX, useNA = "ifany") #non-injection NMPS (# times)
+table(df_allwaves$STINJ, useNA = "ifany") #any injection NMPS
+table(df_allwaves$STIX, useNA = "ifany") #injection NMPS (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$STX <- as.integer(df_allwaves$STX) #change to numeric instead of factor
+    df_allwaves$STIX <- as.integer(df_allwaves$STIX) #change to numeric instead of factor
+    
+    df_allwaves$ST.freq <-   ifelse(df_allwaves$STX>=30 | df_allwaves$STIX>=30, 2, ifelse((df_allwaves$STX>0 & df_allwaves$STX<30) & (df_allwaves$STIX>0 & df_allwaves$STIX<30), 1, 
+                                                                   ifelse(df_allwaves$STX==0 & df_allwaves$STIX==0, 0, NA)))
+    df_allwaves$ST.freq[is.na(df_allwaves$ST.freq)] <- 0
+    table(df_allwaves$ST.freq, useNA = "ifany")
+
+###HEROIN###
+table(df_allwaves$HER30, useNA = "ifany") #used heroin yes/no
+table(df_allwaves$HRNINJ, useNA = "ifany") #any non-injection heroin 
+table(df_allwaves$HERX, useNA = "ifany") #non-injection heroin (# times)
+table(df_allwaves$HRINJ, useNA = "ifany") #any injection heroin 
+table(df_allwaves$HERIX, useNA = "ifany") #injection heroin (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$HERX <- as.integer(df_allwaves$HERX) #change to numeric instead of factor
+    df_allwaves$HERIX <- as.integer(df_allwaves$HERIX) #change to numeric instead of factor
+    
+    df_allwaves$HER.freq <-   ifelse(df_allwaves$HERX>=30 | df_allwaves$HERIX>=30, 2, ifelse((df_allwaves$HERX>0 & df_allwaves$HERX<30) & (df_allwaves$HERIX>0 & df_allwaves$HERIX<30), 1, 
+                                                                  ifelse(df_allwaves$HERX==0 & df_allwaves$HERIX==0, 0, NA)))
+    df_allwaves$HER.freq[is.na(df_allwaves$HER.freq)] <- 0
+    table(df_allwaves$HER.freq, useNA = "ifany")
+
+###NONMEDICAL PRESCRIPTION OPIOIDS###
+table(df_allwaves$OP30, useNA = "ifany") #used NMPO yes/no
+table(df_allwaves$OPNINJ, useNA = "ifany") #any non-injection NMPO 
+table(df_allwaves$OPX, useNA = "ifany") #non-injection NMPO (# times)
+table(df_allwaves$OPINJ, useNA = "ifany") #any injection NMPO
+table(df_allwaves$OPIX, useNA = "ifany") #injection NMPO (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$OPX <- as.integer(df_allwaves$OPX) #change to numeric instead of factor
+    df_allwaves$OPIX <- as.integer(df_allwaves$OPIX) #change to numeric instead of factor
+    
+    df_allwaves$OP.freq <-   ifelse(df_allwaves$OPX>=30 | df_allwaves$OPIX>=30, 2, ifelse((df_allwaves$OPX>0 & df_allwaves$OPX<30) & (df_allwaves$OPIX>0 & df_allwaves$OPIX<30), 1, 
+                                                                   ifelse(df_allwaves$OPX==0 & df_allwaves$OPIX==0, 0, NA)))
+    df_allwaves$OP.freq[is.na(df_allwaves$OP.freq)] <- 0
+    table(df_allwaves$OP.freq, useNA = "ifany")
+
+###METHADONE###
+table(df_allwaves$MD30, useNA = "ifany") #used methadone yes/no
+table(df_allwaves$MDNINJ, useNA = "ifany") #any non-injection methadone
+table(df_allwaves$MDX, useNA = "ifany") #non-injection methadone (# times)
+table(df_allwaves$MDINJ, useNA = "ifany") #any injection methadone 
+table(df_allwaves$MDIX, useNA = "ifany") #injection methadone (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$MDX <- as.integer(df_allwaves$MDX) #change to numeric instead of factor
+    df_allwaves$MDIX <- as.integer(df_allwaves$MDIX) #change to numeric instead of factor
+    
+    df_allwaves$MD.freq <-   ifelse(df_allwaves$MDX>=30 | df_allwaves$MDIX>=30, 2, ifelse((df_allwaves$MDX>0 & df_allwaves$MDX<30) & (df_allwaves$MDIX>0 & df_allwaves$MDIX<30), 1, 
+                                                                   ifelse(df_allwaves$MDX==0 & df_allwaves$MDIX==0, 0, NA)))
+    df_allwaves$MD.freq[is.na(df_allwaves$MD.freq)] <- 0
+    table(df_allwaves$MD.freq, useNA = "ifany")
+    
+###BUPRENORPHINE###
+table(df_allwaves$BUP30, useNA = "ifany") #used bup yes/no
+table(df_allwaves$BUPNINJ, useNA = "ifany") #any non-injection bup 
+table(df_allwaves$BUPX, useNA = "ifany") #non-injection bup (# times)
+table(df_allwaves$BUPINJ, useNA = "ifany") #any injection bup 
+table(df_allwaves$BUPIX, useNA = "ifany") #injection bup (# times)
+
+    #creating frequency variable (2= greater than or equal to 30 times, 1 = greater than 0 but less than 30, 0 = none)
+    df_allwaves$BUPX <- as.integer(df_allwaves$BUPX) #change to numeric instead of factor
+    df_allwaves$BUPIX <- as.integer(df_allwaves$BUPIX) #change to numeric instead of factor
+    
+    df_allwaves$BUP.freq <-   ifelse(df_allwaves$BUPX>=30 | df_allwaves$BUPIX>=30, 2, ifelse((df_allwaves$BUPX>0 & df_allwaves$BUPX<30) & (df_allwaves$BUPIX>0 & df_allwaves$BUPIX<30), 1, 
+                                                                   ifelse(df_allwaves$BUPX==0 & df_allwaves$BUPIX==0, 0, NA)))
+    df_allwaves$BUP.freq[is.na(df_allwaves$BUP.freq)] <- 0
+    table(df_allwaves$BUP.freq, useNA = "ifany")
+
+#FREQUENCY OF STIMULANT USE
+#includes crack cocaine, powder cocaine, meth, nonmedical rx stimulants, speedball, and goofball
+df_allwaves$STIM.freq <- ifelse(df_allwaves$SB.freq==2 | df_allwaves$GB.freq==2 | df_allwaves$CRCK.freq==2 | df_allwaves$PCOKE.freq==2 | df_allwaves$METH.freq==2 | df_allwaves$ST.freq==2, 2, ifelse(df_allwaves$SB.freq==0 & df_allwaves$GB.freq==0 & df_allwaves$CRCK.freq==0 & df_allwaves$PCOKE.freq==0 & df_allwaves$METH.freq==0 & df_allwaves$ST.freq==0, 0, 1))
+
+df_allwaves$STIM.freq <- as.factor(df_allwaves$STIM.freq)
+table(df_allwaves$STIM.freq, useNA = "ifany")
+
+
+#FREQUENCY OF OPIOID USE
+#includes speedball, goofball, heroin, nonmedical rx opioids, methadone, bup
+df_allwaves$OPIOID.freq <- ifelse(df_allwaves$SB.freq==2 | df_allwaves$GB.freq==2 | df_allwaves$HER.freq==2 | df_allwaves$OP.freq==2 | df_allwaves$MD.freq==2 | df_allwaves$BUP.freq==2, 2, ifelse(df_allwaves$SB.freq==0 & df_allwaves$GB.freq==0 & df_allwaves$HER.freq==0 & df_allwaves$OP.freq==0 & df_allwaves$MD.freq==0 & df_allwaves$BUP.freq==0, 0, 1))
+
+df_allwaves$OPIOID.freq <- as.factor(df_allwaves$OPIOID.freq)
+table(df_allwaves$OPIOID.freq, useNA = "ifany")
+
+####ANY STIMULANT USE IN PAST 30 DAYS (injection and/or non-injection composite)###
+#includes crack cocaine, powder cocaine, meth, nonmedical rx stimulants, speedball, and goofball
+df_allwaves$ANYSTIMUSE <- ifelse(df_allwaves$CRKNINJ=="Yes" | df_allwaves$CCNINJ=="Yes" | df_allwaves$MTNINJ=="Yes" | df_allwaves$STNINJ=="Yes" |df_allwaves$SBNINJ =="Yes" |df_allwaves$GBNINJ=="Yes" | df_allwaves$CRKINJ=="Yes" | df_allwaves$CCINJ=="Yes" | df_allwaves$MTINJ=="Yes" | df_allwaves$STINJ=="Yes" |df_allwaves$SBINJ=="Yes"| df_allwaves$GBINJ=="Yes", 1, ifelse(df_allwaves$CRKNINJ=="No" &df_allwaves$CCNINJ=="No" & df_allwaves$MTNINJ=="No" & df_allwaves$STNINJ=="No" & df_allwaves$SBNINJ=="No" & df_allwaves$GBNINJ=="No" & df_allwaves$CRKINJ=="No" &  df_allwaves$CCINJ=="No" & df_allwaves$MTINJ=="No" & df_allwaves$STINJ=="No" & df_allwaves$SBINJ=="No" & df_allwaves$GBINJ=="No", 0, NA))
+
+df_allwaves$ANYSTIMUSE <- as.factor(df_allwaves$ANYSTIMUSE)
+table(df_allwaves$ANYSTIMUSE, useNA = "ifany")
+
+###ANY OPIOID USE IN PAST 30 DAYS (injection and/or non-injection composite)###
+#includes speedball, goofball, heroin, nonmedical rx opioids, methadone, bup
+df_allwaves$ANYOPIOIDUSE <- ifelse(df_allwaves$SBINJ=="Yes" | df_allwaves$GBINJ=="Yes" | df_allwaves$MDINJ=="Yes" | df_allwaves$BUPINJ=="Yes" | df_allwaves$HRINJ=="Yes" | df_allwaves$OPINJ=="Yes" |df_allwaves$SBNINJ=="Yes" | df_allwaves$GBNINJ=="Yes" |  df_allwaves$MDNINJ=="Yes" |  df_allwaves$BUPNINJ=="Yes" |  df_allwaves$HRNINJ=="Yes" | df_allwaves$OPNINJ=="Yes", 1, ifelse(df_allwaves$SBINJ=="No" & df_allwaves$GBINJ=="No"  & df_allwaves$MDINJ=="No"  & df_allwaves$BUPINJ=="No" & df_allwaves$HRINJ=="No" & df_allwaves$OPINJ=="No"  & df_allwaves$SBNINJ=="No" & df_allwaves$GBNINJ=="No"  & df_allwaves$MDNINJ=="No"  & df_allwaves$BUPNINJ=="No" & df_allwaves$HRNINJ=="No" & df_allwaves$OPNINJ=="No", 0, NA))
+
+df_allwaves$ANYOPIOIDUSE <- as.factor(df_allwaves$ANYOPIOIDUSE)
+table(df_allwaves$ANYOPIOIDUSE, useNA = "ifany")
+
+
+#overdose witnessed (witnessed an overdose in the last 6 months)
+table(df_allwaves$WOD6M, useNA = "ifany")
+
+#personal overdose history (Overdosed in the last 6 months)
+table(df_allwaves$ODP6M, useNA = "ifany")
+```
+
+Create a table to compare those who would eventually show up to 12-month visit (FU2) to those who would not. 
+```{r}
+# Identify the variables of interest
+myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
+
+# Specify which of the variables are categorical
+catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
+
+# Create an overall table 1
+#REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
+
+table1.overall <- CreateTableOne(vars= myVars, 
+                                 data= df_allwaves, 
+                                 factorVars = catVars)
+
+#this is if we want table 1 not stratified by any outcome (eg FU2)
+#print(table1.overall, showAllLevels = TRUE, missing = FALSE)
+
+table1.byFU2 <- CreateTableOne(vars=myVars, 
+                                   data=df_allwaves, 
+                                   factorVars = catVars,
+                                   strata="FU2")
+
+print(table1.byFU2, showAllLevels = TRUE, test=TRUE, missing = FALSE)
+
+#check column percentages of bivariates. this is because prop.table will show missing percentages whereas tableone package doesn't include the missing data when calculating column percents.
+#table(df_allwaves$X, df_allwaves$FU2, useNA = "ifany")
+#round(prop.table(table(df_allwaves$X, df_allwaves$FU2, useNA = "ifany"),2),3)
+```
+
+
+
+
+
