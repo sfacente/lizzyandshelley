@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "1/11/2021"
+date: "2/23/2021"
 output: pdf_document
 ---
 
@@ -503,6 +503,76 @@ table(df$WOD6M, useNA = "ifany")
 
 #personal overdose history (Overdosed in the last 6 months)
 table(df$ODP6M, useNA = "ifany")
+```
+
+REVISE AND RESUBMIT: Treatment (potentially creating a variable, can add to existing section above if we are going to include it in analyses.)
+```{r}
+#####PAST 6 MONTHS TREATMENT#####
+
+#TX6MOS: Any alcohol or drug treatment in the last 6 months
+table(df$TX6MOS, useNA = "ifany")
+
+#Methadone detoxification in the last 6 moths.
+table(df$DRGTXA, useNA = "ifany")
+
+#Methadone maintenance in the last 6 moths.
+table(df$DRGTXB, useNA = "ifany")
+
+#Buprenorphine in the last 6 moths.
+table(df$DRGTXC, useNA = "ifany")
+
+#DRGTXD: Outpatient treatment in the last 6 moths
+table(df$DRGTXD, useNA = "ifany")
+
+#DRGTXE: Inpatient hospital treatment in the last 6 moths
+table(df$DRGTXE, useNA = "ifany")
+
+#DRGTXF: Residential treatment in the last 6 moths
+table(df$DRGTXF, useNA = "ifany")
+
+
+######CURRENT TREATMENT#####
+
+#TXNOW:Currently in drug treatment
+table(df$TXNOW, useNA = "ifany")
+
+#CURTX: Current treatment enrollment
+table(df$CURTX, useNA = "ifany")
+
+#CURTXA: Current Methadone detoxification
+table(df$CURTXA, useNA = "ifany")
+
+#CURTXB: Current Methadone Maintenance
+table(df$CURTXB, useNA = "ifany")
+
+#CURTXC: Current Buprenorphine
+table(df$CURTXC, useNA = "ifany")
+
+#CURTXD: Current Outpatient treatment
+table(df$CURTXD, useNA = "ifany")
+
+#CURTXE: Current Inpatient hospital treatnt
+table(df$CURTXE, useNA = "ifany")
+
+#CURTXF: Current Residential treatment
+table(df$CURTXF, useNA = "ifany")
+```
+
+REVISE AND RESUBMIT: Were there statistically significant differences in proportions at each step in the engagement cascades stratified by city and race/ethnicity?  Re-run these since answers seem kind of weird.
+```{r}
+#differences by city
+chisq.test(table(df$LOCALID, df$NALEVER))
+chisq.test(table(df$LOCALID, df$NAL6MOS.new))
+chisq.test(table(df$LOCALID, df$NALOWN))
+chisq.test(table(df$LOCALID, df$NALUSEandorLOSE))
+chisq.test(table(df$LOCALID, df$NALFILL))
+
+#differences by race/ethnicity
+chisq.test(table(df$RACE_cat, df$NALEVER))
+chisq.test(table(df$RACE_cat, df$NAL6MOS.new))
+chisq.test(table(df$RACE_cat, df$NALOWN))
+chisq.test(table(df$RACE_cat, df$NALUSEandorLOSE))
+chisq.test(table(df$RACE_cat, df$NALFILL))
 ```
 
 Bar charts using counts for the cascade, whole sample (N=536).
