@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "2/23/2021"
+date: "2/24/2021"
 output: pdf_document
 ---
 
@@ -512,14 +512,20 @@ REVISE AND RESUBMIT: Treatment (potentially creating a variable, can add to exis
 #TX6MOS: Any alcohol or drug treatment in the last 6 months
 table(df$TX6MOS, useNA = "ifany")
 
-#Methadone detoxification in the last 6 moths.
+#DRGTXA: Methadone detoxification in the last 6 moths.
 table(df$DRGTXA, useNA = "ifany")
+#DETOX: Methadone detox in the last 6 months with missings as nos
+table(df$DETOX, useNA = "ifany")
 
-#Methadone maintenance in the last 6 moths.
+#DRGTXB: Methadone maintenance in the last 6 moths.
 table(df$DRGTXB, useNA = "ifany")
+#MAINTN: Methadone maintenance in the last 6 months with missings as nos
+table(df$MAINTN, useNA = "ifany")
 
-#Buprenorphine in the last 6 moths.
+#DRGTXC: Buprenorphine in the last 6 moths.
 table(df$DRGTXC, useNA = "ifany")
+#BUPETX: Buprenorphine treatment in the last 6 months recoded
+table(df$BUPETX, useNA = "ifany")
 
 #DRGTXD: Outpatient treatment in the last 6 moths
 table(df$DRGTXD, useNA = "ifany")
@@ -530,32 +536,34 @@ table(df$DRGTXE, useNA = "ifany")
 #DRGTXF: Residential treatment in the last 6 moths
 table(df$DRGTXF, useNA = "ifany")
 
+#Any OAT in the past six months
+df$OAT6month <- ifelse(df$DETOX=="Yes" | df$MAINTN=="Yes" | df$BUPETX=="Yes", 1, 0)
+table(df$OAT6month, useNA = "ifany")
+
 
 ######CURRENT TREATMENT#####
+#PROBABLY ADDING PAST 6 MONTHS TREATMENT BUT LOOK AT THESE VARIABLES IF WE DECIDE TO ADD CURRENT TREATMENT ENROLLMENT INSTEAD#
 
 #TXNOW:Currently in drug treatment
-table(df$TXNOW, useNA = "ifany")
-
-#CURTX: Current treatment enrollment
-table(df$CURTX, useNA = "ifany")
+#table(df$TXNOW, useNA = "ifany")
 
 #CURTXA: Current Methadone detoxification
-table(df$CURTXA, useNA = "ifany")
+#table(df$CURTXA, useNA = "ifany")
 
 #CURTXB: Current Methadone Maintenance
-table(df$CURTXB, useNA = "ifany")
+#table(df$CURTXB, useNA = "ifany")
 
 #CURTXC: Current Buprenorphine
-table(df$CURTXC, useNA = "ifany")
+#table(df$CURTXC, useNA = "ifany")
 
 #CURTXD: Current Outpatient treatment
-table(df$CURTXD, useNA = "ifany")
+#table(df$CURTXD, useNA = "ifany")
 
 #CURTXE: Current Inpatient hospital treatnt
-table(df$CURTXE, useNA = "ifany")
+#table(df$CURTXE, useNA = "ifany")
 
 #CURTXF: Current Residential treatment
-table(df$CURTXF, useNA = "ifany")
+#table(df$CURTXF, useNA = "ifany")
 ```
 
 REVISE AND RESUBMIT: Were there statistically significant differences in proportions at each step in the engagement cascades stratified by city and race/ethnicity?  Re-run these since answers seem kind of weird.
@@ -573,6 +581,12 @@ chisq.test(table(df$RACE_cat, df$NAL6MOS.new))
 chisq.test(table(df$RACE_cat, df$NALOWN))
 chisq.test(table(df$RACE_cat, df$NALUSEandorLOSE))
 chisq.test(table(df$RACE_cat, df$NALFILL))
+
+#row percents
+#round(prop.table(table(df$X, df$Y, useNA = "ifany"),1),3)
+
+#column percents
+#round(prop.table(table(df$X, df$Y, useNA = "ifany"),2),3)
 ```
 
 Bar charts using counts for the cascade, whole sample (N=536).
@@ -1134,6 +1148,7 @@ NOTE: NAL6MOS.new: All bivariate models converge using log-binomial model, but m
 #glm(NAL6MOS.new ~ factor(OPIOID.freq), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(WOD6M), data=df, family=binomial(log))
 #glm(NAL6MOS.new ~ factor(ODP6M), data=df, family=binomial(log))
+#glm(NAL6MOS.new ~ factor(OAT6month), data=df, family=binomial(log))
 
 #glm(NAL6MOS.new ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df, family=binomial(log))
 ```
@@ -1291,6 +1306,21 @@ exp(coef(ODP6Mbynal6mos.modpoiss))
        #rounded to two decimal places
   round(ODP6Mbynal6mos.modpoiss.RR.expci.adj, 2) 
   
+  
+ #OAT6month
+OAT6monthbynal6mos.modpoiss <- geeglm(formula=NAL6MOS.new ~ factor(OAT6month), data=df.modpoiss, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(OAT6monthbynal6mos.modpoiss)
+exp(coef(OAT6monthbynal6mos.modpoiss))
+  
+#95% CI for OAT6month
+  OAT6monthbynal6mos.modpoiss.RR.coefci.adj <- cbind(OAT6monthbynal6mos.modpoiss$coefficients, confint.default(OAT6monthbynal6mos.modpoiss))
+  OAT6monthbynal6mos.modpoiss.RR.expci.adj <- exp(OAT6monthbynal6mos.modpoiss.RR.coefci.adj)
+  OAT6monthbynal6mos.modpoiss.RR.expci.adj
+
+       #rounded to two decimal places
+  round(OAT6monthbynal6mos.modpoiss.RR.expci.adj, 2) 
+  
+    
 ####DIFFERENT APPROACHES FOR MULTIVARIATE MODELS
 
 ####FULL MULTIVARIATE MODIFIED POISSON MODEL WITH EVERY COVARIATE INCLUDED
@@ -1361,7 +1391,7 @@ NALOWN: Bivariate and multivariate models for currently owning naloxone among th
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N= 259)
-df.modpoiss.nalown <- subset(df_nal6mos, select=c(SUBJECT, NALOWN, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M))
+df.modpoiss.nalown <- subset(df_nal6mos, select=c(SUBJECT, NALOWN, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M, OAT6month))
 df.modpoiss.nalown <- na.omit(df.modpoiss.nalown)
 
 #recode NALOWN as binary numeric since factor isn't working
@@ -1509,6 +1539,21 @@ ODP6Mbynalown.modpoiss.RR.expci.adj
 
 #rounded to two decimal places
   round(ODP6Mbynalown.modpoiss.RR.expci.adj, 2) 
+  
+  
+#OAT6month
+OAT6monthbynalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(OAT6month), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+summary(OAT6monthbynalown.modpoiss)
+exp(coef(OAT6monthbynalown.modpoiss))
+
+#95% CI for OAT6month
+OAT6monthbynalown.modpoiss.RR.coefci.adj <- cbind(OAT6monthbynalown.modpoiss$coefficients, confint.default(OAT6monthbynalown.modpoiss))
+OAT6monthbynalown.modpoiss.RR.expci.adj <- exp(OAT6monthbynalown.modpoiss.RR.coefci.adj)
+OAT6monthbynalown.modpoiss.RR.expci.adj
+
+#rounded to two decimal places
+  round(OAT6monthbynalown.modpoiss.RR.expci.adj, 2) 
+
   
 ##############################################################
 #########MULTIVARIATE MODELS USING DIFFERENT APPROACHES#######
