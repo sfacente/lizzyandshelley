@@ -1,7 +1,7 @@
 ---
 title: "Naloxone12moCTC"
 author: "Elizabeth Kinnard"
-date: "2/24/2021"
+date: "2/25/2021"
 output: pdf_document
 ---
 
@@ -1160,7 +1160,7 @@ NAL6MOS.new: Bivariate and multivariate models for receiving naloxone in the las
 require(geepack)
 
 #subset the data with complete observations because geepack is picky (N=527)
-df.modpoiss <- subset(df, select=c(SUBJECT, NAL6MOS.new, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M))
+df.modpoiss <- subset(df, select=c(SUBJECT, NAL6MOS.new, LOCALID, GENDER, agecat, RACE_cat, ED, HOMELESS, JAIL, STIM.freq, OPIOID.freq, WOD6M, ODP6M, OAT6month))
 df.modpoiss <- na.omit(df.modpoiss)
 
 #CITY 
