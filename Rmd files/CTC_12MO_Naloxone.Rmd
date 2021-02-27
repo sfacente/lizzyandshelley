@@ -541,8 +541,6 @@ table(df$ODP6M, useNA = "ifany")
 
 
 
-
-
 Bar charts using counts for the cascade, whole sample (N=536).
 ```{r}
 #NALEVER: Ever received naloxone 
@@ -1539,7 +1537,7 @@ ODP6Mbynalown.modpoiss.RR.expci.adj
 #########MULTIVARIATE MODELS USING DIFFERENT APPROACHES#######
 ##############################################################
 #full multivariate model using every covariate regardless of significance
-fitnalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
+fitnalown.modpoiss <- geeglm(formula=NALOWN.binary ~ factor(LOCALID) + factor(GENDER) + factor(agecat) + factor(RACE_cat) + factor(ED) + factor(HOMELESS) + factor(JAIL) + factor(STIM.freq) + factor(OPIOID.freq) + factor(OAT6month) + factor(WOD6M) + factor(ODP6M), data=df.modpoiss.nalown, id=SUBJECT, family=poisson(link="log"), corstr = "exchangeable")
 summary(fitnalown.modpoiss)
 exp(coef(fitnalown.modpoiss))
 
