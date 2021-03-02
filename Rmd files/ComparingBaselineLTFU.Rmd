@@ -1,7 +1,7 @@
 ---
 title: "ComparingBaselineLTFU"
 author: "Elizabeth Kinnard"
-date: "1/11/2021"
+date: "3/2/2021"
 output: pdf_document
 ---
 
@@ -60,7 +60,7 @@ table(df_allwaves$FU1, useNA = "ifany")
 table(df_allwaves$FU2, useNA = "ifany")
 ```
 
-Create variables to compare those who would eventually show up to 12-month visit (FU2) to those who would not.
+Create variables to compare those who would eventually show up to 12-month visit (FU2) to those who would not (the comparison itself is at baseline visit).
 ```{r}
 #city
 table(df_allwaves$LOCALID, useNA = "ifany")
@@ -279,6 +279,10 @@ df_allwaves$ANYOPIOIDUSE <- ifelse(df_allwaves$SBINJ=="Yes" | df_allwaves$GBINJ=
 df_allwaves$ANYOPIOIDUSE <- as.factor(df_allwaves$ANYOPIOIDUSE)
 table(df_allwaves$ANYOPIOIDUSE, useNA = "ifany")
 
+#Any OAT in the past six months (IF METHADONE DETOX = YES OR METHADONE MAINTENANCE = YES OR BUP = YES)
+df_allwaves$OAT6month <- ifelse(df_allwaves$DETOX=="Yes" | df_allwaves$MAINTN=="Yes" | df_allwaves$BUPETX=="Yes", 1, 0)
+table(df_allwaves$OAT6month, useNA = "ifany")
+
 
 #overdose witnessed (witnessed an overdose in the last 6 months)
 table(df_allwaves$WOD6M, useNA = "ifany")
@@ -287,13 +291,13 @@ table(df_allwaves$WOD6M, useNA = "ifany")
 table(df_allwaves$ODP6M, useNA = "ifany")
 ```
 
-Create a table to compare those who would eventually show up to 12-month visit (FU2) to those who would not. 
+Create a table to compare those who would eventually show up to 12-month visit (FU2 = 1) to those who would not (FU2 = 0).
 ```{r}
 # Identify the variables of interest
-myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
+myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "OAT6month", "WOD6M", "ODP6M") 
 
 # Specify which of the variables are categorical
-catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "WOD6M", "ODP6M") 
+catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq","OAT6month", "WOD6M", "ODP6M") 
 
 # Create an overall table 1
 #REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
