@@ -283,21 +283,25 @@ table(df_allwaves$ANYOPIOIDUSE, useNA = "ifany")
 df_allwaves$OAT6month <- ifelse(df_allwaves$DETOX=="Yes" | df_allwaves$MAINTN=="Yes" | df_allwaves$BUPETX=="Yes", 1, 0)
 table(df_allwaves$OAT6month, useNA = "ifany")
 
-
 #overdose witnessed (witnessed an overdose in the last 6 months)
 table(df_allwaves$WOD6M, useNA = "ifany")
 
 #personal overdose history (Overdosed in the last 6 months)
 table(df_allwaves$ODP6M, useNA = "ifany")
+
+#syringe access variables
+###WE NEED TO CODE THESE SYRINGE ACCESS VARIABLES BETTER. RIGHT NOW SOURCE OF SYRINGES HAS TOO MANY CATEGORIES AND NUMBER OF NEEDLES HAS WAY TOO MANY INTEGERS. 
+table(df_allwaves$NDLSRCF, useNA = "ifany")
+table(df_allwaves$NMNDLES, useNA = "ifany")
 ```
 
 Create a table to compare those who would eventually show up to 12-month visit (FU2 = 1) to those who would not (FU2 = 0).
 ```{r}
 # Identify the variables of interest
-myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "OAT6month", "WOD6M", "ODP6M") 
+myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "OAT6month", "WOD6M", "ODP6M", "NDLSRCF", "NMNDLES") 
 
 # Specify which of the variables are categorical
-catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq","OAT6month", "WOD6M", "ODP6M") 
+catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq","OAT6month", "WOD6M", "ODP6M", "NDLSRCF") 
 
 # Create an overall table 1
 #REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
