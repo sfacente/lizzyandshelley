@@ -304,8 +304,11 @@ table(df_allwaves$needleexchange, useNA = "ifany")
 #Number of new needles obtained for your own use in the last 30 days
 table(df_allwaves$NMNDLES, useNA = "ifany")
 
-df_allwaves$NMNDLES <- as.integer(df_allwaves$NMNDLES)
+#need to do this so I don't lose the zero values of NMNDLES
+df_allwaves$NMNDLES.test1 <- as.character.factor(df_allwaves$NMNDLES)
+df_allwaves$NMNDLES.test1 <- as.numeric(df_allwaves$NMNDLES.test1)
 
+#converting NMNDLES to categorical variable so I can compare categories
 df_allwaves$NMNDLES.freq <- ifelse(df_allwaves$NMNDLES==0, 0, ifelse(df_allwaves$NMNDLES>0 & df_allwaves$NMNDLES<100, 1, ifelse(df_allwaves$NMNDLES>=100 & df_allwaves$NMNDLES <200, 2, ifelse(df_allwaves$NMNDLES>=200 & df_allwaves$NMNDLES <300, 3, ifelse(df_allwaves$NMNDLES>=300 & df_allwaves$NMNDLES<400, 4, ifelse(df_allwaves$NMNDLES>=400 & df_allwaves$NMNDLES<500, 5, ifelse(df_allwaves$NMNDLES>=500 & df_allwaves$NMNDLES<600, 6, 7)))))))
     
     
