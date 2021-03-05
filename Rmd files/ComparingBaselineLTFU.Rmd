@@ -1,7 +1,7 @@
 ---
 title: "ComparingBaselineLTFU"
 author: "Elizabeth Kinnard"
-date: "3/2/2021"
+date: "3/5/2021"
 output: pdf_document
 ---
 
@@ -289,19 +289,36 @@ table(df_allwaves$WOD6M, useNA = "ifany")
 #personal overdose history (Overdosed in the last 6 months)
 table(df_allwaves$ODP6M, useNA = "ifany")
 
-#syringe access variables
-###WE NEED TO CODE THESE SYRINGE ACCESS VARIABLES BETTER. RIGHT NOW SOURCE OF SYRINGES HAS TOO MANY CATEGORIES AND NUMBER OF NEEDLES HAS WAY TOO MANY INTEGERS. 
-table(df_allwaves$NDLSRCF, useNA = "ifany")
+#####syringe access variables
+
+#Most Frequent Needle Source Last 6 Mos.
+table(df_allwaves$NDLSRCF, useNA = "ifany") #this has too many categories
+
+#RECODING Most Frequent Needle Source Last 6 Mos (combine all other categories except needle exchange program into one)
+df_allwaves$needleexchange <- df_allwaves$NDLSRCF %>% fct_collapse("Other" = c("Needle distribution program or outreach worker","From someone who goes to the needle exchange", "Bought from a pharmacy", "Bought or got from an unauthorized sources (street, a friend)", "My own prescription for syringes", "Shooting gallery or drug dealer", "Other"))
+
+#Most Frequent Needle Source Last 6 Mos (RECODED Needle exchange program vs other)
+table(df_allwaves$needleexchange, useNA = "ifany")
+
+#######IF WE NEED ANOTHER NEEDLE EXCHANGE VARIABLE FOR THE R&R#####
+#Number of new needles obtained for your own use in the last 30 days
 table(df_allwaves$NMNDLES, useNA = "ifany")
+
+df_allwaves$NMNDLES <- as.integer(df_allwaves$NMNDLES)
+
+df_allwaves$NMNDLES.freq <- ifelse(df_allwaves$NMNDLES==0, 0, ifelse(df_allwaves$NMNDLES>0 & df_allwaves$NMNDLES<100, 1, ifelse(df_allwaves$NMNDLES>=100 & df_allwaves$NMNDLES <200, 2, ifelse(df_allwaves$NMNDLES>=200 & df_allwaves$NMNDLES <300, 3, ifelse(df_allwaves$NMNDLES>=300 & df_allwaves$NMNDLES<400, 4, ifelse(df_allwaves$NMNDLES>=400 & df_allwaves$NMNDLES<500, 5, ifelse(df_allwaves$NMNDLES>=500 & df_allwaves$NMNDLES<600, 6, 7)))))))
+    
+    
+table(df_allwaves$NMNDLES.freq, useNA = "ifany")
 ```
 
 Create a table to compare those who would eventually show up to 12-month visit (FU2 = 1) to those who would not (FU2 = 0).
 ```{r}
 # Identify the variables of interest
-myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "OAT6month", "WOD6M", "ODP6M", "NDLSRCF", "NMNDLES") 
+myVars <- c("LOCALID", "GENDER","agecat","RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq", "OAT6month", "WOD6M", "ODP6M", "needleexchange") 
 
 # Specify which of the variables are categorical
-catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq","OAT6month", "WOD6M", "ODP6M", "NDLSRCF") 
+catVars <- c("LOCALID", "GENDER", "agecat", "RACE_cat", "ED","HOMELESS", "STIM.freq", "OPIOID.freq","OAT6month", "WOD6M", "ODP6M", "needleexchange") 
 
 # Create an overall table 1
 #REMINDER THAT TABLE1 PACKAGE DOES WEIRD STUFF WITH MISSING, SO CHECK N (PERCENTAGE) WITH CROSSTABS 
